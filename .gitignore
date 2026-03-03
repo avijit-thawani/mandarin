@@ -36,3 +36,6 @@ content/hsk1/hsk1.txt
 content/hsk1/hsk1_structure_analysis.txt
 content/hsk1/hsk1_structure_analysis.txt
 *.pdf
+
+# Analysis data (may contain user quiz attempts)
+analysis/*.json
