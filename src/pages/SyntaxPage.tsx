@@ -19,6 +19,14 @@ interface SyntaxPageProps {
   onShowHelp?: () => void;
 }
 
+function getEnglishTiles(sentence: string): string[] {
+  return sentence
+    .replace(/[?.!,]/g, '')
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word.toLowerCase());
+}
+
 export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps) {
   const settings = settingsStore.settings;
   
@@ -67,7 +75,7 @@ export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps
         setAvailableTiles(shuffleArray([...tiles]));
       } else {
         // Chinese→English: shuffle English words
-        const englishWords = newExercise.english.replace(/[?.!,]/g, '').split(' ');
+        const englishWords = getEnglishTiles(newExercise.english);
         setAvailableTiles(shuffleArray([...englishWords]));
       }
       
@@ -122,7 +130,7 @@ export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps
         ? exercise.pinyinWords
         : exercise.chineseWords;
     } else {
-      correctOrder = exercise.english.replace(/[?.!,]/g, '').split(' ');
+      correctOrder = getEnglishTiles(exercise.english);
     }
     
     const correct = JSON.stringify(userOrder) === JSON.stringify(correctOrder);
@@ -249,7 +257,7 @@ export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps
   // Determine correct answer for display
   const correctAnswer = isEnglishToChinesedir
     ? (exercise.chineseModality === 'pinyin' ? exercise.pinyinWords : exercise.chineseWords)
-    : exercise.english.replace(/[?.!,]/g, '').split(' ');
+    : getEnglishTiles(exercise.english);
   
   return (
     <div className="h-full bg-gradient-to-b from-base-100 to-base-200 flex flex-col overflow-hidden">
