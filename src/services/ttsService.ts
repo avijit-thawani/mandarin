@@ -201,9 +201,70 @@ function getNativeVoice(voiceId: string): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === voiceId) || null;
 }
 
-// Speak text with Chinese TTS
+// Generous timeout so we catch browsers that silently swallow speech requests
+const SPEAK_TIMEOUT_MS = 10_000;
+
+// Internal: perform one TTS attempt with a safety timeout
+async function speakOnce(
+  text: string,
+  options: TTSOptions,
+  chineseVoices: TTSVoice[],
+): Promise<void> {
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  let selectedVoice: SpeechSynthesisVoice | null = null;
+
+  if (options.voiceId) {
+    selectedVoice = getNativeVoice(options.voiceId);
+  }
+
+  if (!selectedVoice && chineseVoices.length > 0) {
+    selectedVoice = getNativeVoice(chineseVoices[0].id);
+  }
+
+  if (selectedVoice) {
+    utterance.voice = selectedVoice;
+  }
+
+  utterance.rate = options.rate ?? 0.9;
+  utterance.pitch = options.pitch ?? 1.0;
+  utterance.volume = options.volume ?? 1.0;
+  utterance.lang = 'zh-CN';
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        window.speechSynthesis.cancel();
+        reject(new Error('TTS timed out — browser may not support this voice'));
+      }
+    }, SPEAK_TIMEOUT_MS);
+
+    utterance.onend = () => {
+      if (!settled) { settled = true; clearTimeout(timer); resolve(); }
+    };
+    utterance.onerror = (event) => {
+      if (!settled) {
+        settled = true;
+        clearTimeout(timer);
+        if (event.error === 'canceled') { resolve(); }
+        else { reject(new Error(`TTS error: ${event.error}`)); }
+      }
+    };
+
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+// Speak text with Chinese TTS.
+// If the user-configured voice isn't available on this browser, proactively
+// resets to auto-select.  On any playback failure, resets and retries once
+// with the auto-selected voice so the user still hears something.
 export async function speak(
-  text: string, 
+  text: string,
   options: TTSOptions = {}
 ): Promise<void> {
   if (!isTTSSupported()) {
@@ -211,49 +272,29 @@ export async function speak(
     return;
   }
 
-  // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  
-  // Ensure voices are loaded first
   const chineseVoices = await getChineseVoices();
-  
-  // Set voice - try specified voice first, fall back to best Chinese voice
-  let selectedVoice: SpeechSynthesisVoice | null = null;
-  
-  if (options.voiceId) {
-    selectedVoice = getNativeVoice(options.voiceId);
-  }
-  
-  // Fall back to first Chinese voice if specified voice not found
-  if (!selectedVoice && chineseVoices.length > 0) {
-    selectedVoice = getNativeVoice(chineseVoices[0].id);
-  }
-  
-  if (selectedVoice) {
-    utterance.voice = selectedVoice;
+
+  // Proactive check: if the stored voice doesn't exist in this browser, reset
+  // immediately so we don't even attempt a doomed playback.
+  let effectiveOptions = options;
+  if (options.voiceId && !getNativeVoice(options.voiceId)) {
+    console.warn('[TTS] Configured voice', options.voiceId, 'not found in this browser — resetting to auto');
+    resetVoiceForCurrentBrowser();
+    effectiveOptions = { ...options, voiceId: undefined };
   }
 
-  // Apply options
-  utterance.rate = options.rate ?? 0.9;  // Slightly slower for learning
-  utterance.pitch = options.pitch ?? 1.0;
-  utterance.volume = options.volume ?? 1.0;
-  utterance.lang = 'zh-CN';  // Ensure Chinese interpretation
+  try {
+    await speakOnce(text, effectiveOptions, chineseVoices);
+  } catch (firstError) {
+    if (!effectiveOptions.voiceId) {
+      throw firstError;
+    }
 
-  return new Promise((resolve, reject) => {
-    utterance.onend = () => resolve();
-    utterance.onerror = (event) => {
-      // Ignore 'canceled' errors (happens when we call cancel())
-      if (event.error === 'canceled') {
-        resolve();
-      } else {
-        reject(new Error(`TTS error: ${event.error}`));
-      }
-    };
-    
-    window.speechSynthesis.speak(utterance);
-  });
+    console.warn('[TTS] Playback failed with voice', effectiveOptions.voiceId, '— resetting to auto and retrying');
+    resetVoiceForCurrentBrowser();
+
+    await speakOnce(text, { ...effectiveOptions, voiceId: undefined }, chineseVoices);
+  }
 }
 
 // Stop any ongoing speech
@@ -296,6 +337,27 @@ export async function getDefaultVoice(): Promise<TTSVoice | null> {
   });
 
   return sorted[0];
+}
+
+// Reset voice preference for current browser to auto-select (empty string).
+// Called automatically when TTS fails, so the next attempt uses the browser's best voice.
+export function resetVoiceForCurrentBrowser(): void {
+  try {
+    const stored = localStorage.getItem('langseed_settings');
+    if (!stored) return;
+    
+    const settings = JSON.parse(stored);
+    const browser = detectBrowser();
+    
+    if (settings.audio?.voicesByBrowser?.[browser]) {
+      const oldVoice = settings.audio.voicesByBrowser[browser];
+      settings.audio.voicesByBrowser[browser] = '';
+      localStorage.setItem('langseed_settings', JSON.stringify(settings));
+      console.warn(`[TTS] Voice "${oldVoice}" failed on ${browser} — reset to auto-select. Reload to pick up the change in UI.`);
+    }
+  } catch (e) {
+    console.error('[TTS] Failed to reset voice setting:', e);
+  }
 }
 
 // Export a hook-friendly version for React components
