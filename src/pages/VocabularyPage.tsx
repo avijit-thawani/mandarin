@@ -83,9 +83,10 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
   // Auto-import HSK1 if no vocab exists
   useEffect(() => {
     if (store.concepts.length === 0 && store.hsk1Vocab.length > 0) {
-      store.importHSK1();
+      // Default bootstrap: chapter 1 known, other chapters visible but unknown.
+      store.importChapters(1, 1, true);
     }
-  }, [store.concepts.length, store.hsk1Vocab.length, store.importHSK1]);
+  }, [store.concepts.length, store.hsk1Vocab.length, store.importChapters]);
   
   // Async refresh on mount (shows cached data immediately, syncs in background)
   // Only refresh if there are no local unsaved changes to avoid overwriting quiz results
@@ -111,6 +112,19 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
     return [...new Set(store.concepts.map(c => c.chapter))]
       .filter(ch => ch > 0)
       .sort((a, b) => a - b);
+  }, [store.concepts]);
+
+  // Per-chapter known/total stats for the chapter strip
+  const chapterStats = useMemo(() => {
+    const stats = new Map<number, { total: number; known: number }>();
+    store.concepts.forEach(c => {
+      if (c.chapter <= 0) return;
+      const existing = stats.get(c.chapter) || { total: 0, known: 0 };
+      existing.total++;
+      if (!c.paused) existing.known++;
+      stats.set(c.chapter, existing);
+    });
+    return stats;
   }, [store.concepts]);
   
   // Filter and sort concepts
@@ -206,6 +220,13 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
     const newValue = !includePhrases;
     setIncludePhrases(newValue);
     saveVocabPreferences({ includePhrases: newValue });
+  };
+
+  const handleToggleChapter = (chapter: number) => {
+    const stat = chapterStats.get(chapter);
+    if (!stat) return;
+    const allKnown = stat.known === stat.total;
+    store.setChapterPaused(chapter, allKnown);
   };
   
   const SortIcon = ({ field }: { field: SortField }) => {
@@ -402,6 +423,41 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
             {filteredConcepts.length} words
           </span>
         </div>
+
+        {/* Chapter Quick Toggle Strip */}
+        {chapters.length > 0 && (
+          <div className="flex items-center gap-1 flex-wrap mt-2">
+            <span className="text-[10px] uppercase tracking-wider text-base-content/30 font-semibold mr-0.5 shrink-0">Ch</span>
+            {chapters.map(ch => {
+              const stat = chapterStats.get(ch);
+              const total = stat?.total ?? 0;
+              const known = stat?.known ?? 0;
+              const allKnown = total > 0 && known === total;
+              const partial = known > 0 && known < total;
+              const pct = total > 0 ? Math.round((known / total) * 100) : 0;
+
+              return (
+                <button
+                  key={ch}
+                  className={`inline-flex flex-col items-center justify-center min-w-[2rem] h-8 px-1 rounded-md text-xs font-semibold transition-all ${
+                    allKnown
+                      ? 'bg-success text-success-content shadow-sm'
+                      : partial
+                        ? 'ring-1 ring-warning/50 bg-warning/10 text-base-content'
+                        : 'bg-base-200/80 text-base-content/35 hover:bg-base-300'
+                  }`}
+                  onClick={() => handleToggleChapter(ch)}
+                  title={`Ch ${ch}: ${known}/${total} known – click to ${allKnown ? 'unmark' : 'mark'} all`}
+                >
+                  <span className="leading-none">{ch}</span>
+                  {partial && (
+                    <span className="text-[8px] font-normal leading-none text-base-content/40 mt-0.5">{pct}%</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </header>
       
       {/* Table */}

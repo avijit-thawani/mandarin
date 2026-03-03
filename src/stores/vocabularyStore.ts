@@ -100,6 +100,7 @@ export interface VocabularyStore {
   importChapters: (fromChapter: number, toChapter: number, startStudying?: boolean) => void;
   removeChapters: (fromChapter: number, toChapter: number) => void;
   togglePaused: (conceptId: string) => void;
+  setChapterPaused: (chapter: number, paused: boolean) => void;
   getConceptById: (id: string) => Concept | undefined;
   getConceptByWord: (word: string) => Concept | undefined;
   
@@ -280,21 +281,35 @@ export function useVocabularyStore(): VocabularyStore {
   const importChapters = useCallback((fromChapter: number, toChapter: number, startStudying = false) => {
     const vocab = hsk1Data as VocabWord[];
     const newConcepts: Concept[] = [];
+    const isInitialChapterOneSeed = concepts.length === 0 && fromChapter === 1 && toChapter === 1;
     
     vocab.forEach(word => {
-      if (word.chapter >= fromChapter && word.chapter <= toChapter && !addedWords.has(word.word)) {
+      if (addedWords.has(word.word)) return;
+
+      // Bootstrap behavior for first-time users:
+      // - Chapter 1 starts as known (checked)
+      // - Other chapters stay unknown (unchecked) but visible in Vocabulary
+      const shouldInclude = isInitialChapterOneSeed
+        ? true
+        : word.chapter >= fromChapter && word.chapter <= toChapter;
+
+      if (shouldInclude) {
+        const shouldStartStudying = isInitialChapterOneSeed
+          ? startStudying && word.chapter === 1
+          : startStudying;
+
         newConcepts.push({
           ...word,
           id: generateId(),
           modality: createInitialModality(word.chapter),
           knowledge: 50,
-          paused: !startStudying,  // If startStudying is true, words are NOT paused
+          paused: !shouldStartStudying,  // If studying, keep checked; otherwise unchecked
         });
       }
     });
     
     setConcepts(prev => [...prev, ...newConcepts]);
-  }, [addedWords]);
+  }, [addedWords, concepts.length]);
 
   const removeChapters = useCallback((fromChapter: number, toChapter: number) => {
     setConcepts(prev => prev.filter(c => c.chapter < fromChapter || c.chapter > toChapter));
@@ -325,7 +340,14 @@ export function useVocabularyStore(): VocabularyStore {
       if (c.id !== conceptId) return c;
       return { ...c, paused: !c.paused };
     }));
-    // Mark for cloud sync when toggling known/unknown status
+    markPendingSync();
+  }, [markPendingSync]);
+
+  const setChapterPaused = useCallback((chapter: number, paused: boolean) => {
+    setConcepts(prev => prev.map(c => {
+      if (c.chapter !== chapter || c.paused === paused) return c;
+      return { ...c, paused };
+    }));
     markPendingSync();
   }, [markPendingSync]);
 
@@ -586,6 +608,7 @@ export function useVocabularyStore(): VocabularyStore {
     importChapters,
     removeChapters,
     togglePaused,
+    setChapterPaused,
     getConceptById,
     getConceptByWord,
     // Quiz actions

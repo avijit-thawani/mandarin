@@ -160,8 +160,8 @@ export function useAuth() {
   }, []);
 
   const signOut = useCallback(async () => {
-    // If guest mode, just clear it
-    if (state.isGuest) {
+    // In guest mode or local-only mode (Supabase not configured), clear local auth state.
+    if (state.isGuest || !isSupabaseConfigured()) {
       localStorage.removeItem(GUEST_MODE_KEY);
       setState({
         user: null,
@@ -174,23 +174,29 @@ export function useAuth() {
     }
     
     setState(prev => ({ ...prev, loading: true }));
-    
-    const { error } = await supabase.auth.signOut();
-    
-    if (error) {
-      setState(prev => ({ ...prev, error: error.message, loading: false }));
-      return { success: false, error: error.message };
-    }
 
-    setState({
-      user: null,
-      session: null,
-      loading: false,
-      error: null,
-      isGuest: false,
-    });
-    
-    return { success: true, error: null };
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        setState(prev => ({ ...prev, error: error.message, loading: false }));
+        return { success: false, error: error.message };
+      }
+
+      setState({
+        user: null,
+        session: null,
+        loading: false,
+        error: null,
+        isGuest: false,
+      });
+      
+      return { success: true, error: null };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to sign out';
+      setState(prev => ({ ...prev, error: errorMsg, loading: false }));
+      return { success: false, error: errorMsg };
+    }
   }, [state.isGuest]);
 
   const clearError = useCallback(() => {

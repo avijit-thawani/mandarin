@@ -8,10 +8,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase credentials not found. Cloud sync will be disabled.');
 }
 
+// Use a harmless placeholder client when env vars are missing so guest mode can still render.
+// All cloud paths should also guard with isSupabaseConfigured().
+const clientUrl = supabaseUrl || 'https://placeholder.invalid';
+const clientAnonKey = supabaseAnonKey || 'placeholder-anon-key';
+
 // Using untyped client for flexibility - types are enforced at the service level
 export const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
+  clientUrl,
+  clientAnonKey
 );
 
 export const isSupabaseConfigured = () => {
