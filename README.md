@@ -46,6 +46,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `Vocabulary`: import/browse words, toggle known/unknown.
 - `Study`: passive flashcards (self-paced).
 - `Quiz`: active MCQ + scoring + attempt logging.
+- `Pinyin`: pronunciation practice with listen-and-pick quiz and speak-and-check self-evaluation.
 - `Syntax`: sentence construction practice.
 - `Profile`: progress charts + settings.
 
@@ -55,6 +56,8 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
 - `src/pages/QuizPage.tsx`: question lifecycle, correctness UI, logging controls.
+- `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
+- `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/SyntaxPage.tsx`: sentence construction and grammar practice.
 - `src/pages/ProfilePage.tsx`: dashboard/settings entry.
 - `src/pages/SettingsPage.tsx`: user preferences.
@@ -201,6 +204,18 @@ Weight meaning: `0` skip, `1` low, `2` medium, `3` high.
 
 ---
 
+## Pinyin Tab Behavior
+
+Purpose: pronunciation practice using vocab-based exercises.
+
+Two modes:
+- **Listen**: audio quiz — plays a random vocab word's audio, user picks the matching pinyin from 6 options.
+- **Speak**: self-evaluation — shows pinyin of a random vocab word, user speaks aloud, then taps Play to hear the correct pronunciation and self-rates (Got It / Try Again).
+
+Both modes use the user's known vocabulary words for TTS (same pool as Quiz/Study).
+
+---
+
 ## Syntax Tab Behavior
 
 Purpose: grammar and word-order practice using known vocabulary.
@@ -339,6 +354,7 @@ If unsure, update both briefly and keep README high-level.
 - "Scores feel off" -> `src/utils/knowledge.ts`, settings weights
 - "Sync conflicts" -> `src/lib/syncService.ts`, storage key handling
 - "Attempt logs missing" -> `src/lib/quizService.ts`, quiz transition logic
+- "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/pages/SyntaxPage.tsx`
 - "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
 

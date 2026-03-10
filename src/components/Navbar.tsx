@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, GraduationCap, Zap, User, Layers } from 'lucide-react';
+import { BookOpen, GraduationCap, Zap, User, Layers, Mic } from 'lucide-react';
 
 interface NavbarProps {
   hasUnsyncedSettings?: boolean;
@@ -13,6 +13,7 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday }: NavbarProps)
     { path: '/vocab', icon: BookOpen, label: 'Vocab' },
     { path: '/study', icon: GraduationCap, label: 'Study' },
     { path: '/quiz', icon: Zap, label: 'Quiz', quizStatus: quizCompletedToday },
+    { path: '/pinyin', icon: Mic, label: 'Pinyin' },
     { path: '/syntax', icon: Layers, label: 'Syntax' },
     { path: '/profile', icon: User, label: 'Profile', showBadge: hasUnsyncedSettings },
   ];

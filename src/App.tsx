@@ -6,6 +6,7 @@ import { VocabularyPage } from './pages/VocabularyPage';
 import { StudyPage } from './pages/StudyPage';
 import { QuizPage, hasCompletedQuizToday } from './pages/QuizPage';
 import { SyntaxPage } from './pages/SyntaxPage';
+import { PinyinPage } from './pages/PinyinPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { useVocabularyStore } from './stores/vocabularyStore';
@@ -248,6 +249,16 @@ function AppContent({
                 store={store} 
                 settingsStore={settingsStore} 
                 onShowHelp={() => setShowHelpModal(true)}
+              />
+            } 
+          />
+          
+          <Route 
+            path="/pinyin" 
+            element={
+              <PinyinPage 
+                store={store} 
+                settingsStore={settingsStore} 
               />
             } 
           />
