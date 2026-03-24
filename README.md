@@ -74,47 +74,24 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/lib/supabase.ts`: Supabase client.
 - `src/lib/syncService.ts`: sync orchestration.
 - `src/lib/quizService.ts`: quiz attempt writes and related persistence.
+- `src/lib/pwaReminderService.ts`: push subscription CRUD, schedule read/write, enable/disable.
 - `src/types/database.ts`: DB schema typing contracts.
 
 ---
 
-## Change Velocity Map (From Recent Commits)
+## Change Velocity Map
 
-High-churn areas (expect frequent edits):
-- `src/pages/QuizPage.tsx`: layout behavior, answer flow, logging controls, audio UX.
-- `src/utils/quiz.ts`: option selection (`easy/hard/expert`), question selection strategy.
-- `src/stores/settingsStore.ts`, `src/types/settings.ts`: naming and behavior of quiz settings.
-- `src/pages/SyntaxPage.tsx`, `src/utils/syntax.ts`, `src/types/syntax.ts`: syntax generation and feedback quality.
-- `analysis/quiz_ml_model.py`, `analysis/quiz_attempts_data.json`: ML calibration experiments.
-- `src/App.tsx`, `src/components/Navbar.tsx`: tab exposure and navigation wiring.
-
-Lower-churn, contract-critical areas (treat as stable interfaces):
-- known vs unknown word semantics
-- modality model and cross-modality scoring intent
-- sync safety expectations and cloud/local data guarantees
-- database migration safety process
-
-When behavior is experimental (difficulty tuning, ML predictions, syntax/LLM-guided feedback, quiz layout iteration), document details in module-level docs first and keep README at principle level.
+High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxPage`/`syntax.ts`, ML scripts, `App.tsx`/`Navbar`.
+Stable contracts: known/unknown semantics, modality model, sync guarantees, migration safety.
+Experimental behavior → module-level docs first, README at principle level.
 
 ---
 
 ## Data Model (What Must Stay Consistent)
 
-### Concept (client-side learning unit)
-Each concept has:
-- Static vocab fields (`word`, `pinyin`, `meaning`, `partOfSpeech`, `chapter`).
-- `modality.character|pinyin|meaning|audio` each with `knowledge`, attempt metadata.
-- `knowledge` overall (weighted average from Learning Focus weights).
-- `paused`/selection state.
+**Concept** (client-side): static vocab fields + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
 
-### Quiz Attempt (analytics + training data)
-Attempt records include:
-- target vocabulary id
-- question modality + answer modality
-- selected option and correctness
-- contextual metadata (difficulty context, knowledge snapshot where available)
-
-Do not remove fields from attempt logging without migration and analytics impact review.
+**Quiz Attempt** (analytics + ML): vocabulary id, question/answer modalities, selected option, correctness, difficulty context, knowledge snapshot. Do not remove fields without migration and analytics review.
 
 ---
 
@@ -170,6 +147,23 @@ Typical local keys include:
 - UI indicates offline state.
 - Sync resumes when connectivity returns.
 - Local offline indicator test path exists via `?offlineTest=1` in local development.
+
+### PWA Push Notifications
+Per-device daily reminders via Web Push API.
+
+Architecture:
+- `push_subscriptions` table stores per-device VAPID keys, schedule, and timezone.
+- `src/lib/pwaReminderService.ts` handles subscribe/unsubscribe/schedule CRUD.
+- `supabase/functions/send-reminders/index.ts` is the Edge Function that checks each subscription's local-time schedule and sends push notifications.
+- Service worker (`public/sw.js`) handles the `push` event and shows the notification.
+
+Key columns on `push_subscriptions`: `reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`.
+
+Migrations (must both be applied in order):
+1. `20260213162000_create_push_subscriptions.sql` — creates the table + RLS policies.
+2. `20260213230500_add_push_subscription_schedule.sql` — adds schedule columns (`reminder_timezone`, etc.).
+
+Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and VAPID private key in Supabase Edge Function secrets.
 
 Any sync strategy changes must update this section and `Known Failures`.
 
@@ -283,6 +277,7 @@ Never repeat this class of failure.
 - `quiz_attempts` (history + analytics + ML inputs)
 - `user_progress` (current learning state)
 - `user_settings` (behavioral preferences)
+- `push_subscriptions` (per-device VAPID keys + reminder schedule)
 
 ---
 
@@ -291,6 +286,7 @@ Never repeat this class of failure.
 1. **Past migration data loss** on quiz history (see section above).
 2. **Class imbalance in ML data** can overestimate performance if mostly correct answers are logged.
 3. **Unsynced local progress risk** if cloud load overwrites stale local state after interrupted sync.
+4. **PWA migration not applied (Mar 2026)**: `push_subscriptions` table existed but the second migration (`20260213230500_add_push_subscription_schedule.sql`) adding `reminder_timezone` and schedule columns was never run against production. Caused `column push_subscriptions.reminder_timezone does not exist` errors on any push subscribe/schedule operation. Fix: run the migration SQL in the Supabase Dashboard SQL Editor — it is idempotent (`ADD COLUMN IF NOT EXISTS`). **Lesson**: after adding migration files, always verify they are applied to the live database, not just committed to the repo.
 
 ---
 
@@ -328,22 +324,9 @@ If schema contracts change, update `src/types/database.ts`, sync services, and R
 
 ## Change Documentation Policy (For Future Agents)
 
-Documentation is layered:
-- README: stable product contracts, architecture, safety rails, and routing pointers.
-- Module docstrings/comments: volatile implementation details and tuning rules.
-- Script headers (`analysis/`, `content/`): run instructions, I/O contracts, assumptions.
-
-Update README when:
-- user-visible behavior or cross-module contracts change
-- new risk/failure mode appears
-- setup/sync/schema/script workflows change
-
-Update module docs/docstrings when:
-- quiz difficulty heuristics or selection logic changes
-- ML feature engineering, thresholds, or label logic changes
-- syntax generation templates, scoring, or feedback strategy changes
-- layout/interaction tweaks do not change cross-module contracts
-
+Layers: README (stable contracts, architecture, safety), module docstrings (volatile implementation), script headers (run instructions).
+Update README for: user-visible behavior changes, new failure modes, setup/schema/script workflow changes.
+Update module docs for: quiz heuristics, ML features/thresholds, syntax templates, layout tweaks.
 If unsure, update both briefly and keep README high-level.
 
 ---
@@ -356,6 +339,7 @@ If unsure, update both briefly and keep README high-level.
 - "Attempt logs missing" -> `src/lib/quizService.ts`, quiz transition logic
 - "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/pages/SyntaxPage.tsx`
+- "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
 - "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
 
 ---
