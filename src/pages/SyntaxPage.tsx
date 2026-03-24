@@ -438,6 +438,13 @@ export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps
                   </p>
                 </div>
               )}
+              
+              {/* Full sentence breakdown */}
+              <div className="mt-3 pt-3 border-t border-base-content/10 space-y-1">
+                <p className="hanzi text-lg text-primary">{exercise.chineseWords.join('')}</p>
+                <p className="text-sm text-secondary">{exercise.pinyinWords.join(' ')}</p>
+                <p className="text-sm text-base-content/70">{exercise.english}</p>
+              </div>
             </div>
           </div>
         )}
