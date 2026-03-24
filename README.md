@@ -219,6 +219,13 @@ Current model:
 - bidirectional exercises (reading/writing orientations)
 - unlock behavior depends on required vocabulary/roles
 
+Template categories:
+- **Level 1**: Basic SVO (eat/drink/go/like/read), location with 在, adjective with 很
+- **Level 2**: Questions (吗), negation (不), want (想), **preposition/location patterns** (在+reference+location word)
+- **Level 3**: Time expressions (time before subject)
+
+Preposition pattern (Level 2): Chinese puts location words AFTER the reference object — opposite of English prepositions. E.g. 猫在椅子下面 = "cat at chair below" = The cat is under the chair. Templates cover 上面/下面/前面/后面/里面/旁边 positions with both furniture and place references.
+
 If generation logic changes, update both this section and relevant template docs.
 
 If syntax adds LLM-guided feedback or a dedicated quiz mode/tab, keep this section high-level and place prompt/selection/rubric docs in `src/pages/SyntaxPage.tsx` and `src/utils/syntax.ts`.

@@ -83,7 +83,7 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '中午': ['time'],
   
   // Readable/Watchable things
-  '书': ['readable', 'thing'],
+  '书': ['readable', 'thing', 'locatable'],
   '电视': ['watchable', 'thing'],
   '电影': ['watchable', 'thing'],
   '汉字': ['readable', 'thing'],
@@ -95,18 +95,29 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   
   // Things that can be described
   '天气': ['describable', 'nature'],
-  '狗': ['animal', 'describable'],
-  '猫': ['animal', 'describable'],
+  '狗': ['animal', 'describable', 'locatable'],
+  '猫': ['animal', 'describable', 'locatable'],
   '山': ['nature', 'describable'],
+  
+  // Furniture / reference objects for location
+  '椅子': ['furniture', 'thing'],
+  '桌子': ['furniture', 'thing'],
+  '电脑': ['thing', 'locatable'],
   
   // Adjectives for descriptions
   '好': ['quality_adj'],
   '大': ['size_adj'],
   '小': ['size_adj'],
+  '高': ['size_adj'],
+  '矮': ['size_adj'],
   '冷': ['temperature_adj', 'weather_adj'],
   '热': ['temperature_adj', 'weather_adj'],
   '漂亮': ['appearance_adj'],
   '高兴': ['emotion_adj'],
+  
+  // Time (extended)
+  '早上': ['time'],
+  '晚上': ['time'],
   
   // Languages
   '汉语': ['language'],
@@ -188,10 +199,21 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   '猫': { subject: 'The cat', object: 'the cat' },
   '山': { subject: 'The mountain', object: 'the mountain' },
   
+  // Furniture / locatable things
+  '椅子': { subject: 'The chair', object: 'the chair' },
+  '桌子': { subject: 'The table', object: 'the table' },
+  '电脑': { subject: 'The computer', object: 'the computer' },
+  
+  // Time (extended)
+  '早上': { subject: 'this morning', object: 'this morning' },
+  '晚上': { subject: 'tonight', object: 'tonight' },
+  
   // Adjectives
   '好': { subject: 'good', object: 'good' },
   '大': { subject: 'big', object: 'big' },
   '小': { subject: 'small', object: 'small' },
+  '高': { subject: 'tall', object: 'tall' },
+  '矮': { subject: 'short', object: 'short' },
   '冷': { subject: 'cold', object: 'cold' },
   '热': { subject: 'hot', object: 'hot' },
   '漂亮': { subject: 'beautiful', object: 'beautiful' },
@@ -521,6 +543,154 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     difficulty: 2,
   },
   
+  // ========== Level 2: Preposition/Location patterns ==========
+  // Key insight: Chinese puts location words AFTER the reference object
+  // English: "The cat is UNDER the chair" → Chinese: 猫在椅子下面 (cat at chair below)
+  {
+    id: 'thing_on_reference',
+    name: 'Something is on something',
+    description: 'Subject + 在 + Reference + 上面',
+    explanation: 'Chinese location words go AFTER the reference: 书在桌子上面 = "book at table on-top" = The book is on the table',
+    example: { zh: '书在桌子上面', en: 'The book is on the table' },
+    slots: [
+      { role: 'subject', categories: ['locatable'] },
+      { role: 'reference', categories: ['furniture'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '上面', pinyin: 'shàngmiàn', meaning: 'on/above' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '上面'],
+    englishPattern: '{subject} is on {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'thing_under_reference',
+    name: 'Something is under something',
+    description: 'Subject + 在 + Reference + 下面',
+    explanation: 'Chinese location words go AFTER the reference: 猫在椅子下面 = "cat at chair below" = The cat is under the chair',
+    example: { zh: '猫在椅子下面', en: 'The cat is under the chair' },
+    slots: [
+      { role: 'subject', categories: ['locatable'] },
+      { role: 'reference', categories: ['furniture'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '下面', pinyin: 'xiàmiàn', meaning: 'under/below' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '下面'],
+    englishPattern: '{subject} is under {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'thing_in_front_of_reference',
+    name: 'Something is in front of something',
+    description: 'Subject + 在 + Reference + 前面',
+    explanation: 'Chinese location words go AFTER the reference: 猫在椅子前面 = "cat at chair front" = The cat is in front of the chair',
+    example: { zh: '猫在椅子前面', en: 'The cat is in front of the chair' },
+    slots: [
+      { role: 'subject', categories: ['locatable'] },
+      { role: 'reference', categories: ['furniture'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '前面', pinyin: 'qiánmiàn', meaning: 'in front of' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '前面'],
+    englishPattern: '{subject} is in front of {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'thing_behind_reference',
+    name: 'Something is behind something',
+    description: 'Subject + 在 + Reference + 后面',
+    explanation: 'Chinese location words go AFTER the reference: 狗在椅子后面 = "dog at chair behind" = The dog is behind the chair',
+    example: { zh: '狗在椅子后面', en: 'The dog is behind the chair' },
+    slots: [
+      { role: 'subject', categories: ['locatable'] },
+      { role: 'reference', categories: ['furniture'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '后面', pinyin: 'hòumiàn', meaning: 'behind' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '后面'],
+    englishPattern: '{subject} is behind {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'thing_inside_reference',
+    name: 'Something is inside something',
+    description: 'Subject + 在 + Reference + 里面',
+    explanation: 'Chinese location words go AFTER the reference: 书在桌子里面 = "book at table inside" = The book is inside the desk',
+    example: { zh: '书在桌子里面', en: 'The book is inside the desk' },
+    slots: [
+      { role: 'subject', categories: ['locatable'] },
+      { role: 'reference', categories: ['furniture'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '里面', pinyin: 'lǐmiàn', meaning: 'inside' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '里面'],
+    englishPattern: '{subject} is inside {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'thing_beside_reference',
+    name: 'Something is beside something',
+    description: 'Subject + 在 + Reference + 旁边',
+    explanation: 'Chinese location words go AFTER the reference: 猫在椅子旁边 = "cat at chair beside" = The cat is beside the chair',
+    example: { zh: '猫在椅子旁边', en: 'The cat is beside the chair' },
+    slots: [
+      { role: 'subject', categories: ['locatable'] },
+      { role: 'reference', categories: ['furniture'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '旁边', pinyin: 'pángbiān', meaning: 'beside' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '旁边'],
+    englishPattern: '{subject} is beside {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_on_place',
+    name: 'Someone is at a place (on/above)',
+    description: 'Person + 在 + Place + 上面',
+    explanation: 'Same location pattern with people: 他在学校前面 = He is in front of the school',
+    example: { zh: '爸爸在家里面', en: 'Dad is inside the house' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'reference', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '里面', pinyin: 'lǐmiàn', meaning: 'inside' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '里面'],
+    englishPattern: '{subject} is inside {reference}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_in_front_place',
+    name: 'Someone is in front of a place',
+    description: 'Person + 在 + Place + 前面',
+    explanation: 'Location pattern with people and places: 他在学校前面 = He is in front of the school',
+    example: { zh: '他在学校前面', en: 'He is in front of the school' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'reference', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '前面', pinyin: 'qiánmiàn', meaning: 'in front of' },
+    ],
+    chineseOrder: ['subject', '在', 'reference', '前面'],
+    englishPattern: '{subject} is in front of {reference}',
+    difficulty: 2,
+  },
+
   // ========== Level 3: Time expressions ==========
   {
     id: 'time_person_go',
@@ -803,8 +973,14 @@ export function generateSentenceExercise(
     english = english.replace(' likes ', ' like ');
     english = english.replace(' reads ', ' read ');
     english = english.replace(' wants ', ' want ');
-    english = english.replace(' is at ', ' am at '); // I am, we are
+    english = english.replace(' is at ', ' am at ');
     english = english.replace(' is very ', ' am very ');
+    english = english.replace(' is on ', ' am on ');
+    english = english.replace(' is under ', ' am under ');
+    english = english.replace(' is in front of ', ' am in front of ');
+    english = english.replace(' is behind ', ' am behind ');
+    english = english.replace(' is inside ', ' am inside ');
+    english = english.replace(' is beside ', ' am beside ');
     
     // Fix negation: "doesn't" → "don't"
     english = english.replace(" doesn't ", " don't ");
@@ -817,6 +993,12 @@ export function generateSentenceExercise(
   if (isPlural || isSecondPerson) {
     english = english.replace(' am at ', ' are at ');
     english = english.replace(' am very ', ' are very ');
+    english = english.replace(' am on ', ' are on ');
+    english = english.replace(' am under ', ' are under ');
+    english = english.replace(' am in front of ', ' are in front of ');
+    english = english.replace(' am behind ', ' are behind ');
+    english = english.replace(' am inside ', ' are inside ');
+    english = english.replace(' am beside ', ' are beside ');
   }
   
   english = english.charAt(0).toUpperCase() + english.slice(1);

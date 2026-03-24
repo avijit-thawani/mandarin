@@ -1974,5 +1974,189 @@
     "meaning": "very happy",
     "chapter": -15,
     "source": "compound"
+  },
+  {
+    "word": "早上",
+    "pinyin": "zǎoshang",
+    "part_of_speech": "noun",
+    "meaning": "morning, early morning",
+    "chapter": -8,
+    "source": "hsk1"
+  },
+  {
+    "word": "晚上",
+    "pinyin": "wǎnshang",
+    "part_of_speech": "noun",
+    "meaning": "evening, night",
+    "chapter": -8,
+    "source": "hsk1"
+  },
+  {
+    "word": "高",
+    "pinyin": "gāo",
+    "part_of_speech": "adjective",
+    "meaning": "tall, high",
+    "chapter": -16,
+    "source": "hsk1"
+  },
+  {
+    "word": "矮",
+    "pinyin": "ǎi",
+    "part_of_speech": "adjective",
+    "meaning": "short (height)",
+    "chapter": -16,
+    "source": "hsk1"
+  },
+  {
+    "word": "外",
+    "pinyin": "wài",
+    "part_of_speech": "noun",
+    "meaning": "outside, outer",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "左",
+    "pinyin": "zuǒ",
+    "part_of_speech": "noun",
+    "meaning": "left",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "右",
+    "pinyin": "yòu",
+    "part_of_speech": "noun",
+    "meaning": "right",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "上面",
+    "pinyin": "shàngmiàn",
+    "part_of_speech": "noun",
+    "meaning": "above, on top of",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "下面",
+    "pinyin": "xiàmiàn",
+    "part_of_speech": "noun",
+    "meaning": "below, under",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "里面",
+    "pinyin": "lǐmiàn",
+    "part_of_speech": "noun",
+    "meaning": "inside",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "外面",
+    "pinyin": "wàimiàn",
+    "part_of_speech": "noun",
+    "meaning": "outside",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "左边",
+    "pinyin": "zuǒbiān",
+    "part_of_speech": "noun",
+    "meaning": "left side",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "右边",
+    "pinyin": "yòubiān",
+    "part_of_speech": "noun",
+    "meaning": "right side",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "旁边",
+    "pinyin": "pángbiān",
+    "part_of_speech": "noun",
+    "meaning": "beside, next to",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "对面",
+    "pinyin": "duìmiàn",
+    "part_of_speech": "noun",
+    "meaning": "opposite, across from",
+    "chapter": -10,
+    "source": "hsk1"
+  },
+  {
+    "word": "在下面",
+    "pinyin": "zài xiàmiàn",
+    "part_of_speech": "phrase",
+    "meaning": "underneath, below",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在前面",
+    "pinyin": "zài qiánmiàn",
+    "part_of_speech": "phrase",
+    "meaning": "in front of",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在后面",
+    "pinyin": "zài hòumiàn",
+    "part_of_speech": "phrase",
+    "meaning": "behind",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在外面",
+    "pinyin": "zài wàimiàn",
+    "part_of_speech": "phrase",
+    "meaning": "outside",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在旁边",
+    "pinyin": "zài pángbiān",
+    "part_of_speech": "phrase",
+    "meaning": "beside, next to",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在对面",
+    "pinyin": "zài duìmiàn",
+    "part_of_speech": "phrase",
+    "meaning": "across from, opposite",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在左边",
+    "pinyin": "zài zuǒbiān",
+    "part_of_speech": "phrase",
+    "meaning": "on the left",
+    "chapter": -10,
+    "source": "compound"
+  },
+  {
+    "word": "在右边",
+    "pinyin": "zài yòubiān",
+    "part_of_speech": "phrase",
+    "meaning": "on the right",
+    "chapter": -10,
+    "source": "compound"
   }
 ]
