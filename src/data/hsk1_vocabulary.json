@@ -5,7 +5,8 @@
     "part_of_speech": "numeral",
     "meaning": "one",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "三",
@@ -13,7 +14,8 @@
     "part_of_speech": "numeral",
     "meaning": "three",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "二",
@@ -21,7 +23,8 @@
     "part_of_speech": "numeral",
     "meaning": "two",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "你",
@@ -29,7 +32,8 @@
     "part_of_speech": "pronoun",
     "meaning": "(singular) you",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "你们",
@@ -37,7 +41,8 @@
     "part_of_speech": "pronoun",
     "meaning": "(plural) you",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "八",
@@ -45,7 +50,8 @@
     "part_of_speech": "numeral",
     "meaning": "eight",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "六",
@@ -53,7 +59,8 @@
     "part_of_speech": "numeral",
     "meaning": "six",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "十",
@@ -61,7 +68,8 @@
     "part_of_speech": "numeral",
     "meaning": "ten",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "天",
@@ -69,7 +77,8 @@
     "part_of_speech": "noun",
     "meaning": "sky, day",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "nature"
   },
   {
     "word": "好",
@@ -77,7 +86,8 @@
     "part_of_speech": "adjective",
     "meaning": "good, fine",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "emotion"
   },
   {
     "word": "对不起",
@@ -85,7 +95,8 @@
     "part_of_speech": "verb",
     "meaning": "to be sorry",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "greeting"
   },
   {
     "word": "您",
@@ -93,7 +104,8 @@
     "part_of_speech": "pronoun",
     "meaning": "(polite) you",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "没关系",
@@ -101,7 +113,8 @@
     "part_of_speech": "other",
     "meaning": "it's OK, no problem",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "greeting"
   },
   {
     "word": "马",
@@ -109,7 +122,8 @@
     "part_of_speech": "noun",
     "meaning": "horse",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "animal"
   },
   {
     "word": "鱼",
@@ -117,7 +131,8 @@
     "part_of_speech": "noun",
     "meaning": "fish",
     "chapter": 1,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "animal"
   },
   {
     "word": "不",
@@ -125,7 +140,8 @@
     "part_of_speech": "adverb",
     "meaning": "no, not",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "不客气",
@@ -133,7 +149,8 @@
     "part_of_speech": "other",
     "meaning": "you're welcome",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "greeting"
   },
   {
     "word": "云",
@@ -141,7 +158,8 @@
     "part_of_speech": "noun",
     "meaning": "cloud",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "nature"
   },
   {
     "word": "什么",
@@ -149,7 +167,8 @@
     "part_of_speech": "pronoun",
     "meaning": "what",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "再见",
@@ -157,7 +176,8 @@
     "part_of_speech": "verb",
     "meaning": "to see you around",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "greeting"
   },
   {
     "word": "叫",
@@ -165,7 +185,8 @@
     "part_of_speech": "verb",
     "meaning": "to call, to be called",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "名字",
@@ -173,7 +194,8 @@
     "part_of_speech": "noun",
     "meaning": "name",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "山",
@@ -181,7 +203,8 @@
     "part_of_speech": "noun",
     "meaning": "mountain",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "nature"
   },
   {
     "word": "我",
@@ -189,7 +212,8 @@
     "part_of_speech": "pronoun",
     "meaning": "I, me",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "手",
@@ -197,7 +221,8 @@
     "part_of_speech": "noun",
     "meaning": "hand",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "body"
   },
   {
     "word": "羊",
@@ -205,7 +230,8 @@
     "part_of_speech": "noun",
     "meaning": "sheep, goat",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "animal"
   },
   {
     "word": "谢谢",
@@ -213,7 +239,8 @@
     "part_of_speech": "verb",
     "meaning": "to thank",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "greeting"
   },
   {
     "word": "零",
@@ -221,7 +248,8 @@
     "part_of_speech": "numeral",
     "meaning": "zero",
     "chapter": 2,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "中",
@@ -229,7 +257,8 @@
     "part_of_speech": "noun",
     "meaning": "middle, center",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "中国",
@@ -237,7 +266,8 @@
     "part_of_speech": "other",
     "meaning": "China",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "country"
   },
   {
     "word": "人",
@@ -245,7 +275,8 @@
     "part_of_speech": "noun",
     "meaning": "human, person",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "吗",
@@ -253,7 +284,8 @@
     "part_of_speech": "particle",
     "meaning": "question particle",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "学生",
@@ -261,7 +293,8 @@
     "part_of_speech": "noun",
     "meaning": "student",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "工",
@@ -269,7 +302,8 @@
     "part_of_speech": "noun",
     "meaning": "work, labor",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "心",
@@ -277,7 +311,8 @@
     "part_of_speech": "noun",
     "meaning": "heart",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "body"
   },
   {
     "word": "是",
@@ -285,7 +320,8 @@
     "part_of_speech": "verb",
     "meaning": "to be",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "美国",
@@ -293,7 +329,8 @@
     "part_of_speech": "other",
     "meaning": "USA, America",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "country"
   },
   {
     "word": "老师",
@@ -301,7 +338,8 @@
     "part_of_speech": "noun",
     "meaning": "teacher",
     "chapter": 3,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "七",
@@ -309,7 +347,8 @@
     "part_of_speech": "numeral",
     "meaning": "seven",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "九",
@@ -317,7 +356,8 @@
     "part_of_speech": "numeral",
     "meaning": "nine",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "他",
@@ -325,7 +365,8 @@
     "part_of_speech": "pronoun",
     "meaning": "he, him",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "儿",
@@ -333,7 +374,8 @@
     "part_of_speech": "noun",
     "meaning": "son, child (suffix)",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "family"
   },
   {
     "word": "同学",
@@ -341,7 +383,8 @@
     "part_of_speech": "noun",
     "meaning": "classmate",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "呢",
@@ -349,7 +392,8 @@
     "part_of_speech": "particle",
     "meaning": "question particle",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "哪",
@@ -357,7 +401,8 @@
     "part_of_speech": "pronoun",
     "meaning": "which",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "国",
@@ -365,7 +410,8 @@
     "part_of_speech": "noun",
     "meaning": "country, nation",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "country"
   },
   {
     "word": "她",
@@ -373,7 +419,8 @@
     "part_of_speech": "pronoun",
     "meaning": "she, her",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "朋友",
@@ -381,7 +428,8 @@
     "part_of_speech": "noun",
     "meaning": "friend",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "汉语",
@@ -389,7 +437,8 @@
     "part_of_speech": "noun",
     "meaning": "Chinese (language)",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "的",
@@ -397,7 +446,8 @@
     "part_of_speech": "particle",
     "meaning": "possessive particle",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "谁",
@@ -405,7 +455,8 @@
     "part_of_speech": "pronoun",
     "meaning": "who, whom",
     "chapter": 4,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "了",
@@ -413,7 +464,8 @@
     "part_of_speech": "particle",
     "meaning": "particle indicating change",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "五",
@@ -421,7 +473,8 @@
     "part_of_speech": "numeral",
     "meaning": "five",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "今年",
@@ -429,7 +482,8 @@
     "part_of_speech": "noun",
     "meaning": "this year",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "几",
@@ -437,7 +491,8 @@
     "part_of_speech": "pronoun",
     "meaning": "how many",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "口",
@@ -445,7 +500,8 @@
     "part_of_speech": "measure_word",
     "meaning": "measure word (family)",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "body"
   },
   {
     "word": "四",
@@ -453,7 +509,8 @@
     "part_of_speech": "numeral",
     "meaning": "four",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "多",
@@ -461,7 +518,8 @@
     "part_of_speech": "adverb",
     "meaning": "many, much; how (degree)",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "大",
@@ -469,7 +527,8 @@
     "part_of_speech": "adjective",
     "meaning": "big, large; (of age) old",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "女",
@@ -477,7 +536,8 @@
     "part_of_speech": "noun",
     "meaning": "woman, female",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "家",
@@ -485,7 +545,8 @@
     "part_of_speech": "noun",
     "meaning": "family",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "family"
   },
   {
     "word": "岁",
@@ -493,7 +554,8 @@
     "part_of_speech": "measure_word",
     "meaning": "year (of age)",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "有",
@@ -501,7 +563,8 @@
     "part_of_speech": "verb",
     "meaning": "to have, there be",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "百",
@@ -509,7 +572,8 @@
     "part_of_speech": "numeral",
     "meaning": "hundred",
     "chapter": 5,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "东",
@@ -517,7 +581,8 @@
     "part_of_speech": "noun",
     "meaning": "east",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "会",
@@ -525,7 +590,8 @@
     "part_of_speech": "other",
     "meaning": "can, able to",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "做",
@@ -533,7 +599,8 @@
     "part_of_speech": "verb",
     "meaning": "to make, to produce",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "写",
@@ -541,7 +608,8 @@
     "part_of_speech": "verb",
     "meaning": "to write",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "妈妈",
@@ -549,7 +617,8 @@
     "part_of_speech": "noun",
     "meaning": "mother",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "family"
   },
   {
     "word": "字",
@@ -557,7 +626,8 @@
     "part_of_speech": "noun",
     "meaning": "character, word",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "很",
@@ -565,7 +635,8 @@
     "part_of_speech": "adverb",
     "meaning": "very, quite",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "怎么",
@@ -573,7 +644,8 @@
     "part_of_speech": "pronoun",
     "meaning": "how (to do)",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "汉字",
@@ -581,7 +653,8 @@
     "part_of_speech": "noun",
     "meaning": "Chinese character",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "菜",
@@ -589,7 +662,8 @@
     "part_of_speech": "noun",
     "meaning": "dish, cuisine",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "西",
@@ -597,7 +671,8 @@
     "part_of_speech": "noun",
     "meaning": "west",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "说",
@@ -605,7 +680,8 @@
     "part_of_speech": "verb",
     "meaning": "to speak, to say",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "读",
@@ -613,7 +689,8 @@
     "part_of_speech": "verb",
     "meaning": "to read",
     "chapter": 6,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "中国菜",
@@ -621,7 +698,8 @@
     "part_of_speech": "noun",
     "meaning": "Chinese food",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "书",
@@ -629,7 +707,8 @@
     "part_of_speech": "noun",
     "meaning": "book",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "今天",
@@ -637,7 +716,8 @@
     "part_of_speech": "noun",
     "meaning": "today",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "去",
@@ -645,7 +725,8 @@
     "part_of_speech": "verb",
     "meaning": "to go",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "号",
@@ -653,7 +734,8 @@
     "part_of_speech": "noun",
     "meaning": "date number",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "银行",
@@ -661,7 +743,8 @@
     "part_of_speech": "noun",
     "meaning": "bank",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "place"
   },
   {
     "word": "日历",
@@ -669,7 +752,8 @@
     "part_of_speech": "noun",
     "meaning": "calendar",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "学校",
@@ -677,7 +761,8 @@
     "part_of_speech": "noun",
     "meaning": "school",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "place"
   },
   {
     "word": "明天",
@@ -685,7 +770,8 @@
     "part_of_speech": "noun",
     "meaning": "tomorrow",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "星期",
@@ -693,7 +779,8 @@
     "part_of_speech": "noun",
     "meaning": "week",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "昨天",
@@ -701,7 +788,8 @@
     "part_of_speech": "noun",
     "meaning": "yesterday",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "月",
@@ -709,7 +797,8 @@
     "part_of_speech": "noun",
     "meaning": "month",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "看",
@@ -717,7 +806,8 @@
     "part_of_speech": "verb",
     "meaning": "to look, watch, read",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "请",
@@ -725,7 +815,8 @@
     "part_of_speech": "verb",
     "meaning": "(polite) please",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "greeting"
   },
   {
     "word": "问",
@@ -733,7 +824,8 @@
     "part_of_speech": "verb",
     "meaning": "to ask, to inquire",
     "chapter": 7,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "下午",
@@ -741,7 +833,8 @@
     "part_of_speech": "noun",
     "meaning": "afternoon",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "个",
@@ -749,7 +842,8 @@
     "part_of_speech": "measure_word",
     "meaning": "general measure word",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "买",
@@ -757,7 +851,8 @@
     "part_of_speech": "verb",
     "meaning": "to buy, to purchase",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "吃",
@@ -765,7 +860,8 @@
     "part_of_speech": "verb",
     "meaning": "to eat",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "商店",
@@ -773,7 +869,8 @@
     "part_of_speech": "noun",
     "meaning": "shop, store",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "place"
   },
   {
     "word": "喝",
@@ -781,7 +878,8 @@
     "part_of_speech": "verb",
     "meaning": "to drink",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "块",
@@ -789,7 +887,8 @@
     "part_of_speech": "measure_word",
     "meaning": "yuan (money unit)",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "多少",
@@ -797,7 +896,8 @@
     "part_of_speech": "pronoun",
     "meaning": "how many, how much",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "想",
@@ -805,7 +905,8 @@
     "part_of_speech": "other",
     "meaning": "to want, would like",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "emotion"
   },
   {
     "word": "杯子",
@@ -813,7 +914,8 @@
     "part_of_speech": "noun",
     "meaning": "cup, glass",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "米饭",
@@ -821,7 +923,8 @@
     "part_of_speech": "noun",
     "meaning": "cooked rice",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "茶",
@@ -829,7 +932,8 @@
     "part_of_speech": "noun",
     "meaning": "tea",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "这",
@@ -837,7 +941,8 @@
     "part_of_speech": "pronoun",
     "meaning": "this",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "那",
@@ -845,7 +950,8 @@
     "part_of_speech": "pronoun",
     "meaning": "that",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "钱",
@@ -853,7 +959,8 @@
     "part_of_speech": "noun",
     "meaning": "money",
     "chapter": 8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "儿子",
@@ -861,7 +968,8 @@
     "part_of_speech": "noun",
     "meaning": "son",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "family"
   },
   {
     "word": "医生",
@@ -869,7 +977,8 @@
     "part_of_speech": "noun",
     "meaning": "doctor",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "医院",
@@ -877,7 +986,8 @@
     "part_of_speech": "noun",
     "meaning": "hospital",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "place"
   },
   {
     "word": "哪儿",
@@ -885,7 +995,8 @@
     "part_of_speech": "pronoun",
     "meaning": "where",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "在",
@@ -893,7 +1004,8 @@
     "part_of_speech": "verb",
     "meaning": "to be in/on/at",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "小",
@@ -901,7 +1013,8 @@
     "part_of_speech": "adjective",
     "meaning": "small, little",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "工作",
@@ -909,7 +1022,8 @@
     "part_of_speech": "verb",
     "meaning": "to work; job",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "椅子",
@@ -917,7 +1031,8 @@
     "part_of_speech": "noun",
     "meaning": "chair",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "爸爸",
@@ -925,7 +1040,8 @@
     "part_of_speech": "noun",
     "meaning": "father",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "family"
   },
   {
     "word": "狗",
@@ -933,7 +1049,8 @@
     "part_of_speech": "noun",
     "meaning": "dog",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "animal"
   },
   {
     "word": "猫",
@@ -941,7 +1058,8 @@
     "part_of_speech": "noun",
     "meaning": "cat",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "animal"
   },
   {
     "word": "那儿",
@@ -949,7 +1067,8 @@
     "part_of_speech": "pronoun",
     "meaning": "there",
     "chapter": 9,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "上",
@@ -957,7 +1076,8 @@
     "part_of_speech": "noun",
     "meaning": "up, above",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "下",
@@ -965,7 +1085,8 @@
     "part_of_speech": "noun",
     "meaning": "down, below, under",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "前面",
@@ -973,7 +1094,8 @@
     "part_of_speech": "noun",
     "meaning": "front",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "后面",
@@ -981,7 +1103,8 @@
     "part_of_speech": "noun",
     "meaning": "back",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "和",
@@ -989,7 +1112,8 @@
     "part_of_speech": "conjunction",
     "meaning": "and",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "坐",
@@ -997,7 +1121,8 @@
     "part_of_speech": "verb",
     "meaning": "to sit, to be seated",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "本",
@@ -1005,7 +1130,8 @@
     "part_of_speech": "measure_word",
     "meaning": "measure word (books)",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "桌子",
@@ -1013,7 +1139,8 @@
     "part_of_speech": "noun",
     "meaning": "desk, table",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "电脑",
@@ -1021,7 +1148,8 @@
     "part_of_speech": "noun",
     "meaning": "computer",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "能",
@@ -1029,7 +1157,8 @@
     "part_of_speech": "other",
     "meaning": "can, may",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "这儿",
@@ -1037,7 +1166,8 @@
     "part_of_speech": "pronoun",
     "meaning": "here",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "里",
@@ -1045,7 +1175,8 @@
     "part_of_speech": "noun",
     "meaning": "inner, inside, interior",
     "chapter": 10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "两",
@@ -1053,7 +1184,8 @@
     "part_of_speech": "numeral",
     "meaning": "two (used before measure words)",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "number"
   },
   {
     "word": "中午",
@@ -1061,7 +1193,8 @@
     "part_of_speech": "noun",
     "meaning": "noon, midday",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "也",
@@ -1069,7 +1202,8 @@
     "part_of_speech": "adverb",
     "meaning": "also, too",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "他们",
@@ -1077,7 +1211,8 @@
     "part_of_speech": "pronoun",
     "meaning": "they, them",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "住",
@@ -1085,7 +1220,8 @@
     "part_of_speech": "verb",
     "meaning": "to live, to stay",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "分",
@@ -1093,7 +1229,8 @@
     "part_of_speech": "measure word",
     "meaning": "minute (of time)",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "前",
@@ -1101,7 +1238,8 @@
     "part_of_speech": "noun",
     "meaning": "before, earlier than",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "午",
@@ -1109,7 +1247,8 @@
     "part_of_speech": "noun",
     "meaning": "noon, midday",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "回",
@@ -1117,7 +1256,8 @@
     "part_of_speech": "verb",
     "meaning": "to return, go back",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "我们",
@@ -1125,7 +1265,8 @@
     "part_of_speech": "pronoun",
     "meaning": "we, us",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "时候",
@@ -1133,7 +1274,8 @@
     "part_of_speech": "noun",
     "meaning": "time, moment",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "点",
@@ -1141,7 +1283,8 @@
     "part_of_speech": "measure word",
     "meaning": "o'clock, dot, point",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "电影",
@@ -1149,7 +1292,8 @@
     "part_of_speech": "noun",
     "meaning": "film, movie",
     "chapter": 11,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "下雨",
@@ -1157,7 +1301,8 @@
     "part_of_speech": "other",
     "meaning": "to rain",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "weather"
   },
   {
     "word": "些",
@@ -1165,7 +1310,8 @@
     "part_of_speech": "measure_word",
     "meaning": "some, a few",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "冷",
@@ -1173,7 +1319,8 @@
     "part_of_speech": "adjective",
     "meaning": "cold",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "weather"
   },
   {
     "word": "天气",
@@ -1181,7 +1328,8 @@
     "part_of_speech": "noun",
     "meaning": "weather",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "weather"
   },
   {
     "word": "太",
@@ -1189,7 +1337,8 @@
     "part_of_speech": "adverb",
     "meaning": "too, extremely",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "小姐",
@@ -1197,7 +1346,8 @@
     "part_of_speech": "noun",
     "meaning": "miss, young lady",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "怎么样",
@@ -1205,7 +1355,8 @@
     "part_of_speech": "pronoun",
     "meaning": "how (about)",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "来",
@@ -1213,7 +1364,8 @@
     "part_of_speech": "verb",
     "meaning": "to come",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "气",
@@ -1221,7 +1373,8 @@
     "part_of_speech": "noun",
     "meaning": "air, gas, atmosphere",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "nature"
   },
   {
     "word": "水",
@@ -1229,7 +1382,8 @@
     "part_of_speech": "noun",
     "meaning": "water",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "水果",
@@ -1237,7 +1391,8 @@
     "part_of_speech": "noun",
     "meaning": "fruit",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "热",
@@ -1245,7 +1400,8 @@
     "part_of_speech": "adjective",
     "meaning": "hot",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "weather"
   },
   {
     "word": "爱",
@@ -1253,7 +1409,8 @@
     "part_of_speech": "verb",
     "meaning": "to like, to love",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "emotion"
   },
   {
     "word": "身体",
@@ -1261,7 +1418,8 @@
     "part_of_speech": "noun",
     "meaning": "body, health",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "body"
   },
   {
     "word": "饭",
@@ -1269,7 +1427,8 @@
     "part_of_speech": "noun",
     "meaning": "meal, cooked rice",
     "chapter": 12,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "上午",
@@ -1277,7 +1436,8 @@
     "part_of_speech": "noun",
     "meaning": "morning, before noon",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "习",
@@ -1285,7 +1445,8 @@
     "part_of_speech": "verb",
     "meaning": "to practice, to review",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "喜欢",
@@ -1293,7 +1454,8 @@
     "part_of_speech": "verb",
     "meaning": "to like, to be fond of",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "emotion"
   },
   {
     "word": "打电话",
@@ -1301,7 +1463,8 @@
     "part_of_speech": "other",
     "meaning": "to make a phone call",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "日",
@@ -1309,7 +1472,8 @@
     "part_of_speech": "noun",
     "meaning": "sun, day, date",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "电视",
@@ -1317,7 +1481,8 @@
     "part_of_speech": "noun",
     "meaning": "television",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "目",
@@ -1325,7 +1490,8 @@
     "part_of_speech": "noun",
     "meaning": "eye",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "body"
   },
   {
     "word": "睡觉",
@@ -1333,7 +1499,8 @@
     "part_of_speech": "verb",
     "meaning": "to sleep",
     "chapter": 13,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "一点儿",
@@ -1341,7 +1508,8 @@
     "part_of_speech": "other",
     "meaning": "a few, a little",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "东西",
@@ -1349,7 +1517,8 @@
     "part_of_speech": "noun",
     "meaning": "thing, stuff",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "先生",
@@ -1357,7 +1526,8 @@
     "part_of_speech": "noun",
     "meaning": "Mr., Sir",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "person"
   },
   {
     "word": "分钟",
@@ -1365,7 +1535,8 @@
     "part_of_speech": "noun",
     "meaning": "minute",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "后",
@@ -1373,7 +1544,8 @@
     "part_of_speech": "noun",
     "meaning": "after, afterwards, later",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "啊",
@@ -1381,7 +1553,8 @@
     "part_of_speech": "particle",
     "meaning": "exclamatory particle",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "回来",
@@ -1389,7 +1562,8 @@
     "part_of_speech": "verb",
     "meaning": "to come back",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "少",
@@ -1397,7 +1571,8 @@
     "part_of_speech": "adjective",
     "meaning": "little, few",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "开",
@@ -1405,7 +1580,8 @@
     "part_of_speech": "verb",
     "meaning": "to open; to drive; to start",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "漂亮",
@@ -1413,7 +1589,8 @@
     "part_of_speech": "adjective",
     "meaning": "beautiful, pretty",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "emotion"
   },
   {
     "word": "看见",
@@ -1421,7 +1598,8 @@
     "part_of_speech": "verb",
     "meaning": "to see",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "苹果",
@@ -1429,7 +1607,8 @@
     "part_of_speech": "noun",
     "meaning": "apple",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "food"
   },
   {
     "word": "衣服",
@@ -1437,7 +1616,8 @@
     "part_of_speech": "noun",
     "meaning": "clothes",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "车",
@@ -1445,7 +1625,8 @@
     "part_of_speech": "noun",
     "meaning": "car, vehicle",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "这些",
@@ -1453,7 +1634,8 @@
     "part_of_speech": "pronoun",
     "meaning": "these",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "pronoun"
   },
   {
     "word": "都",
@@ -1461,7 +1643,8 @@
     "part_of_speech": "adverb",
     "meaning": "both, all",
     "chapter": 14,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "一起",
@@ -1469,7 +1652,8 @@
     "part_of_speech": "adverb",
     "meaning": "together",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "grammar"
   },
   {
     "word": "出",
@@ -1477,7 +1661,8 @@
     "part_of_speech": "verb",
     "meaning": "to go out, to exit",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "出租车",
@@ -1485,7 +1670,8 @@
     "part_of_speech": "noun",
     "meaning": "taxi, cab",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "听",
@@ -1493,7 +1679,8 @@
     "part_of_speech": "verb",
     "meaning": "to listen",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "大学",
@@ -1501,7 +1688,8 @@
     "part_of_speech": "noun",
     "meaning": "college, university",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "place"
   },
   {
     "word": "年",
@@ -1509,7 +1697,8 @@
     "part_of_speech": "noun",
     "meaning": "year",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "认识",
@@ -1517,7 +1706,8 @@
     "part_of_speech": "verb",
     "meaning": "to meet, to know",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "飞",
@@ -1525,7 +1715,8 @@
     "part_of_speech": "verb",
     "meaning": "to fly",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "movement"
   },
   {
     "word": "飞机",
@@ -1533,7 +1724,8 @@
     "part_of_speech": "noun",
     "meaning": "airplane",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "object"
   },
   {
     "word": "饭店",
@@ -1541,7 +1733,8 @@
     "part_of_speech": "noun",
     "meaning": "hotel, restaurant",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "place"
   },
   {
     "word": "高兴",
@@ -1549,7 +1742,8 @@
     "part_of_speech": "adjective",
     "meaning": "glad, happy",
     "chapter": 15,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "emotion"
   },
   {
     "word": "你好吗",
@@ -1557,7 +1751,8 @@
     "part_of_speech": "phrase",
     "meaning": "How are you?",
     "chapter": -3,
-    "source": "compound"
+    "source": "compound",
+    "category": "greeting"
   },
   {
     "word": "中国人",
@@ -1565,7 +1760,8 @@
     "part_of_speech": "noun",
     "meaning": "Chinese person",
     "chapter": -3,
-    "source": "compound"
+    "source": "compound",
+    "category": "country"
   },
   {
     "word": "美国人",
@@ -1573,7 +1769,8 @@
     "part_of_speech": "noun",
     "meaning": "American person",
     "chapter": -3,
-    "source": "compound"
+    "source": "compound",
+    "category": "country"
   },
   {
     "word": "你是学生吗",
@@ -1581,7 +1778,8 @@
     "part_of_speech": "phrase",
     "meaning": "Are you a student?",
     "chapter": -3,
-    "source": "compound"
+    "source": "compound",
+    "category": "person"
   },
   {
     "word": "我是学生",
@@ -1589,7 +1787,8 @@
     "part_of_speech": "phrase",
     "meaning": "I am a student",
     "chapter": -3,
-    "source": "compound"
+    "source": "compound",
+    "category": "person"
   },
   {
     "word": "他是谁",
@@ -1597,7 +1796,8 @@
     "part_of_speech": "phrase",
     "meaning": "Who is he?",
     "chapter": -4,
-    "source": "compound"
+    "source": "compound",
+    "category": "pronoun"
   },
   {
     "word": "你的名字",
@@ -1605,7 +1805,8 @@
     "part_of_speech": "phrase",
     "meaning": "your name",
     "chapter": -4,
-    "source": "compound"
+    "source": "compound",
+    "category": "pronoun"
   },
   {
     "word": "我的朋友",
@@ -1613,7 +1814,8 @@
     "part_of_speech": "phrase",
     "meaning": "my friend",
     "chapter": -4,
-    "source": "compound"
+    "source": "compound",
+    "category": "person"
   },
   {
     "word": "哪国人",
@@ -1621,7 +1823,8 @@
     "part_of_speech": "phrase",
     "meaning": "which nationality?",
     "chapter": -4,
-    "source": "compound"
+    "source": "compound",
+    "category": "country"
   },
   {
     "word": "你几岁",
@@ -1629,7 +1832,8 @@
     "part_of_speech": "phrase",
     "meaning": "How old are you?",
     "chapter": -5,
-    "source": "compound"
+    "source": "compound",
+    "category": "time"
   },
   {
     "word": "多大",
@@ -1637,7 +1841,8 @@
     "part_of_speech": "phrase",
     "meaning": "how old? (age)",
     "chapter": -5,
-    "source": "compound"
+    "source": "compound",
+    "category": "time"
   },
   {
     "word": "大家好",
@@ -1645,7 +1850,8 @@
     "part_of_speech": "phrase",
     "meaning": "Hello everyone!",
     "chapter": -5,
-    "source": "compound"
+    "source": "compound",
+    "category": "greeting"
   },
   {
     "word": "有没有",
@@ -1653,7 +1859,8 @@
     "part_of_speech": "phrase",
     "meaning": "do you have...?",
     "chapter": -5,
-    "source": "compound"
+    "source": "compound",
+    "category": "grammar"
   },
   {
     "word": "很好",
@@ -1661,7 +1868,8 @@
     "part_of_speech": "phrase",
     "meaning": "very good",
     "chapter": -6,
-    "source": "compound"
+    "source": "compound",
+    "category": "emotion"
   },
   {
     "word": "我很好",
@@ -1669,7 +1877,8 @@
     "part_of_speech": "phrase",
     "meaning": "I'm fine",
     "chapter": -6,
-    "source": "compound"
+    "source": "compound",
+    "category": "emotion"
   },
   {
     "word": "会说汉语",
@@ -1677,7 +1886,8 @@
     "part_of_speech": "phrase",
     "meaning": "can speak Chinese",
     "chapter": -6,
-    "source": "compound"
+    "source": "compound",
+    "category": "communication"
   },
   {
     "word": "怎么说",
@@ -1685,7 +1895,8 @@
     "part_of_speech": "phrase",
     "meaning": "how to say?",
     "chapter": -6,
-    "source": "compound"
+    "source": "compound",
+    "category": "communication"
   },
   {
     "word": "怎么写",
@@ -1693,7 +1904,8 @@
     "part_of_speech": "phrase",
     "meaning": "how to write?",
     "chapter": -6,
-    "source": "compound"
+    "source": "compound",
+    "category": "communication"
   },
   {
     "word": "请问",
@@ -1701,7 +1913,8 @@
     "part_of_speech": "phrase",
     "meaning": "excuse me (asking)",
     "chapter": -7,
-    "source": "compound"
+    "source": "compound",
+    "category": "communication"
   },
   {
     "word": "今天几号",
@@ -1709,7 +1922,8 @@
     "part_of_speech": "phrase",
     "meaning": "What's today's date?",
     "chapter": -7,
-    "source": "compound"
+    "source": "compound",
+    "category": "time"
   },
   {
     "word": "去学校",
@@ -1717,7 +1931,8 @@
     "part_of_speech": "phrase",
     "meaning": "go to school",
     "chapter": -7,
-    "source": "compound"
+    "source": "compound",
+    "category": "place"
   },
   {
     "word": "星期几",
@@ -1725,7 +1940,8 @@
     "part_of_speech": "phrase",
     "meaning": "which day of week?",
     "chapter": -7,
-    "source": "compound"
+    "source": "compound",
+    "category": "time"
   },
   {
     "word": "多少钱",
@@ -1733,7 +1949,8 @@
     "part_of_speech": "phrase",
     "meaning": "How much (money)?",
     "chapter": -8,
-    "source": "compound"
+    "source": "compound",
+    "category": "number"
   },
   {
     "word": "这个",
@@ -1741,7 +1958,8 @@
     "part_of_speech": "pronoun",
     "meaning": "this one",
     "chapter": -8,
-    "source": "compound"
+    "source": "compound",
+    "category": "pronoun"
   },
   {
     "word": "那个",
@@ -1749,7 +1967,8 @@
     "part_of_speech": "pronoun",
     "meaning": "that one",
     "chapter": -8,
-    "source": "compound"
+    "source": "compound",
+    "category": "pronoun"
   },
   {
     "word": "喝茶",
@@ -1757,7 +1976,8 @@
     "part_of_speech": "phrase",
     "meaning": "drink tea",
     "chapter": -8,
-    "source": "compound"
+    "source": "compound",
+    "category": "food"
   },
   {
     "word": "想买",
@@ -1765,7 +1985,8 @@
     "part_of_speech": "phrase",
     "meaning": "want to buy",
     "chapter": -8,
-    "source": "compound"
+    "source": "compound",
+    "category": "action"
   },
   {
     "word": "在哪儿",
@@ -1773,7 +1994,8 @@
     "part_of_speech": "phrase",
     "meaning": "where is...?",
     "chapter": -9,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "你在哪儿",
@@ -1781,7 +2003,8 @@
     "part_of_speech": "phrase",
     "meaning": "Where are you?",
     "chapter": -9,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在家",
@@ -1789,7 +2012,8 @@
     "part_of_speech": "phrase",
     "meaning": "at home",
     "chapter": -9,
-    "source": "compound"
+    "source": "compound",
+    "category": "family"
   },
   {
     "word": "坐下",
@@ -1797,7 +2021,8 @@
     "part_of_speech": "phrase",
     "meaning": "sit down",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "movement"
   },
   {
     "word": "上下",
@@ -1805,7 +2030,8 @@
     "part_of_speech": "noun",
     "meaning": "up and down",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在上面",
@@ -1813,7 +2039,8 @@
     "part_of_speech": "phrase",
     "meaning": "on top of",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在里面",
@@ -1821,7 +2048,8 @@
     "part_of_speech": "phrase",
     "meaning": "inside",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "几点",
@@ -1829,7 +2057,8 @@
     "part_of_speech": "phrase",
     "meaning": "what time?",
     "chapter": -11,
-    "source": "compound"
+    "source": "compound",
+    "category": "time"
   },
   {
     "word": "回家",
@@ -1837,7 +2066,8 @@
     "part_of_speech": "phrase",
     "meaning": "go home",
     "chapter": -11,
-    "source": "compound"
+    "source": "compound",
+    "category": "family"
   },
   {
     "word": "几点回家",
@@ -1845,7 +2075,8 @@
     "part_of_speech": "phrase",
     "meaning": "What time go home?",
     "chapter": -11,
-    "source": "compound"
+    "source": "compound",
+    "category": "family"
   },
   {
     "word": "天气怎么样",
@@ -1853,7 +2084,8 @@
     "part_of_speech": "phrase",
     "meaning": "How's the weather?",
     "chapter": -12,
-    "source": "compound"
+    "source": "compound",
+    "category": "weather"
   },
   {
     "word": "喝水",
@@ -1861,7 +2093,8 @@
     "part_of_speech": "phrase",
     "meaning": "drink water",
     "chapter": -12,
-    "source": "compound"
+    "source": "compound",
+    "category": "food"
   },
   {
     "word": "太冷了",
@@ -1869,7 +2102,8 @@
     "part_of_speech": "phrase",
     "meaning": "too cold!",
     "chapter": -12,
-    "source": "compound"
+    "source": "compound",
+    "category": "weather"
   },
   {
     "word": "太热了",
@@ -1877,7 +2111,8 @@
     "part_of_speech": "phrase",
     "meaning": "too hot!",
     "chapter": -12,
-    "source": "compound"
+    "source": "compound",
+    "category": "weather"
   },
   {
     "word": "我爱你",
@@ -1885,7 +2120,8 @@
     "part_of_speech": "phrase",
     "meaning": "I love you",
     "chapter": -12,
-    "source": "compound"
+    "source": "compound",
+    "category": "emotion"
   },
   {
     "word": "吃饭",
@@ -1893,7 +2129,8 @@
     "part_of_speech": "phrase",
     "meaning": "eat (a meal)",
     "chapter": -12,
-    "source": "compound"
+    "source": "compound",
+    "category": "food"
   },
   {
     "word": "看电视",
@@ -1901,7 +2138,8 @@
     "part_of_speech": "phrase",
     "meaning": "watch TV",
     "chapter": -13,
-    "source": "compound"
+    "source": "compound",
+    "category": "action"
   },
   {
     "word": "喜欢吃",
@@ -1909,7 +2147,8 @@
     "part_of_speech": "phrase",
     "meaning": "like to eat",
     "chapter": -13,
-    "source": "compound"
+    "source": "compound",
+    "category": "food"
   },
   {
     "word": "开车",
@@ -1917,7 +2156,8 @@
     "part_of_speech": "phrase",
     "meaning": "drive (a car)",
     "chapter": -14,
-    "source": "compound"
+    "source": "compound",
+    "category": "movement"
   },
   {
     "word": "买东西",
@@ -1925,7 +2165,8 @@
     "part_of_speech": "phrase",
     "meaning": "go shopping",
     "chapter": -14,
-    "source": "compound"
+    "source": "compound",
+    "category": "action"
   },
   {
     "word": "很漂亮",
@@ -1933,7 +2174,8 @@
     "part_of_speech": "phrase",
     "meaning": "very beautiful",
     "chapter": -14,
-    "source": "compound"
+    "source": "compound",
+    "category": "emotion"
   },
   {
     "word": "坐飞机",
@@ -1941,7 +2183,8 @@
     "part_of_speech": "phrase",
     "meaning": "take a plane",
     "chapter": -15,
-    "source": "compound"
+    "source": "compound",
+    "category": "movement"
   },
   {
     "word": "坐出租车",
@@ -1949,7 +2192,8 @@
     "part_of_speech": "phrase",
     "meaning": "take a taxi",
     "chapter": -15,
-    "source": "compound"
+    "source": "compound",
+    "category": "movement"
   },
   {
     "word": "一起去",
@@ -1957,7 +2201,8 @@
     "part_of_speech": "phrase",
     "meaning": "go together",
     "chapter": -15,
-    "source": "compound"
+    "source": "compound",
+    "category": "movement"
   },
   {
     "word": "认识你很高兴",
@@ -1965,7 +2210,8 @@
     "part_of_speech": "phrase",
     "meaning": "Nice to meet you",
     "chapter": -15,
-    "source": "compound"
+    "source": "compound",
+    "category": "emotion"
   },
   {
     "word": "很高兴",
@@ -1973,7 +2219,8 @@
     "part_of_speech": "phrase",
     "meaning": "very happy",
     "chapter": -15,
-    "source": "compound"
+    "source": "compound",
+    "category": "emotion"
   },
   {
     "word": "早上",
@@ -1981,7 +2228,8 @@
     "part_of_speech": "noun",
     "meaning": "morning, early morning",
     "chapter": -8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "晚上",
@@ -1989,7 +2237,8 @@
     "part_of_speech": "noun",
     "meaning": "evening, night",
     "chapter": -8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "高",
@@ -1997,7 +2246,8 @@
     "part_of_speech": "adjective",
     "meaning": "tall, high",
     "chapter": -16,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "矮",
@@ -2005,7 +2255,8 @@
     "part_of_speech": "adjective",
     "meaning": "short (height)",
     "chapter": -16,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "size"
   },
   {
     "word": "外",
@@ -2013,7 +2264,8 @@
     "part_of_speech": "noun",
     "meaning": "outside, outer",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "左",
@@ -2021,7 +2273,8 @@
     "part_of_speech": "noun",
     "meaning": "left",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "右",
@@ -2029,7 +2282,8 @@
     "part_of_speech": "noun",
     "meaning": "right",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "上面",
@@ -2037,7 +2291,8 @@
     "part_of_speech": "noun",
     "meaning": "above, on top of",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "下面",
@@ -2045,7 +2300,8 @@
     "part_of_speech": "noun",
     "meaning": "below, under",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "里面",
@@ -2053,7 +2309,8 @@
     "part_of_speech": "noun",
     "meaning": "inside",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "外面",
@@ -2061,7 +2318,8 @@
     "part_of_speech": "noun",
     "meaning": "outside",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "左边",
@@ -2069,7 +2327,8 @@
     "part_of_speech": "noun",
     "meaning": "left side",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "右边",
@@ -2077,7 +2336,8 @@
     "part_of_speech": "noun",
     "meaning": "right side",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "旁边",
@@ -2085,7 +2345,8 @@
     "part_of_speech": "noun",
     "meaning": "beside, next to",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "对面",
@@ -2093,7 +2354,8 @@
     "part_of_speech": "noun",
     "meaning": "opposite, across from",
     "chapter": -10,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "direction"
   },
   {
     "word": "在下面",
@@ -2101,7 +2363,8 @@
     "part_of_speech": "phrase",
     "meaning": "underneath, below",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在前面",
@@ -2109,7 +2372,8 @@
     "part_of_speech": "phrase",
     "meaning": "in front of",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在后面",
@@ -2117,7 +2381,8 @@
     "part_of_speech": "phrase",
     "meaning": "behind",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在外面",
@@ -2125,7 +2390,8 @@
     "part_of_speech": "phrase",
     "meaning": "outside",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在旁边",
@@ -2133,7 +2399,8 @@
     "part_of_speech": "phrase",
     "meaning": "beside, next to",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在对面",
@@ -2141,7 +2408,8 @@
     "part_of_speech": "phrase",
     "meaning": "across from, opposite",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在左边",
@@ -2149,7 +2417,8 @@
     "part_of_speech": "phrase",
     "meaning": "on the left",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "在右边",
@@ -2157,7 +2426,8 @@
     "part_of_speech": "phrase",
     "meaning": "on the right",
     "chapter": -10,
-    "source": "compound"
+    "source": "compound",
+    "category": "direction"
   },
   {
     "word": "凌晨",
@@ -2165,6 +2435,7 @@
     "part_of_speech": "noun",
     "meaning": "early morning, wee hours (midnight-5am)",
     "chapter": -8,
-    "source": "hsk1"
+    "source": "hsk1",
+    "category": "time"
   }
 ]

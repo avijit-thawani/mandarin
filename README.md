@@ -89,7 +89,7 @@ Experimental behavior → module-level docs first, README at principle level.
 
 ## Data Model (What Must Stay Consistent)
 
-**Concept** (client-side): static vocab fields + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
+**Concept** (client-side): static vocab fields (including semantic `category`) + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
 
 **Quiz Attempt** (analytics + ML): vocabulary id, question/answer modalities, selected option, correctness, difficulty context, knowledge snapshot. Do not remove fields without migration and analytics review.
 
@@ -122,6 +122,13 @@ If changing this flow, update analytics expectations and user-facing copy.
 - Difficulty/strategy behavior changes often; treat `src/utils/quiz.ts` as source-of-truth for selection logic.
 - Keep README language stable (intent and invariants), and put exact heuristics or scoring formulas in code docstrings.
 - If ML predictions affect runtime behavior, document decision boundaries next to implementation and link from README.
+
+### Distractor Selection
+MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz.ts`):
+- **Semantic category** (`category` field in vocabulary JSON): same-category words are strongly preferred in hard/expert mode (e.g., 爸爸 draws 妈妈/儿子, not 桌子/学校).
+- **Character structure**: words with matching repetition patterns (AA like 爸爸/妈妈/谢谢) are preferred as distractors for each other, preventing the "spot the doubled character" shortcut.
+- POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert).
+- Easy mode inverts most signals to make wrong answers obviously different.
 
 ---
 

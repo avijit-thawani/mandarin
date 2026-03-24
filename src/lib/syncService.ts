@@ -49,13 +49,14 @@ function rowToConcept(row: JoinedProgressRow): Concept | null {
   const modality = isValidModality(row.modality) ? row.modality : createInitialModality(vocab.chapter);
   
   return {
-    id: row.vocabulary_id, // Use vocabulary_id as the concept ID for consistency
+    id: row.vocabulary_id,
     word: vocab.word,
     pinyin: vocab.pinyin,
     part_of_speech: vocab.part_of_speech as Concept['part_of_speech'],
     meaning: vocab.meaning,
     chapter: vocab.chapter,
     source: vocab.source,
+    category: 'other' as const, // Enriched from local JSON by store sync
     modality,
     knowledge: row.knowledge,
     paused: row.paused,

@@ -179,11 +179,31 @@ function pinyinSimilarity(pinyin1: string, pinyin2: string): number {
 }
 
 /**
+ * Detect the character repetition pattern of a word.
+ * Returns a normalized structure signature, e.g.:
+ *   爸爸 → "AA", 谢谢 → "AA", 妈妈 → "AA"
+ *   学生 → "AB", 一 → "A", 出租车 → "ABC"
+ */
+function charPattern(word: string): string {
+  const chars = [...word]; // spread handles multi-byte correctly
+  const map = new Map<string, string>();
+  let nextLabel = 'A';
+  return chars.map(ch => {
+    if (!map.has(ch)) {
+      map.set(ch, nextLabel);
+      nextLabel = String.fromCharCode(nextLabel.charCodeAt(0) + 1);
+    }
+    return map.get(ch)!;
+  }).join('');
+}
+
+/**
  * Select distractors for a quiz question
  * 
  * Strategy varies by difficulty:
  * - Easy: Prefer different length, different POS, far chapters (4 options)
- * - Hard: Prefer similar length, same POS, nearby chapters, similar pinyin (4 options)
+ * - Hard: Prefer similar length, same POS, nearby chapters, similar pinyin,
+ *         same semantic category, similar character structure (4 options)
  * - Expert: Same as hard + knowledge-matched distractors (6 options)
  * 
  * Always:
@@ -206,22 +226,36 @@ export function selectDistractors(
   const isExpert = optionSelection === 'expert';
   const isHardOrExpert = optionSelection === 'hard' || optionSelection === 'expert';
   
+  const targetPattern = charPattern(target.word);
+  
   // Score candidates by difficulty-adjusted similarity
   const scored = candidates.map(candidate => {
     let score = 1; // Base score
     
+    // === Semantic Category (strongest signal for hard/expert) ===
+    // Hard/Expert: same category = semantically confusing = highest boost
+    // Easy: different category = obviously unrelated = boost
+    if (candidate.category === target.category) {
+      score += isHardOrExpert ? 5 : -2;
+    } else {
+      score += isEasy ? 2 : 0;
+    }
+    
     // === Part of Speech ===
-    // Hard/Expert: same POS = more confusing = higher score
-    // Easy: different POS = obvious wrong = higher score
     if (candidate.part_of_speech === target.part_of_speech) {
       score += isHardOrExpert ? 3 : -1;
     } else {
       score += isEasy ? 2 : 0;
     }
     
+    // === Character Structure Similarity ===
+    // Prefer distractors with the same repetition pattern (AA, AB, ABC etc.)
+    // Prevents the "spot the doubled character" shortcut
+    if (isHardOrExpert && charPattern(candidate.word) === targetPattern) {
+      score += 3;
+    }
+    
     // === Chapter Proximity ===
-    // Hard/Expert: nearby chapters = similar difficulty = higher score
-    // Easy: far chapters = obvious skill gap = higher score
     const chapterDiff = Math.abs(candidate.chapter - target.chapter);
     if (isHardOrExpert) {
       if (chapterDiff <= 2) score += 2;
@@ -232,8 +266,6 @@ export function selectDistractors(
     }
     
     // === Word Length Similarity ===
-    // Hard/Expert: similar character count = more confusing
-    // Easy: different lengths = obvious visual difference
     const lengthDiff = Math.abs(candidate.word.length - target.word.length);
     if (isHardOrExpert) {
       if (lengthDiff === 0) score += 2;
@@ -250,13 +282,11 @@ export function selectDistractors(
     }
     
     // === Knowledge Matching (Expert mode only) ===
-    // Prefer distractors with similar knowledge to target - makes elimination harder
     if (isExpert) {
       const knowledgeDiff = Math.abs(candidate.knowledge - target.knowledge);
-      if (knowledgeDiff <= 10) score += 3;      // Very similar knowledge
-      else if (knowledgeDiff <= 20) score += 2; // Similar knowledge
-      else if (knowledgeDiff <= 30) score += 1; // Somewhat similar
-      // Large knowledge gaps get no bonus (easier to eliminate)
+      if (knowledgeDiff <= 10) score += 3;
+      else if (knowledgeDiff <= 20) score += 2;
+      else if (knowledgeDiff <= 30) score += 1;
     }
     
     // Small random factor to avoid always picking same distractors

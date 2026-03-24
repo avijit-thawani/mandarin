@@ -171,13 +171,16 @@ export function useVocabularyStore(): VocabularyStore {
       return true;
     });
     
-    // Update meanings for existing concepts
+    // Sync mutable fields from source JSON (meaning, category, part_of_speech, chapter)
     const updatedConcepts = filteredConcepts.map(c => {
       const sourceWord = vocabMap.get(c.word);
-      if (sourceWord && sourceWord.meaning !== c.meaning) {
-        return { ...c, meaning: sourceWord.meaning };
-      }
-      return c;
+      if (!sourceWord) return c;
+      const needsUpdate =
+        sourceWord.meaning !== c.meaning ||
+        sourceWord.category !== c.category ||
+        sourceWord.part_of_speech !== c.part_of_speech ||
+        sourceWord.chapter !== c.chapter;
+      return needsUpdate ? { ...c, ...sourceWord } : c;
     });
     
     const removedCount = loadedConcepts.length - filteredConcepts.length;

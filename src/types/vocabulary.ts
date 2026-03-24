@@ -39,6 +39,13 @@ export const QUIZ_TASK_TYPES: QuizTaskType[] = MODALITIES.flatMap(from =>
 // VOCAB WORD (from HSK1 JSON)
 // ═══════════════════════════════════════════════════════════
 
+export type SemanticCategory =
+  | 'number' | 'family' | 'person' | 'pronoun' | 'animal'
+  | 'body' | 'country' | 'food' | 'time' | 'direction'
+  | 'place' | 'object' | 'weather' | 'size' | 'nature'
+  | 'communication' | 'movement' | 'emotion' | 'greeting'
+  | 'action' | 'grammar' | 'other';
+
 export interface VocabWord {
   word: string;
   pinyin: string;
@@ -46,6 +53,7 @@ export interface VocabWord {
   meaning: string;
   chapter: number;
   source: string;
+  category: SemanticCategory;
 }
 
 // ═══════════════════════════════════════════════════════════
