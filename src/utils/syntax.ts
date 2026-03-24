@@ -118,6 +118,7 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   // Time (extended)
   '早上': ['time'],
   '晚上': ['time'],
+  '凌晨': ['time'],
   
   // Languages
   '汉语': ['language'],
@@ -207,6 +208,7 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   // Time (extended)
   '早上': { subject: 'this morning', object: 'this morning' },
   '晚上': { subject: 'tonight', object: 'tonight' },
+  '凌晨': { subject: 'in the wee hours', object: 'in the wee hours' },
   
   // Adjectives
   '好': { subject: 'good', object: 'good' },
