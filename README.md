@@ -166,11 +166,33 @@ Architecture:
 
 Key columns on `push_subscriptions`: `reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`.
 
-Migrations (must both be applied in order):
+Migrations (must all be applied in order):
 1. `20260213162000_create_push_subscriptions.sql` — creates the table + RLS policies.
 2. `20260213230500_add_push_subscription_schedule.sql` — adds schedule columns (`reminder_timezone`, etc.).
+3. `20260324120000_add_reminder_cron.sql` — enables `pg_cron` + `pg_net` extensions.
 
-Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and VAPID private key in Supabase Edge Function secrets.
+**Cron setup (required for scheduled reminders):**
+The Edge Function must be called periodically to check schedules and send notifications. After running migration 3, run this in the Supabase SQL Editor (replace the two placeholders):
+```sql
+select cron.schedule(
+  'send-push-reminders',
+  '*/10 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://fnhxleujzzuwfzrleypk.supabase.co/functions/v1/send-reminders',
+    headers := '{"Content-Type":"application/json","x-cron-secret":"<YOUR_CRON_SECRET>"}'::jsonb,
+    body := '{}'::jsonb
+  );
+  $$
+);
+```
+Also set the matching `CRON_SECRET` as an Edge Function secret in the Supabase Dashboard → Edge Functions → send-reminders → Secrets.
+
+To verify cron jobs: `select * from cron.job;`
+To check recent runs: `select * from cron.job_run_details order by start_time desc limit 10;`
+To unschedule: `select cron.unschedule('send-push-reminders');`
+
+Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `CRON_SECRET` as Edge Function secrets.
 
 Any sync strategy changes must update this section and `Known Failures`.
 
@@ -207,35 +229,13 @@ Weight meaning: `0` skip, `1` low, `2` medium, `3` high.
 
 ## Pinyin Tab Behavior
 
-Purpose: pronunciation practice using vocab-based exercises.
-
-Two modes:
-- **Listen**: audio quiz — plays a random vocab word's audio, user picks the matching pinyin from 6 options.
-- **Speak**: self-evaluation — shows pinyin of a random vocab word, user speaks aloud, then taps Play to hear the correct pronunciation and self-rates (Got It / Try Again).
-
-Both modes use the user's known vocabulary words for TTS (same pool as Quiz/Study).
+Pronunciation practice using known vocab words. **Listen** mode: audio quiz with 6 pinyin options. **Speak** mode: self-evaluation — see pinyin, speak, compare with TTS, self-rate.
 
 ---
 
 ## Syntax Tab Behavior
 
-Purpose: grammar and word-order practice using known vocabulary.
-
-Current model:
-- template-driven sentence generation (`src/types/syntax.ts`, `src/utils/syntax.ts`)
-- bidirectional exercises (reading/writing orientations)
-- unlock behavior depends on required vocabulary/roles
-
-Template categories:
-- **Level 1**: Basic SVO (eat/drink/go/like/read), location with 在, adjective with 很
-- **Level 2**: Questions (吗), negation (不), want (想), **preposition/location patterns** (在+reference+location word)
-- **Level 3**: Time expressions (time before subject)
-
-Preposition pattern (Level 2): Chinese puts location words AFTER the reference object — opposite of English prepositions. E.g. 猫在椅子下面 = "cat at chair below" = The cat is under the chair. Templates cover 上面/下面/前面/后面/里面/旁边 positions with both furniture and place references.
-
-If generation logic changes, update both this section and relevant template docs.
-
-If syntax adds LLM-guided feedback or a dedicated quiz mode/tab, keep this section high-level and place prompt/selection/rubric docs in `src/pages/SyntaxPage.tsx` and `src/utils/syntax.ts`.
+Template-driven grammar/word-order practice using known vocabulary. Levels: L1 basic SVO + 在/很, L2 questions/negation/want/prepositions, L3 time expressions. See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If generation logic changes, update both template code and this section.
 
 ---
 
@@ -248,23 +248,10 @@ If syntax adds LLM-guided feedback or a dedicated quiz mode/tab, keep this secti
 - `npm run preview`: preview built app.
 
 ### Content/Vocabulary Extraction Scripts
-Located under `content/hsk1/`:
-- OCR + structure analysis + correction + extraction utilities for textbook-driven vocab imports.
-- Scripts are workflow-oriented and may rely on local environment/API keys.
-
-When modifying extraction scripts:
-1. document required env vars and dependencies
-2. document changed input/output file names
-3. document behavior changes in parsing/correction rules
-4. add migration notes if output schema changes
+Located under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports. Document env vars, I/O files, and parsing rules when modifying.
 
 ### ML/Analysis Scripts
-Key files:
-- `analysis/quiz_ml_model.py`
-- `analysis/quiz_attempts_data.json`
-
-Use them for model experiments and calibration notes, not runtime quiz correctness.
-If feature extraction or target labeling changes, log it in README and mention data compatibility impact.
+`analysis/quiz_ml_model.py`, `analysis/quiz_attempts_data.json` — model experiments, not runtime. Log feature/label changes here.
 
 ---
 
@@ -300,7 +287,8 @@ Never repeat this class of failure.
 1. **Past migration data loss** on quiz history (see section above).
 2. **Class imbalance in ML data** can overestimate performance if mostly correct answers are logged.
 3. **Unsynced local progress risk** if cloud load overwrites stale local state after interrupted sync.
-4. **PWA migration not applied (Mar 2026)**: `push_subscriptions` table existed but the second migration (`20260213230500_add_push_subscription_schedule.sql`) adding `reminder_timezone` and schedule columns was never run against production. Caused `column push_subscriptions.reminder_timezone does not exist` errors on any push subscribe/schedule operation. Fix: run the migration SQL in the Supabase Dashboard SQL Editor — it is idempotent (`ADD COLUMN IF NOT EXISTS`). **Lesson**: after adding migration files, always verify they are applied to the live database, not just committed to the repo.
+4. **PWA migration not applied (Mar 2026)**: migration adding `reminder_timezone` columns was committed but never run against production → `column does not exist` errors. Fix: run migration SQL in Dashboard SQL Editor. **Lesson**: verify migrations are applied to the live DB, not just committed.
+5. **PWA cron trigger missing (Mar 2026)**: Edge Function existed and test notifications worked (`force: true`), but no `pg_cron` job was calling it on a schedule, so scheduled reminders never fired. Fix: set up `pg_cron` + `pg_net` to POST to the function every 10 min (see PWA Push Notifications section). **Lesson**: an Edge Function without a trigger is dead code — always wire up the invocation mechanism.
 
 ---
 
