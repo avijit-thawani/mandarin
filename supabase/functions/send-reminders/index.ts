@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
 
   const title = payload.title ?? 'Mandarin reminder';
   const body = payload.body ?? 'Time for a quick review session.';
-  const url = payload.url ?? '/study';
+  const url = payload.url ?? '/quiz';
   const notificationPayload = JSON.stringify({ title, body, url });
 
   const now = new Date();

@@ -23,6 +23,7 @@ interface VocabPreferences {
   sortField: SortField;
   sortDir: SortDir;
   filterChapter: string;
+  filterPoS: string;
   showStudyingOnly: boolean;
   includePhrases: boolean;
 }
@@ -31,6 +32,7 @@ const DEFAULT_VOCAB_PREFS: VocabPreferences = {
   sortField: 'chapter',
   sortDir: 'asc',
   filterChapter: 'all',
+  filterPoS: 'all',
   showStudyingOnly: false,
   includePhrases: true,
 };
@@ -48,6 +50,7 @@ function loadVocabPreferences(): VocabPreferences {
         sortField: validFields.includes(parsed.sortField) ? parsed.sortField : DEFAULT_VOCAB_PREFS.sortField,
         sortDir: validDirs.includes(parsed.sortDir) ? parsed.sortDir : DEFAULT_VOCAB_PREFS.sortDir,
         filterChapter: typeof parsed.filterChapter === 'string' ? parsed.filterChapter : DEFAULT_VOCAB_PREFS.filterChapter,
+        filterPoS: typeof parsed.filterPoS === 'string' ? parsed.filterPoS : DEFAULT_VOCAB_PREFS.filterPoS,
         showStudyingOnly: typeof parsed.showStudyingOnly === 'boolean' ? parsed.showStudyingOnly : DEFAULT_VOCAB_PREFS.showStudyingOnly,
         includePhrases: typeof parsed.includePhrases === 'boolean' ? parsed.includePhrases : DEFAULT_VOCAB_PREFS.includePhrases,
       };
@@ -73,6 +76,7 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
   const [sortField, setSortField] = useState<SortField>(initialPrefs.sortField);
   const [sortDir, setSortDir] = useState<SortDir>(initialPrefs.sortDir);
   const [filterChapter, setFilterChapter] = useState<string>(initialPrefs.filterChapter);
+  const [filterPoS, setFilterPoS] = useState<string>(initialPrefs.filterPoS);
   const [showStudyingOnly, setShowStudyingOnly] = useState<boolean>(initialPrefs.showStudyingOnly);
   const [includePhrases, setIncludePhrases] = useState<boolean>(initialPrefs.includePhrases);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
@@ -150,6 +154,11 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
       });
     }
     
+    // PoS filter
+    if (filterPoS !== 'all') {
+      result = result.filter(c => c.part_of_speech === filterPoS);
+    }
+    
     // Known toggle: show only known words (not paused) if enabled
     if (showStudyingOnly) {
       result = result.filter(c => !c.paused);
@@ -188,7 +197,7 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
       }
       return sortDir === 'asc' ? comparison : -comparison;
     });
-  }, [store.concepts, filterChapter, showStudyingOnly, includePhrases, sortField, sortDir]);
+  }, [store.concepts, filterChapter, filterPoS, showStudyingOnly, includePhrases, sortField, sortDir]);
   
   const handleSort = (field: SortField) => {
     let newDir: SortDir;
@@ -208,6 +217,11 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
   const handleFilterChapter = (value: string) => {
     setFilterChapter(value);
     saveVocabPreferences({ filterChapter: value });
+  };
+  
+  const handleFilterPoS = (value: string) => {
+    setFilterPoS(value);
+    saveVocabPreferences({ filterPoS: value });
   };
   
   const handleToggleStudyingOnly = () => {

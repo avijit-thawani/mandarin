@@ -89,7 +89,7 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '汉字': ['readable', 'thing'],
   
   // Vehicles
-  '车': ['vehicle'],
+  '车': ['vehicle', 'thing'],
   '出租车': ['vehicle'],
   '飞机': ['vehicle'],
   
@@ -209,6 +209,14 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   '早上': { subject: 'this morning', object: 'this morning' },
   '晚上': { subject: 'tonight', object: 'tonight' },
   '凌晨': { subject: 'in the wee hours', object: 'in the wee hours' },
+  
+  // Vehicles
+  '车': { subject: 'the car', object: 'the car' },
+  '出租车': { subject: 'a taxi', object: 'a taxi' },
+  '飞机': { subject: 'the plane', object: 'the plane' },
+  
+  // Languages
+  '汉语': { subject: 'Chinese', object: 'Chinese' },
   
   // Adjectives
   '好': { subject: 'good', object: 'good' },
@@ -748,6 +756,113 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: '{subject} drinks {object} {time}',
     difficulty: 3,
   },
+
+  // ========== New patterns: 也, 有/没有, 坐, 在+V, 学 ==========
+  {
+    id: 'person_have_thing',
+    name: 'Someone has something',
+    description: 'Subject + 有 + Object',
+    explanation: '有 (yǒu) expresses possession. Unlike English, there is no "a/the" needed.',
+    example: { zh: '我有书', en: 'I have books' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['thing', 'locatable', 'readable', 'edible', 'drinkable'] },
+    ],
+    fixedWords: [
+      { word: '有', pinyin: 'yǒu', meaning: 'have' },
+    ],
+    chineseOrder: ['subject', '有', 'object'],
+    englishPattern: '{subject} has {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_take_vehicle',
+    name: 'Someone takes transport',
+    description: 'Subject + 坐 + Vehicle',
+    explanation: '坐 (zuò) literally means "sit" but is used for taking transportation',
+    example: { zh: '我坐飞机', en: 'I take the plane' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['vehicle'] },
+    ],
+    fixedWords: [
+      { word: '坐', pinyin: 'zuò', meaning: 'take/ride' },
+    ],
+    chineseOrder: ['subject', '坐', 'object'],
+    englishPattern: '{subject} takes {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_learn_language',
+    name: 'Someone studies a language',
+    description: 'Subject + 学 + Language',
+    explanation: '学 (xué) means to study or learn',
+    example: { zh: '我学汉语', en: 'I study Chinese' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['language'] },
+    ],
+    fixedWords: [
+      { word: '学', pinyin: 'xué', meaning: 'study/learn' },
+    ],
+    chineseOrder: ['subject', '学', 'object'],
+    englishPattern: '{subject} studies {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_also_eat',
+    name: 'Someone also eats something',
+    description: 'Subject + 也 + 吃 + Object',
+    explanation: '也 (yě) = "also/too". It always goes BEFORE the verb, never at the end like English.',
+    example: { zh: '他也吃苹果', en: 'He also eats apples' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '也', pinyin: 'yě', meaning: 'also' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['subject', '也', '吃', 'object'],
+    englishPattern: '{subject} also eats {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_have',
+    name: "Someone doesn't have something",
+    description: 'Subject + 没有 + Object',
+    explanation: 'Use 没有 (méiyǒu), NOT 不, to negate 有. 没有 is also used for past-tense negation.',
+    example: { zh: '我没有车', en: "I don't have a car" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['thing', 'locatable', 'readable', 'edible', 'drinkable'] },
+    ],
+    fixedWords: [
+      { word: '没有', pinyin: 'méiyǒu', meaning: "don't have" },
+    ],
+    chineseOrder: ['subject', '没有', 'object'],
+    englishPattern: "{subject} doesn't have {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_at_place_eat',
+    name: 'Someone eats at a place',
+    description: 'Subject + 在 + Place + 吃 + Object',
+    explanation: '在+Place BEFORE the verb = doing something at that place. Compare: 我在家 (I am at home) vs 我在家吃饭 (I eat at home).',
+    example: { zh: '我在家吃饭', en: 'I eat food at home' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'location', categories: ['destination'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['subject', '在', 'location', '吃', 'object'],
+    englishPattern: '{subject} eats {object} at {location}',
+    difficulty: 2,
+  },
 ];
 
 // ============================================================================
@@ -975,6 +1090,10 @@ export function generateSentenceExercise(
     english = english.replace(' likes ', ' like ');
     english = english.replace(' reads ', ' read ');
     english = english.replace(' wants ', ' want ');
+    english = english.replace(' has ', ' have ');
+    english = english.replace(' takes ', ' take ');
+    english = english.replace(' studies ', ' study ');
+    english = english.replace(' also eats ', ' also eat ');
     english = english.replace(' is at ', ' am at ');
     english = english.replace(' is very ', ' am very ');
     english = english.replace(' is on ', ' am on ');

@@ -10,7 +10,7 @@ self.addEventListener('push', (event) => {
   let payload = {
     title: 'Mandarin reminder',
     body: 'Time for a quick review session.',
-    url: '/study',
+    url: '/quiz',
   };
 
   try {
@@ -30,7 +30,7 @@ self.addEventListener('push', (event) => {
     icon: '/veena.svg',
     badge: '/veena.svg',
     data: {
-      url: payload.url || '/study',
+      url: payload.url || '/quiz',
     },
   };
 
@@ -40,7 +40,7 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const targetUrl = event.notification?.data?.url || '/study';
+  const targetUrl = event.notification?.data?.url || '/quiz';
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {

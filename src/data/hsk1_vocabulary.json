@@ -390,7 +390,7 @@
     "word": "呢",
     "pinyin": "ne",
     "part_of_speech": "particle",
-    "meaning": "question particle",
+    "meaning": "question / continuation / follow-up particle",
     "chapter": 4,
     "source": "hsk1",
     "category": "grammar"
@@ -444,7 +444,7 @@
     "word": "的",
     "pinyin": "de",
     "part_of_speech": "particle",
-    "meaning": "possessive particle",
+    "meaning": "modifier / possession marker",
     "chapter": 4,
     "source": "hsk1",
     "category": "grammar"
@@ -498,7 +498,7 @@
     "word": "口",
     "pinyin": "kǒu",
     "part_of_speech": "measure_word",
-    "meaning": "measure word (family)",
+    "meaning": "mouth; measure word (family / population)",
     "chapter": 5,
     "source": "hsk1",
     "category": "body"
@@ -543,7 +543,7 @@
     "word": "家",
     "pinyin": "jiā",
     "part_of_speech": "noun",
-    "meaning": "family",
+    "meaning": "family; home; -ist / specialist (suffix)",
     "chapter": 5,
     "source": "hsk1",
     "category": "family"
@@ -1002,7 +1002,7 @@
     "word": "在",
     "pinyin": "zài",
     "part_of_speech": "verb",
-    "meaning": "to be in/on/at",
+    "meaning": "to be at; (prep.) at / in / on",
     "chapter": 9,
     "source": "hsk1",
     "category": "direction"
@@ -1110,7 +1110,7 @@
     "word": "和",
     "pinyin": "hé",
     "part_of_speech": "conjunction",
-    "meaning": "and",
+    "meaning": "and; with",
     "chapter": 10,
     "source": "hsk1",
     "category": "grammar"
@@ -2437,5 +2437,698 @@
     "chapter": -8,
     "source": "hsk1",
     "category": "time"
+  },
+  {
+    "word": "地",
+    "pinyin": "de",
+    "part_of_speech": "particle",
+    "meaning": "adverbial marker",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "得",
+    "pinyin": "de",
+    "part_of_speech": "particle",
+    "meaning": "complement marker",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "着",
+    "pinyin": "zhe",
+    "part_of_speech": "particle",
+    "meaning": "ongoing state / durative aspect",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "过",
+    "pinyin": "guo",
+    "part_of_speech": "particle",
+    "meaning": "experiential aspect (have done before)",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "吧",
+    "pinyin": "ba",
+    "part_of_speech": "particle",
+    "meaning": "suggestion / assumption / softening",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "呀",
+    "pinyin": "ya",
+    "part_of_speech": "particle",
+    "meaning": "exclamation variant",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "哇",
+    "pinyin": "wa",
+    "part_of_speech": "particle",
+    "meaning": "surprise / admiration",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "啦",
+    "pinyin": "la",
+    "part_of_speech": "particle",
+    "meaning": "emphasis / change of state",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "嘛",
+    "pinyin": "ma",
+    "part_of_speech": "particle",
+    "meaning": "obviousness / persuasion",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "呐",
+    "pinyin": "na",
+    "part_of_speech": "particle",
+    "meaning": "exclamatory emphasis",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "或者",
+    "pinyin": "huòzhě",
+    "part_of_speech": "conjunction",
+    "meaning": "or",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "还是",
+    "pinyin": "háishi",
+    "part_of_speech": "conjunction",
+    "meaning": "or (in questions)",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "但是",
+    "pinyin": "dànshì",
+    "part_of_speech": "conjunction",
+    "meaning": "but",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "可是",
+    "pinyin": "kěshì",
+    "part_of_speech": "conjunction",
+    "meaning": "but",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "因为",
+    "pinyin": "yīnwèi",
+    "part_of_speech": "conjunction",
+    "meaning": "because; because of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "所以",
+    "pinyin": "suǒyǐ",
+    "part_of_speech": "conjunction",
+    "meaning": "so, therefore",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "如果",
+    "pinyin": "rúguǒ",
+    "part_of_speech": "conjunction",
+    "meaning": "if",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "虽然",
+    "pinyin": "suīrán",
+    "part_of_speech": "conjunction",
+    "meaning": "although",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "而且",
+    "pinyin": "érqiě",
+    "part_of_speech": "conjunction",
+    "meaning": "and moreover",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "从",
+    "pinyin": "cóng",
+    "part_of_speech": "preposition",
+    "meaning": "from",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "到",
+    "pinyin": "dào",
+    "part_of_speech": "preposition",
+    "meaning": "to / until",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "给",
+    "pinyin": "gěi",
+    "part_of_speech": "preposition",
+    "meaning": "to give; to / for",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "跟",
+    "pinyin": "gēn",
+    "part_of_speech": "preposition",
+    "meaning": "with",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "用",
+    "pinyin": "yòng",
+    "part_of_speech": "preposition",
+    "meaning": "using / with",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "action"
+  },
+  {
+    "word": "对",
+    "pinyin": "duì",
+    "part_of_speech": "preposition",
+    "meaning": "toward / regarding",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "向",
+    "pinyin": "xiàng",
+    "part_of_speech": "preposition",
+    "meaning": "toward / facing",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "direction"
+  },
+  {
+    "word": "往",
+    "pinyin": "wǎng",
+    "part_of_speech": "preposition",
+    "meaning": "toward / in the direction of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "direction"
+  },
+  {
+    "word": "比",
+    "pinyin": "bǐ",
+    "part_of_speech": "preposition",
+    "meaning": "compared with / than",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "把",
+    "pinyin": "bǎ",
+    "part_of_speech": "preposition",
+    "meaning": "object marker (disposal construction)",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "被",
+    "pinyin": "bèi",
+    "part_of_speech": "preposition",
+    "meaning": "passive marker",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "离",
+    "pinyin": "lí",
+    "part_of_speech": "preposition",
+    "meaning": "from / away from",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "direction"
+  },
+  {
+    "word": "按",
+    "pinyin": "àn",
+    "part_of_speech": "preposition",
+    "meaning": "according to / based on",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "照",
+    "pinyin": "zhào",
+    "part_of_speech": "preposition",
+    "meaning": "according to / following",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "为",
+    "pinyin": "wèi",
+    "part_of_speech": "preposition",
+    "meaning": "for / on behalf of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "为了",
+    "pinyin": "wèile",
+    "part_of_speech": "preposition",
+    "meaning": "for the sake of / in order to",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "关于",
+    "pinyin": "guānyú",
+    "part_of_speech": "preposition",
+    "meaning": "about / regarding",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "自",
+    "pinyin": "zì",
+    "part_of_speech": "preposition",
+    "meaning": "from / since",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "以",
+    "pinyin": "yǐ",
+    "part_of_speech": "preposition",
+    "meaning": "by means of / with",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "因",
+    "pinyin": "yīn",
+    "part_of_speech": "preposition",
+    "meaning": "because of / due to",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "由",
+    "pinyin": "yóu",
+    "part_of_speech": "preposition",
+    "meaning": "by / via / through",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "经",
+    "pinyin": "jīng",
+    "part_of_speech": "preposition",
+    "meaning": "through / via",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "经由",
+    "pinyin": "jīngyóu",
+    "part_of_speech": "preposition",
+    "meaning": "via / by way of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "朝",
+    "pinyin": "cháo",
+    "part_of_speech": "preposition",
+    "meaning": "toward",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "direction"
+  },
+  {
+    "word": "对于",
+    "pinyin": "duìyú",
+    "part_of_speech": "preposition",
+    "meaning": "regarding / with respect to",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "至于",
+    "pinyin": "zhìyú",
+    "part_of_speech": "preposition",
+    "meaning": "as for / regarding",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "替",
+    "pinyin": "tì",
+    "part_of_speech": "preposition",
+    "meaning": "for / on behalf of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "帮",
+    "pinyin": "bāng",
+    "part_of_speech": "preposition",
+    "meaning": "for / help on behalf of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "根据",
+    "pinyin": "gēnjù",
+    "part_of_speech": "preposition",
+    "meaning": "according to / based on",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "依据",
+    "pinyin": "yījù",
+    "part_of_speech": "preposition",
+    "meaning": "according to / on the basis of",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "本着",
+    "pinyin": "běnzhe",
+    "part_of_speech": "preposition",
+    "meaning": "in line with / according to",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
+    "word": "卖",
+    "pinyin": "mài",
+    "part_of_speech": "verb",
+    "meaning": "to sell",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "action"
+  },
+  {
+    "word": "拿",
+    "pinyin": "ná",
+    "part_of_speech": "verb",
+    "meaning": "to take / hold",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "action"
+  },
+  {
+    "word": "放",
+    "pinyin": "fàng",
+    "part_of_speech": "verb",
+    "meaning": "to put / place",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "action"
+  },
+  {
+    "word": "关",
+    "pinyin": "guān",
+    "part_of_speech": "verb",
+    "meaning": "to close",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "action"
+  },
+  {
+    "word": "找",
+    "pinyin": "zhǎo",
+    "part_of_speech": "verb",
+    "meaning": "to find",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "action"
+  },
+  {
+    "word": "教",
+    "pinyin": "jiào",
+    "part_of_speech": "verb",
+    "meaning": "to teach",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "communication"
+  },
+  {
+    "word": "者",
+    "pinyin": "zhě",
+    "part_of_speech": "noun",
+    "meaning": "person who does something",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "person"
+  },
+  {
+    "word": "师",
+    "pinyin": "shī",
+    "part_of_speech": "noun",
+    "meaning": "professional / specialist",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "person"
+  },
+  {
+    "word": "员",
+    "pinyin": "yuán",
+    "part_of_speech": "noun",
+    "meaning": "member / staff",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "person"
+  },
+  {
+    "word": "生",
+    "pinyin": "shēng",
+    "part_of_speech": "noun",
+    "meaning": "student; life",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "person"
+  },
+  {
+    "word": "学",
+    "pinyin": "xué",
+    "part_of_speech": "noun",
+    "meaning": "study / learning",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "other"
+  },
+  {
+    "word": "学家",
+    "pinyin": "xuéjiā",
+    "part_of_speech": "noun",
+    "meaning": "scholar",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "person"
+  },
+  {
+    "word": "教师",
+    "pinyin": "jiàoshī",
+    "part_of_speech": "noun",
+    "meaning": "teacher",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "person"
+  },
+  {
+    "word": "馆",
+    "pinyin": "guǎn",
+    "part_of_speech": "noun",
+    "meaning": "building / hall / institution",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "place"
+  },
+  {
+    "word": "室",
+    "pinyin": "shì",
+    "part_of_speech": "noun",
+    "meaning": "room",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "place"
+  },
+  {
+    "word": "厂",
+    "pinyin": "chǎng",
+    "part_of_speech": "noun",
+    "meaning": "factory / plant",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "place"
+  },
+  {
+    "word": "店",
+    "pinyin": "diàn",
+    "part_of_speech": "noun",
+    "meaning": "shop / store",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "place"
+  },
+  {
+    "word": "城",
+    "pinyin": "chéng",
+    "part_of_speech": "noun",
+    "meaning": "city",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "place"
+  },
+  {
+    "word": "村",
+    "pinyin": "cūn",
+    "part_of_speech": "noun",
+    "meaning": "village",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "place"
+  },
+  {
+    "word": "体",
+    "pinyin": "tǐ",
+    "part_of_speech": "noun",
+    "meaning": "body / system",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "body"
+  },
+  {
+    "word": "形",
+    "pinyin": "xíng",
+    "part_of_speech": "noun",
+    "meaning": "form / type",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "other"
+  },
+  {
+    "word": "法",
+    "pinyin": "fǎ",
+    "part_of_speech": "noun",
+    "meaning": "law / method",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "other"
+  },
+  {
+    "word": "学科",
+    "pinyin": "xuékē",
+    "part_of_speech": "noun",
+    "meaning": "field of study",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "other"
+  },
+  {
+    "word": "文",
+    "pinyin": "wén",
+    "part_of_speech": "noun",
+    "meaning": "culture / writing",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "other"
+  },
+  {
+    "word": "机",
+    "pinyin": "jī",
+    "part_of_speech": "noun",
+    "meaning": "machine / device",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "object"
+  },
+  {
+    "word": "物",
+    "pinyin": "wù",
+    "part_of_speech": "noun",
+    "meaning": "object / thing",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "object"
+  },
+  {
+    "word": "中间",
+    "pinyin": "zhōngjiān",
+    "part_of_speech": "noun",
+    "meaning": "in the middle / between",
+    "chapter": 16,
+    "source": "hsk1",
+    "category": "direction"
   }
 ]
