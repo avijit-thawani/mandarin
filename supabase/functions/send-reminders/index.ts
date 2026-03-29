@@ -216,7 +216,8 @@ Deno.serve(async (req) => {
 
     try {
       const result = await webpush.sendNotification(subscription, notificationPayload, {
-        TTL: 60,
+        TTL: 14400,
+        urgency: 'high',
       });
       sent += 1;
       sentIds.push(row.id);
