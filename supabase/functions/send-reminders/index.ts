@@ -79,9 +79,12 @@ function shouldSendNow(
     return { send: true, timezone: effectiveTimezone };
   }
 
-  const lastSentLocalDate = getLocalParts(new Date(row.last_sent_at), effectiveTimezone).localDate;
-  if (lastSentLocalDate === nowLocal.localDate) {
-    return { send: false, timezone: effectiveTimezone };
+  const lastSentLocal = getLocalParts(new Date(row.last_sent_at), effectiveTimezone);
+  if (lastSentLocal.localDate === nowLocal.localDate) {
+    const lastSentMinutes = lastSentLocal.hour * 60 + lastSentLocal.minute;
+    if (lastSentMinutes >= targetMinutes) {
+      return { send: false, timezone: effectiveTimezone };
+    }
   }
 
   return { send: true, timezone: effectiveTimezone };
@@ -192,6 +195,7 @@ Deno.serve(async (req) => {
   let skippedBySchedule = 0;
   const deactivateIds: number[] = [];
   const sentIds: number[] = [];
+  const pushResults: unknown[] = [];
 
   for (const row of rows) {
     if (!force) {
@@ -211,16 +215,21 @@ Deno.serve(async (req) => {
     };
 
     try {
-      await webpush.sendNotification(subscription, notificationPayload, {
+      const result = await webpush.sendNotification(subscription, notificationPayload, {
         TTL: 60,
       });
       sent += 1;
       sentIds.push(row.id);
+      pushResults.push({ id: row.id, status: result.statusCode, body: result.body });
     } catch (error) {
       const statusCode =
         typeof error === 'object' && error !== null && 'statusCode' in error
           ? Number((error as { statusCode?: number }).statusCode)
           : 0;
+      const errBody = typeof error === 'object' && error !== null && 'body' in error
+        ? String((error as { body?: string }).body)
+        : String(error);
+      pushResults.push({ id: row.id, status: statusCode, error: errBody });
       if (statusCode === 404 || statusCode === 410) {
         deactivateIds.push(row.id);
       }
@@ -235,9 +244,10 @@ Deno.serve(async (req) => {
   }
 
   if (sentIds.length > 0) {
+    const tsField = force ? 'last_tested_at' : 'last_sent_at';
     await admin
       .from('push_subscriptions')
-      .update({ last_sent_at: now.toISOString(), updated_at: now.toISOString() })
+      .update({ [tsField]: now.toISOString(), updated_at: now.toISOString() })
       .in('id', sentIds);
   }
 
@@ -247,5 +257,6 @@ Deno.serve(async (req) => {
     skippedBySchedule,
     deactivated: deactivateIds.length,
     force,
+    pushResults,
   });
 });
