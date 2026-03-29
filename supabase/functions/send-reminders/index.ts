@@ -193,15 +193,40 @@ Deno.serve(async (req) => {
   const now = new Date();
   let sent = 0;
   let skippedBySchedule = 0;
+  let skippedByActivity = 0;
   const deactivateIds: number[] = [];
   const sentIds: number[] = [];
   const pushResults: unknown[] = [];
+
+  const userActivityCache = new Map<string, boolean>();
 
   for (const row of rows) {
     if (!force) {
       const scheduleDecision = shouldSendNow(row, now, Math.max(0, checkWindowMinutes));
       if (!scheduleDecision.send) {
         skippedBySchedule += 1;
+        continue;
+      }
+
+      if (!userActivityCache.has(row.user_id)) {
+        const tz = row.reminder_timezone || 'UTC';
+        const localParts = getLocalParts(now, tz);
+        const utcStr = now.toLocaleString('en-US', { timeZone: 'UTC' });
+        const tzStr = now.toLocaleString('en-US', { timeZone: tz });
+        const offsetMs = new Date(tzStr).getTime() - new Date(utcStr).getTime();
+        const dayStartUtc = new Date(new Date(`${localParts.localDate}T00:00:00Z`).getTime() - offsetMs);
+        const dayEndUtc = new Date(dayStartUtc.getTime() + 86400000);
+        const { count } = await admin
+          .from('quiz_attempts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', row.user_id)
+          .gte('created_at', dayStartUtc.toISOString())
+          .lt('created_at', dayEndUtc.toISOString());
+        userActivityCache.set(row.user_id, (count ?? 0) > 0);
+      }
+
+      if (userActivityCache.get(row.user_id)) {
+        skippedByActivity += 1;
         continue;
       }
     }
@@ -256,6 +281,7 @@ Deno.serve(async (req) => {
     sent,
     attempted: rows.length,
     skippedBySchedule,
+    skippedByActivity,
     deactivated: deactivateIds.length,
     force,
     pushResults,
