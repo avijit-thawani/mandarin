@@ -40,16 +40,16 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
   const freezeKey = JSON.stringify(freezeSource);
   const freezeSet = useMemo(() => new Set(JSON.parse(freezeKey) as string[]), [freezeKey]);
 
-  // Generate date range for the last N days
+  // Generate date range for the last N days (UTC-consistent)
   const dateRange = useMemo(() => {
     const dates: string[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayNoon = new Date(todayStr + 'T12:00:00Z');
     
     for (let i = daysToShow - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      dates.push(date.toISOString().split('T')[0]);
+      const d = new Date(todayNoon);
+      d.setUTCDate(d.getUTCDate() - i);
+      dates.push(d.toISOString().split('T')[0]);
     }
     return dates;
   }, [daysToShow]);
@@ -78,12 +78,13 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
       }
 
       // Build data array for each day in range (isFrozen set below in a separate memo)
+      const todayStr = new Date().toISOString().split('T')[0];
       const dayData: DayData[] = dateRange.map(dateStr => {
         const stats = byDate[dateStr] || { attempts: 0, correct: 0 };
-        const date = new Date(dateStr + 'T00:00:00');
-        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        const date = new Date(dateStr + 'T12:00:00Z');
+        const isToday = dateStr === todayStr;
         
-        const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
         
         return {
           date: dateStr,
