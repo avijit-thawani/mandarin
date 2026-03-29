@@ -1,10 +1,12 @@
 -- Enable required extensions for scheduled Edge Function invocation.
--- pg_cron: periodic job scheduler within Postgres
--- pg_net: allows Postgres to make outbound HTTP requests
 create extension if not exists pg_cron with schema pg_catalog;
 create extension if not exists pg_net with schema extensions;
 
--- The actual cron.schedule() call must be run manually in the SQL Editor
--- because it contains secrets that should not be committed to the repo.
---
--- See the CRON SETUP section in README for the SQL to run.
+-- Store service role key in vault for cron job auth.
+-- The cron job reads it at runtime to pass as Authorization header.
+-- (Applied via Supabase MCP, not raw SQL — vault.create_secret called separately.)
+
+-- Cron job: call send-reminders Edge Function every 10 minutes.
+-- Authenticates via service role key from vault; the Edge Function
+-- recognizes it as an admin call and processes all subscriptions.
+-- (Applied via Supabase MCP execute_sql — cron.schedule called separately.)

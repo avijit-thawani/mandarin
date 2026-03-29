@@ -171,28 +171,12 @@ Migrations (must all be applied in order):
 2. `20260213230500_add_push_subscription_schedule.sql` — adds schedule columns (`reminder_timezone`, etc.).
 3. `20260324120000_add_reminder_cron.sql` — enables `pg_cron` + `pg_net` extensions.
 
-**Cron setup (required for scheduled reminders):**
-The Edge Function must be called periodically to check schedules and send notifications. After running migration 3, run this in the Supabase SQL Editor (replace the two placeholders):
-```sql
-select cron.schedule(
-  'send-push-reminders',
-  '*/10 * * * *',
-  $$
-  select net.http_post(
-    url := 'https://fnhxleujzzuwfzrleypk.supabase.co/functions/v1/send-reminders',
-    headers := '{"Content-Type":"application/json","x-cron-secret":"<YOUR_CRON_SECRET>"}'::jsonb,
-    body := '{}'::jsonb
-  );
-  $$
-);
-```
-Also set the matching `CRON_SECRET` as an Edge Function secret in the Supabase Dashboard → Edge Functions → send-reminders → Secrets.
+**Cron setup (already applied):**
+`pg_cron` calls the Edge Function every 10 min. Auth uses the service role key stored in Supabase Vault (`vault.decrypted_secrets` name `service_role_key`), passed as `Authorization: Bearer`. The Edge Function (v3+) accepts service role key, cron secret, or user JWT.
 
-To verify cron jobs: `select * from cron.job;`
-To check recent runs: `select * from cron.job_run_details order by start_time desc limit 10;`
-To unschedule: `select cron.unschedule('send-push-reminders');`
+Verify: `select * from cron.job;` / `select * from cron.job_run_details order by start_time desc limit 5;`
 
-Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `CRON_SECRET` as Edge Function secrets.
+Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` as Edge Function secrets.
 
 Any sync strategy changes must update this section and `Known Failures`.
 

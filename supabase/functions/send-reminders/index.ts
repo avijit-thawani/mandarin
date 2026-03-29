@@ -133,8 +133,10 @@ Deno.serve(async (req) => {
   const cronHeader = req.headers.get('x-cron-secret') ?? '';
   const isCronCall = cronSecret.length > 0 && cronHeader === cronSecret;
 
+  const isServiceRoleCall = authHeader === `Bearer ${supabaseServiceRoleKey}`;
+
   let authenticatedUserId: string | null = null;
-  if (authHeader) {
+  if (authHeader && !isServiceRoleCall) {
     const userClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: {
@@ -148,8 +150,14 @@ Deno.serve(async (req) => {
     authenticatedUserId = user?.id ?? null;
   }
 
-  if (!isCronCall && !authenticatedUserId) {
-    return json(401, { error: 'Unauthorized. Provide a valid JWT or cron secret.' });
+  const isAdminCall = isCronCall || isServiceRoleCall;
+
+  if (!isAdminCall && !authenticatedUserId) {
+    return json(401, { error: 'Unauthorized. Provide a valid JWT, cron secret, or service role key.' });
+  }
+
+  if (force && !isAdminCall && !authenticatedUserId) {
+    return json(403, { error: 'Force send requires admin or user auth.' });
   }
 
   const targetUserId = authenticatedUserId ?? suppliedUserId ?? null;
