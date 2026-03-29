@@ -177,9 +177,15 @@ Migrations (must all be applied in order):
 3. `20260324120000_add_reminder_cron.sql` — enables `pg_cron` + `pg_net` extensions.
 
 **Cron setup (already applied):**
-`pg_cron` calls the Edge Function every 10 min. Auth uses the service role key stored in Supabase Vault (`vault.decrypted_secrets` name `service_role_key`), passed as `Authorization: Bearer`. The Edge Function (v3+) accepts service role key, cron secret, or user JWT.
+`pg_cron` calls the Edge Function every 5 min (testing; switch to hourly for prod). Auth uses the service role key stored in Supabase Vault (`vault.decrypted_secrets` name `service_role_key`), passed as `Authorization: Bearer`. The Edge Function accepts service role key, cron secret, or user JWT.
 
 Verify: `select * from cron.job;` / `select * from cron.job_run_details order by start_time desc limit 5;`
+
+**Push delivery settings (critical for mobile):**
+- `TTL: 14400` (4 hours) — FCM retains the message if the device is in Doze mode. A short TTL (e.g. 60s) causes silent drops.
+- `urgency: 'high'` — tells FCM to deliver immediately, bypassing Android battery optimization batching.
+- `last_sent_at` vs `last_tested_at` — test sends (`force: true`) write to `last_tested_at` so they never block scheduled sends.
+- Schedule changes same-day: if the user moves their reminder to a later time, the guard compares `last_sent_at` against the new target time, not just the date, so re-sends are allowed.
 
 Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` as Edge Function secrets.
 
@@ -278,6 +284,7 @@ Never repeat this class of failure.
 3. **Unsynced local progress risk** if cloud load overwrites stale local state after interrupted sync.
 4. **PWA migration not applied (Mar 2026)**: migration adding `reminder_timezone` columns was committed but never run against production → `column does not exist` errors. Fix: run migration SQL in Dashboard SQL Editor. **Lesson**: verify migrations are applied to the live DB, not just committed.
 5. **PWA cron trigger missing (Mar 2026)**: Edge Function existed and test notifications worked (`force: true`), but no `pg_cron` job was calling it on a schedule, so scheduled reminders never fired. Fix: set up `pg_cron` + `pg_net` to POST to the function every 10 min (see PWA Push Notifications section). **Lesson**: an Edge Function without a trigger is dead code — always wire up the invocation mechanism.
+6. **PWA push dropped on mobile (Mar 2026)**: server sent successfully (FCM 201) but phone never displayed the notification. Root cause: `TTL: 60` (seconds) meant FCM silently dropped the message if the device was in Doze mode; missing `urgency: 'high'` let Android batch/delay delivery indefinitely. Fix: set `TTL: 14400` and `urgency: 'high'`. **Lesson**: always use high urgency + long TTL for user-facing push — short TTL + default urgency is only safe for devices that are always awake.
 
 ---
 
