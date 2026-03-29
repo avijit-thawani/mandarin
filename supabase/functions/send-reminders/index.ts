@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
   const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY');
   const vapidSubject = Deno.env.get('VAPID_SUBJECT') ?? 'mailto:notifications@example.com';
   const cronSecret = Deno.env.get('CRON_SECRET') ?? '';
-  const checkWindowMinutes = Number(Deno.env.get('REMINDER_CHECK_WINDOW_MINUTES') ?? 10);
+  const defaultCheckWindow = Number(Deno.env.get('REMINDER_CHECK_WINDOW_MINUTES') ?? 60);
 
   if (
     !supabaseUrl ||
@@ -119,7 +119,7 @@ Deno.serve(async (req) => {
 
   const admin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-  let payload: { force?: boolean; userId?: string; title?: string; body?: string; url?: string } = {};
+  let payload: { force?: boolean; userId?: string; title?: string; body?: string; url?: string; checkWindowMinutes?: number } = {};
   try {
     payload = await req.json();
   } catch {
@@ -128,6 +128,7 @@ Deno.serve(async (req) => {
 
   const force = Boolean(payload.force);
   const suppliedUserId = payload.userId;
+  const checkWindowMinutes = Number.isFinite(payload.checkWindowMinutes) ? payload.checkWindowMinutes! : defaultCheckWindow;
 
   const authHeader = req.headers.get('Authorization') ?? '';
   const cronHeader = req.headers.get('x-cron-secret') ?? '';
