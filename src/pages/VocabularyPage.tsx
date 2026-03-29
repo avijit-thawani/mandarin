@@ -388,6 +388,26 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
             ))}
           </select>
           
+          {/* PoS filter */}
+          <select
+            className="select select-xs select-bordered bg-base-200 w-auto"
+            value={filterPoS}
+            onChange={e => handleFilterPoS(e.target.value)}
+          >
+            <option value="all">All PoS</option>
+            <option value="noun">Noun</option>
+            <option value="verb">Verb</option>
+            <option value="adjective">Adjective</option>
+            <option value="adverb">Adverb</option>
+            <option value="pronoun">Pronoun</option>
+            <option value="preposition">Preposition</option>
+            <option value="conjunction">Conjunction</option>
+            <option value="particle">Particle</option>
+            <option value="numeral">Numeral</option>
+            <option value="measure_word">Measure Word</option>
+            <option value="other">Other</option>
+          </select>
+          
           {/* Textbook only toggle - excludes LLM-generated phrases */}
           <button
             className={`btn btn-xs gap-1 ${!includePhrases ? 'btn-primary' : 'btn-ghost'}`}

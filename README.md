@@ -43,7 +43,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 ## App Surfaces and Where to Edit
 
 ### Main Tabs
-- `Vocabulary`: import/browse words, toggle known/unknown.
+- `Vocabulary`: import/browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS).
 - `Study`: passive flashcards (self-paced).
 - `Quiz`: active MCQ + scoring + attempt logging.
 - `Pinyin`: pronunciation practice with listen-and-pick quiz and speak-and-check self-evaluation.
@@ -242,8 +242,10 @@ Template-driven grammar/word-order practice using known vocabulary. Levels: L1 b
 - `npm run lint`: ESLint checks.
 - `npm run preview`: preview built app.
 
-### Content/Vocabulary Extraction Scripts
-Located under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports. Document env vars, I/O files, and parsing rules when modifying.
+### Content/Vocabulary Data
+`src/data/hsk1_vocabulary.json` — canonical word list (348 entries). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
+
+Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports.
 
 ### ML/Analysis Scripts
 `analysis/quiz_ml_model.py`, `analysis/quiz_attempts_data.json` — model experiments, not runtime. Log feature/label changes here.

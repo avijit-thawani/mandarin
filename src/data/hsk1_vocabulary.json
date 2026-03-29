@@ -110,7 +110,7 @@
   {
     "word": "没关系",
     "pinyin": "méi guānxi",
-    "part_of_speech": "other",
+    "part_of_speech": "interjection",
     "meaning": "it's OK, no problem",
     "chapter": 1,
     "source": "hsk1",
@@ -146,7 +146,7 @@
   {
     "word": "不客气",
     "pinyin": "bù kèqi",
-    "part_of_speech": "other",
+    "part_of_speech": "interjection",
     "meaning": "you're welcome",
     "chapter": 2,
     "source": "hsk1",
@@ -263,7 +263,7 @@
   {
     "word": "中国",
     "pinyin": "Zhōngguó",
-    "part_of_speech": "other",
+    "part_of_speech": "noun",
     "meaning": "China",
     "chapter": 3,
     "source": "hsk1",
@@ -326,7 +326,7 @@
   {
     "word": "美国",
     "pinyin": "Měiguó",
-    "part_of_speech": "other",
+    "part_of_speech": "noun",
     "meaning": "USA, America",
     "chapter": 3,
     "source": "hsk1",
@@ -587,7 +587,7 @@
   {
     "word": "会",
     "pinyin": "huì",
-    "part_of_speech": "other",
+    "part_of_speech": "verb",
     "meaning": "can, able to",
     "chapter": 6,
     "source": "hsk1",
@@ -902,7 +902,7 @@
   {
     "word": "想",
     "pinyin": "xiǎng",
-    "part_of_speech": "other",
+    "part_of_speech": "verb",
     "meaning": "to want, would like",
     "chapter": 8,
     "source": "hsk1",
@@ -1154,7 +1154,7 @@
   {
     "word": "能",
     "pinyin": "néng",
-    "part_of_speech": "other",
+    "part_of_speech": "verb",
     "meaning": "can, may",
     "chapter": 10,
     "source": "hsk1",
@@ -1226,7 +1226,7 @@
   {
     "word": "分",
     "pinyin": "fēn",
-    "part_of_speech": "measure word",
+    "part_of_speech": "measure_word",
     "meaning": "minute (of time)",
     "chapter": 11,
     "source": "hsk1",
@@ -1280,7 +1280,7 @@
   {
     "word": "点",
     "pinyin": "diǎn",
-    "part_of_speech": "measure word",
+    "part_of_speech": "measure_word",
     "meaning": "o'clock, dot, point",
     "chapter": 11,
     "source": "hsk1",
@@ -1298,7 +1298,7 @@
   {
     "word": "下雨",
     "pinyin": "xià yǔ",
-    "part_of_speech": "other",
+    "part_of_speech": "verb",
     "meaning": "to rain",
     "chapter": 12,
     "source": "hsk1",
@@ -1460,7 +1460,7 @@
   {
     "word": "打电话",
     "pinyin": "dǎ diànhuà",
-    "part_of_speech": "other",
+    "part_of_speech": "verb",
     "meaning": "to make a phone call",
     "chapter": 13,
     "source": "hsk1",
@@ -1505,7 +1505,7 @@
   {
     "word": "一点儿",
     "pinyin": "yīdiǎnr",
-    "part_of_speech": "other",
+    "part_of_speech": "adverb",
     "meaning": "a few, a little",
     "chapter": 14,
     "source": "hsk1",
