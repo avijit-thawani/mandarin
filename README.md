@@ -189,6 +189,16 @@ Verify: `select * from cron.job;` / `select * from cron.job_run_details order by
 
 Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` as Edge Function secrets.
 
+**iOS/Safari testing (critical checklist):**
+1. Requires **iOS 16.4+** (ideally 18.1.1+ for notification click handling).
+2. Must **install PWA to home screen** first (Safari share sheet > Add to Home Screen). Push does NOT work in a Safari tab.
+3. Open the installed app, sign in, go to Profile > Enable Reminders, grant notification permission.
+4. Send a test notification to verify delivery.
+5. Set a scheduled time and keep the app closed (fully swipe away) to test background delivery.
+6. **EU users on iOS 17.4+** may be blocked — Apple removed standalone PWA mode in EU under DMA.
+7. Push subscriptions on iOS can "disappear" after 1-2 weeks of non-use; user must re-enable.
+8. Edge Function logs include `provider: "apple"` vs `"fcm"` in `pushResults` for diagnostics.
+
 Any sync strategy changes must update this section and `Known Failures`.
 
 ---

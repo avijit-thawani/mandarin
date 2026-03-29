@@ -27,8 +27,8 @@ self.addEventListener('push', (event) => {
 
   const notificationOptions = {
     body: payload.body,
-    icon: '/veena.svg',
-    badge: '/veena.svg',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
     data: {
       url: payload.url || '/quiz',
     },
@@ -45,16 +45,11 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
       for (const client of clients) {
-        const windowClient = client;
-        if ('focus' in windowClient) {
-          windowClient.navigate(targetUrl);
-          return windowClient.focus();
+        if ('navigate' in client && 'focus' in client) {
+          return client.navigate(targetUrl).then(() => client.focus());
         }
       }
-      if (self.clients.openWindow) {
-        return self.clients.openWindow(targetUrl);
-      }
-      return undefined;
+      return self.clients.openWindow(targetUrl);
     })
   );
 });

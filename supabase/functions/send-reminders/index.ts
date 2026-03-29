@@ -246,7 +246,9 @@ Deno.serve(async (req) => {
       });
       sent += 1;
       sentIds.push(row.id);
-      pushResults.push({ id: row.id, status: result.statusCode, body: result.body });
+      const provider = row.endpoint.includes('push.apple.com') ? 'apple' :
+        row.endpoint.includes('fcm.googleapis.com') ? 'fcm' : 'other';
+      pushResults.push({ id: row.id, provider, status: result.statusCode, body: result.body });
     } catch (error) {
       const statusCode =
         typeof error === 'object' && error !== null && 'statusCode' in error
@@ -255,7 +257,9 @@ Deno.serve(async (req) => {
       const errBody = typeof error === 'object' && error !== null && 'body' in error
         ? String((error as { body?: string }).body)
         : String(error);
-      pushResults.push({ id: row.id, status: statusCode, error: errBody });
+      const provider = row.endpoint.includes('push.apple.com') ? 'apple' :
+        row.endpoint.includes('fcm.googleapis.com') ? 'fcm' : 'other';
+      pushResults.push({ id: row.id, provider, status: statusCode, error: errBody });
       if (statusCode === 404 || statusCode === 410) {
         deactivateIds.push(row.id);
       }
