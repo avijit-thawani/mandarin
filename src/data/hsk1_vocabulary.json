@@ -390,7 +390,7 @@
     "word": "呢",
     "pinyin": "ne",
     "part_of_speech": "particle",
-    "meaning": "question / continuation / follow-up particle",
+    "meaning": "follow-up particle",
     "chapter": 4,
     "source": "hsk1",
     "category": "grammar"
@@ -444,7 +444,7 @@
     "word": "的",
     "pinyin": "de",
     "part_of_speech": "particle",
-    "meaning": "modifier / possession marker",
+    "meaning": "possession marker",
     "chapter": 4,
     "source": "hsk1",
     "category": "grammar"
@@ -462,7 +462,7 @@
     "word": "了",
     "pinyin": "le",
     "part_of_speech": "particle",
-    "meaning": "particle indicating change",
+    "meaning": "change-of-state particle",
     "chapter": 5,
     "source": "hsk1",
     "category": "grammar"
@@ -498,7 +498,7 @@
     "word": "口",
     "pinyin": "kǒu",
     "part_of_speech": "measure_word",
-    "meaning": "mouth; measure word (family / population)",
+    "meaning": "mouth; MW (family)",
     "chapter": 5,
     "source": "hsk1",
     "category": "body"
@@ -543,7 +543,7 @@
     "word": "家",
     "pinyin": "jiā",
     "part_of_speech": "noun",
-    "meaning": "family; home; -ist / specialist (suffix)",
+    "meaning": "family; -ist (suffix)",
     "chapter": 5,
     "source": "hsk1",
     "category": "family"
@@ -1002,7 +1002,7 @@
     "word": "在",
     "pinyin": "zài",
     "part_of_speech": "verb",
-    "meaning": "to be at; (prep.) at / in / on",
+    "meaning": "at; in; on",
     "chapter": 9,
     "source": "hsk1",
     "category": "direction"
@@ -1182,7 +1182,7 @@
     "word": "两",
     "pinyin": "liǎng",
     "part_of_speech": "numeral",
-    "meaning": "two (used before measure words)",
+    "meaning": "two (before MW)",
     "chapter": 11,
     "source": "hsk1",
     "category": "number"
@@ -1578,7 +1578,7 @@
     "word": "开",
     "pinyin": "kāi",
     "part_of_speech": "verb",
-    "meaning": "to open; to drive; to start",
+    "meaning": "to open; to drive",
     "chapter": 14,
     "source": "hsk1",
     "category": "movement"
@@ -2433,7 +2433,7 @@
     "word": "凌晨",
     "pinyin": "língchén",
     "part_of_speech": "noun",
-    "meaning": "early morning, wee hours (midnight-5am)",
+    "meaning": "wee hours (before dawn)",
     "chapter": -8,
     "source": "hsk1",
     "category": "time"
@@ -2460,7 +2460,7 @@
     "word": "着",
     "pinyin": "zhe",
     "part_of_speech": "particle",
-    "meaning": "ongoing state / durative aspect",
+    "meaning": "ongoing action",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2469,7 +2469,7 @@
     "word": "过",
     "pinyin": "guo",
     "part_of_speech": "particle",
-    "meaning": "experiential aspect (have done before)",
+    "meaning": "have done before",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2478,7 +2478,7 @@
     "word": "吧",
     "pinyin": "ba",
     "part_of_speech": "particle",
-    "meaning": "suggestion / assumption / softening",
+    "meaning": "suggestion; softening",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2505,7 +2505,7 @@
     "word": "啦",
     "pinyin": "la",
     "part_of_speech": "particle",
-    "meaning": "emphasis / change of state",
+    "meaning": "emphasis; change",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2539,7 +2539,7 @@
   },
   {
     "word": "还是",
-    "pinyin": "háishi",
+    "pinyin": "háishì",
     "part_of_speech": "conjunction",
     "meaning": "or (in questions)",
     "chapter": 16,
@@ -2631,7 +2631,7 @@
     "word": "给",
     "pinyin": "gěi",
     "part_of_speech": "preposition",
-    "meaning": "to give; to / for",
+    "meaning": "give; to/for",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2676,7 +2676,7 @@
     "word": "往",
     "pinyin": "wǎng",
     "part_of_speech": "preposition",
-    "meaning": "toward / in the direction of",
+    "meaning": "toward",
     "chapter": 16,
     "source": "hsk1",
     "category": "direction"
@@ -2694,7 +2694,7 @@
     "word": "把",
     "pinyin": "bǎ",
     "part_of_speech": "preposition",
-    "meaning": "object marker (disposal construction)",
+    "meaning": "object marker",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2721,7 +2721,7 @@
     "word": "按",
     "pinyin": "àn",
     "part_of_speech": "preposition",
-    "meaning": "according to / based on",
+    "meaning": "according to",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2730,7 +2730,7 @@
     "word": "照",
     "pinyin": "zhào",
     "part_of_speech": "preposition",
-    "meaning": "according to / following",
+    "meaning": "according to",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2748,7 +2748,7 @@
     "word": "为了",
     "pinyin": "wèile",
     "part_of_speech": "preposition",
-    "meaning": "for the sake of / in order to",
+    "meaning": "in order to",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2784,7 +2784,7 @@
     "word": "因",
     "pinyin": "yīn",
     "part_of_speech": "preposition",
-    "meaning": "because of / due to",
+    "meaning": "due to",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2793,7 +2793,7 @@
     "word": "由",
     "pinyin": "yóu",
     "part_of_speech": "preposition",
-    "meaning": "by / via / through",
+    "meaning": "by; via",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2829,7 +2829,7 @@
     "word": "对于",
     "pinyin": "duìyú",
     "part_of_speech": "preposition",
-    "meaning": "regarding / with respect to",
+    "meaning": "regarding",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2838,7 +2838,7 @@
     "word": "至于",
     "pinyin": "zhìyú",
     "part_of_speech": "preposition",
-    "meaning": "as for / regarding",
+    "meaning": "as for",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2856,7 +2856,7 @@
     "word": "帮",
     "pinyin": "bāng",
     "part_of_speech": "preposition",
-    "meaning": "for / help on behalf of",
+    "meaning": "on behalf of",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2865,7 +2865,7 @@
     "word": "根据",
     "pinyin": "gēnjù",
     "part_of_speech": "preposition",
-    "meaning": "according to / based on",
+    "meaning": "according to",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2874,7 +2874,7 @@
     "word": "依据",
     "pinyin": "yījù",
     "part_of_speech": "preposition",
-    "meaning": "according to / on the basis of",
+    "meaning": "based on; per",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2883,7 +2883,7 @@
     "word": "本着",
     "pinyin": "běnzhe",
     "part_of_speech": "preposition",
-    "meaning": "in line with / according to",
+    "meaning": "in line with",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2946,7 +2946,7 @@
     "word": "者",
     "pinyin": "zhě",
     "part_of_speech": "noun",
-    "meaning": "person who does something",
+    "meaning": "-er (doer suffix)",
     "chapter": 16,
     "source": "hsk1",
     "category": "person"
@@ -2955,7 +2955,7 @@
     "word": "师",
     "pinyin": "shī",
     "part_of_speech": "noun",
-    "meaning": "professional / specialist",
+    "meaning": "specialist",
     "chapter": 16,
     "source": "hsk1",
     "category": "person"
@@ -3009,7 +3009,7 @@
     "word": "馆",
     "pinyin": "guǎn",
     "part_of_speech": "noun",
-    "meaning": "building / hall / institution",
+    "meaning": "hall; institution",
     "chapter": 16,
     "source": "hsk1",
     "category": "place"
@@ -3126,7 +3126,7 @@
     "word": "中间",
     "pinyin": "zhōngjiān",
     "part_of_speech": "noun",
-    "meaning": "in the middle / between",
+    "meaning": "middle; between",
     "chapter": 16,
     "source": "hsk1",
     "category": "direction"
