@@ -881,7 +881,7 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                     </span>
                   </div>
                   <p className="text-xs text-base-content/60">
-                    Install this app on Android Chrome for the best reminder behavior.
+                    Install this app to your home screen for the best reminder behavior.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <label className="form-control">
