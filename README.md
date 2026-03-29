@@ -51,11 +51,13 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `Profile`: progress charts + settings.
 
 ### High-Value Files
-- `src/App.tsx`: app composition and top-level routing.
-- `src/components/Navbar.tsx`: tab navigation.
+- `src/App.tsx`: app composition and top-level routing, streak wiring.
+- `src/components/Navbar.tsx`: tab navigation + global streak badge.
+- `src/components/StreakModal.tsx`: streak details popup with heatmap and recovery CTA.
+- `src/hooks/useStreak.ts`: streak calculation, freeze/recovery logic.
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
-- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI, logging controls.
+- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI, logging controls, recovery mode.
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/SyntaxPage.tsx`: sentence construction and grammar practice.
@@ -143,6 +145,9 @@ Typical local keys include:
 - settings
 - cache/sync flags
 - vocabulary page preferences
+- `langseed_quiz_completed`: daily quiz completion flag
+- `langseed_streak_freezes`: recovered/frozen streak days (JSON array of YYYY-MM-DD)
+- `langseed_recovery_quizzes_today`: daily recovery quiz counter
 
 ### Auto Sync Behavior
 - Debounced sync after quiz actions.
@@ -326,6 +331,7 @@ If unsure, update both briefly and keep README high-level.
 - "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/pages/SyntaxPage.tsx`
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
+- "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/components/StreakModal.tsx`, `src/components/Navbar.tsx`
 - "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
 
 ---

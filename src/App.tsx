@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { HelpModal } from './components/HelpModal';
+import { StreakModal } from './components/StreakModal';
 import { VocabularyPage } from './pages/VocabularyPage';
 import { StudyPage } from './pages/StudyPage';
 import { QuizPage, hasCompletedQuizToday } from './pages/QuizPage';
@@ -12,6 +13,7 @@ import { LoginPage } from './pages/LoginPage';
 import { useVocabularyStore } from './stores/vocabularyStore';
 import { useSettingsStore } from './stores/settingsStore';
 import { useAuth } from './hooks/useAuth';
+import { useStreak } from './hooks/useStreak';
 import { Loader2, Zap } from 'lucide-react';
 
 // Dev mode detection
@@ -184,12 +186,23 @@ function AppContent({
   // Help modal state
   const [showHelpModal, setShowHelpModal] = useState(false);
   
+  // Streak modal state
+  const [showStreakModal, setShowStreakModal] = useState(false);
+  
   // Quiz completion state - re-check when route changes
   const [quizCompletedToday, setQuizCompletedToday] = useState(hasCompletedQuizToday());
   
+  // Streak data
+  const streakHook = useStreak(auth.user?.id, isGuest);
+  
   useEffect(() => {
     // Re-check quiz completion when navigating away from quiz
-    setQuizCompletedToday(hasCompletedQuizToday());
+    const completed = hasCompletedQuizToday();
+    setQuizCompletedToday(completed);
+    // Refresh streak data when navigating (catches quiz completions)
+    if (location.pathname !== '/quiz') {
+      streakHook.refresh();
+    }
   }, [location.pathname]);
   
   // Auto-show help modal for new users
@@ -205,11 +218,23 @@ function AppContent({
     setShowHelpModal(false);
     localStorage.setItem(ONBOARDING_KEY, 'true');
   };
+  
+  const handleRecoveryQuizComplete = () => {
+    streakHook.completeRecoveryQuiz();
+  };
 
   return (
     <div className="h-dvh flex flex-col bg-base-100 text-base-content overflow-hidden">
       {/* Help modal */}
       <HelpModal isOpen={showHelpModal} onClose={handleCloseHelp} />
+      
+      {/* Streak modal */}
+      <StreakModal
+        isOpen={showStreakModal}
+        onClose={() => setShowStreakModal(false)}
+        streakData={streakHook}
+        quizCompletedToday={quizCompletedToday}
+      />
       
       {/* Main content area */}
       <main className="flex-1 overflow-hidden pb-16">
@@ -249,6 +274,11 @@ function AppContent({
                 store={store} 
                 settingsStore={settingsStore} 
                 onShowHelp={() => setShowHelpModal(true)}
+                recoveryInfo={streakHook.isStreakBroken ? {
+                  needed: streakHook.recoveryQuizzesNeeded,
+                  completed: streakHook.recoveryQuizzesCompleted,
+                } : undefined}
+                onRecoveryQuizComplete={handleRecoveryQuizComplete}
               />
             } 
           />
@@ -301,6 +331,9 @@ function AppContent({
       <Navbar 
         hasUnsyncedSettings={settingsStore.hasUnsyncedChanges}
         quizCompletedToday={quizCompletedToday}
+        streak={streakHook.loading ? undefined : streakHook.streak}
+        isStreakBroken={streakHook.isStreakBroken}
+        onStreakClick={() => setShowStreakModal(true)}
       />
       
       {/* Dev Mode Toggle (localhost only) */}

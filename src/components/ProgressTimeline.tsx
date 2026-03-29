@@ -1,7 +1,7 @@
 // Progress Timeline - Historical chart of daily quiz activity and accuracy
 
 import { useState, useEffect, useMemo } from 'react';
-import { Calendar, TrendingUp, Target, Loader2 } from 'lucide-react';
+import { Calendar, TrendingUp, Target, Loader2, Flame, Snowflake } from 'lucide-react';
 import { getQuizStats } from '../lib/quizService';
 
 interface DayData {
@@ -10,18 +10,33 @@ interface DayData {
   attempts: number;
   correct: number;
   accuracy: number;   // 0-100
+  isFrozen: boolean;
 }
 
 interface ProgressTimelineProps {
   userId: string | null;
   isGuest?: boolean;
   daysToShow?: number;
+  streak?: number;
+  streakFreezes?: string[];
 }
 
-export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressTimelineProps) {
+function getStoredStreakFreezes(): string[] {
+  try {
+    const raw = localStorage.getItem('langseed_streak_freezes');
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: externalStreak, streakFreezes }: ProgressTimelineProps) {
   const [data, setData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const resolvedFreezes = streakFreezes ?? getStoredStreakFreezes();
+  const freezeSet = useMemo(() => new Set(resolvedFreezes), [resolvedFreezes]);
 
   // Generate date range for the last N days
   const dateRange = useMemo(() => {
@@ -66,7 +81,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
         const date = new Date(dateStr + 'T00:00:00');
         const isToday = dateStr === new Date().toISOString().split('T')[0];
         
-        // Format label: "Mon" for recent days
         const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'short' });
         
         return {
@@ -77,6 +91,7 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
           accuracy: stats.attempts > 0 
             ? Math.round((stats.correct / stats.attempts) * 100) 
             : 0,
+          isFrozen: freezeSet.has(dateStr),
         };
       });
 
@@ -85,30 +100,31 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
     }
 
     fetchData();
-  }, [userId, isGuest, daysToShow, dateRange]);
+  }, [userId, isGuest, daysToShow, dateRange, freezeSet]);
 
   // Calculate summary stats
   const summary = useMemo(() => {
     const totalAttempts = data.reduce((sum, d) => sum + d.attempts, 0);
     const totalCorrect = data.reduce((sum, d) => sum + d.correct, 0);
-    const daysActive = data.filter(d => d.attempts > 0).length;
+    const daysActive = data.filter(d => d.attempts > 0 || d.isFrozen).length;
     const avgAccuracy = totalAttempts > 0 
       ? Math.round((totalCorrect / totalAttempts) * 100) 
       : 0;
     
-    // Calculate streak (consecutive days with activity ending today or yesterday)
-    let streak = 0;
-    for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i].attempts > 0) {
-        streak++;
-      } else if (i < data.length - 1) {
-        // Allow one day gap (yesterday might be empty if today has activity)
-        break;
+    // Use external streak if provided, otherwise calculate locally
+    let streak = externalStreak ?? 0;
+    if (externalStreak === undefined) {
+      for (let i = data.length - 1; i >= 0; i--) {
+        if (data[i].attempts > 0 || data[i].isFrozen) {
+          streak++;
+        } else if (i < data.length - 1) {
+          break;
+        }
       }
     }
     
     return { totalAttempts, totalCorrect, daysActive, avgAccuracy, streak };
-  }, [data]);
+  }, [data, externalStreak]);
 
   // Find max attempts for scaling bars
   const maxAttempts = useMemo(() => 
@@ -178,6 +194,8 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
     );
   }
 
+  const hasFrozenDays = data.some(d => d.isFrozen);
+
   return (
     <div className="bg-base-200 rounded-xl p-4 space-y-4">
       {/* Header with summary stats */}
@@ -204,11 +222,11 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
           {data.map((day, i) => {
             const barHeight = day.attempts > 0 
               ? Math.max(8, (day.attempts / maxAttempts) * 100) 
-              : 4;
+              : day.isFrozen ? 15 : 4;
             const isToday = i === data.length - 1;
             
-            // Color based on accuracy
             const getBarColor = () => {
+              if (day.isFrozen && day.attempts === 0) return 'bg-info/40';
               if (day.attempts === 0) return 'bg-base-300';
               if (day.accuracy >= 80) return 'bg-success';
               if (day.accuracy >= 60) return 'bg-warning';
@@ -226,12 +244,15 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
                   <div className="bg-base-100 shadow-lg rounded-lg px-2 py-1 text-xs 
                                 border border-base-300 whitespace-nowrap">
                     <div className="font-medium">{day.date}</div>
-                    {day.attempts > 0 ? (
+                    {day.isFrozen && day.attempts === 0 ? (
+                      <div className="text-info">Recovered</div>
+                    ) : day.attempts > 0 ? (
                       <>
                         <div>{day.attempts} questions</div>
                         <div className={day.accuracy >= 70 ? 'text-success' : 'text-warning'}>
                           {day.accuracy}% correct
                         </div>
+                        {day.isFrozen && <div className="text-info text-[10px]">+ Recovered</div>}
                       </>
                     ) : (
                       <div className="text-base-content/50">No activity</div>
@@ -239,11 +260,17 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
                   </div>
                 </div>
                 
+                {/* Frozen indicator */}
+                {day.isFrozen && day.attempts === 0 && (
+                  <Snowflake className="w-2.5 h-2.5 text-info/70 mb-0.5" />
+                )}
+                
                 {/* Bar */}
                 <div
                   className={`w-full rounded-t transition-all duration-300 ${getBarColor()} 
-                             ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-base-200' : ''}`}
-                  style={{ height: `${barHeight}%`, minHeight: day.attempts > 0 ? '8px' : '4px' }}
+                             ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-base-200' : ''}
+                             ${day.isFrozen && day.attempts === 0 ? 'border border-dashed border-info/50' : ''}`}
+                  style={{ height: `${barHeight}%`, minHeight: day.attempts > 0 ? '8px' : day.isFrozen ? '6px' : '4px' }}
                 />
               </div>
             );
@@ -253,7 +280,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
         {/* X-axis labels */}
         <div className="flex gap-1 mt-1">
           {data.map((day, i) => {
-            // Only show labels for first, last, and every ~4th day
             const showLabel = i === 0 || i === data.length - 1 || i % 4 === 0;
             return (
               <div key={day.date} className="flex-1 text-center">
@@ -267,10 +293,10 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 text-xs text-base-content/50 pt-1">
+      <div className="flex items-center justify-center gap-4 text-xs text-base-content/50 pt-1 flex-wrap">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-sm bg-success" />
-          <span>≥80%</span>
+          <span>&ge;80%</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 rounded-sm bg-warning" />
@@ -284,12 +310,18 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressT
           <div className="w-2 h-2 rounded-sm bg-base-300" />
           <span>No activity</span>
         </div>
+        {hasFrozenDays && (
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-sm bg-info/40 border border-dashed border-info/50" />
+            <span>Recovered</span>
+          </div>
+        )}
       </div>
 
       {/* Streak indicator */}
-      {summary.streak >= 2 && (
+      {summary.streak >= 1 && (
         <div className="flex items-center justify-center gap-2 pt-2 border-t border-base-300">
-          <span className="text-xl">🔥</span>
+          <Flame className="w-5 h-5 text-orange-500" />
           <span className="text-sm font-medium">
             {summary.streak} day streak!
           </span>

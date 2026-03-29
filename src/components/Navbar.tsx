@@ -1,12 +1,15 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, GraduationCap, Zap, User, Layers, Mic } from 'lucide-react';
+import { BookOpen, GraduationCap, Zap, User, Layers, Mic, Flame, Snowflake } from 'lucide-react';
 
 interface NavbarProps {
   hasUnsyncedSettings?: boolean;
   quizCompletedToday?: boolean;
+  streak?: number;
+  isStreakBroken?: boolean;
+  onStreakClick?: () => void;
 }
 
-export function Navbar({ hasUnsyncedSettings, quizCompletedToday }: NavbarProps) {
+export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStreakBroken, onStreakClick }: NavbarProps) {
   const location = useLocation();
   
   const tabs = [
@@ -17,9 +20,34 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday }: NavbarProps)
     { path: '/syntax', icon: Layers, label: 'Syntax' },
     { path: '/profile', icon: User, label: 'Profile', showBadge: hasUnsyncedSettings },
   ];
+
+  const showStreak = streak !== undefined && streak >= 0;
   
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-base-200 border-t border-base-300 z-50">
+      {/* Streak badge row */}
+      {showStreak && (
+        <button
+          onClick={onStreakClick}
+          className="absolute -top-5 left-1/2 -translate-x-1/2 z-10"
+        >
+          <div className={`flex items-center gap-1 px-3 py-1 rounded-full shadow-lg border transition-all active:scale-95 ${
+            isStreakBroken
+              ? 'bg-base-300 border-base-content/20 text-base-content/50'
+              : streak! > 0
+                ? 'bg-gradient-to-r from-orange-500 to-amber-400 border-orange-600/30 text-white'
+                : 'bg-base-300 border-base-content/20 text-base-content/60'
+          }`}>
+            {isStreakBroken ? (
+              <Snowflake className="w-3.5 h-3.5 animate-pulse" />
+            ) : (
+              <Flame className={`w-3.5 h-3.5 ${streak! > 0 ? 'drop-shadow-sm' : ''}`} />
+            )}
+            <span className="text-xs font-bold tabular-nums">{streak}</span>
+          </div>
+        </button>
+      )}
+
       <div className="flex justify-around items-center h-16 max-w-lg mx-auto safe-area-inset-bottom">
         {tabs.map(({ path, icon: Icon, label, showBadge, quizStatus }) => {
           const isActive = location.pathname === path;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Volume2, BookOpen, HelpCircle, Loader2, Check, X, Zap, Square, CheckSquare, Settings2, Ban } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Volume2, BookOpen, HelpCircle, Loader2, Check, X, Zap, Square, CheckSquare, Settings2, Ban, Flame } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
 import type { QuizSession, QuizQuestion, Modality, Concept } from '../types/vocabulary';
@@ -46,10 +46,14 @@ interface QuizPageProps {
   store: VocabularyStore;
   settingsStore: SettingsStore;
   onShowHelp?: () => void;
+  recoveryInfo?: { needed: number; completed: number };
+  onRecoveryQuizComplete?: () => void;
 }
 
-export function QuizPage({ store, settingsStore, onShowHelp }: QuizPageProps) {
+export function QuizPage({ store, settingsStore, onShowHelp, recoveryInfo, onRecoveryQuizComplete }: QuizPageProps) {
   const auth = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isRecoveryMode = searchParams.get('recovery') === 'true' && !!recoveryInfo;
   const settings = settingsStore.settings;
   const cardsPerSession = settings.cardsPerSession;
   // Handle migration from old settings (difficulty/selectionStrategy -> optionSelection/questionSelection)
@@ -372,11 +376,106 @@ export function QuizPage({ store, settingsStore, onShowHelp }: QuizPageProps) {
     );
   }
   
+  // Handle recovery quiz completion
+  const handleRecoveryComplete = useCallback(() => {
+    if (onRecoveryQuizComplete) {
+      onRecoveryQuizComplete();
+    }
+  }, [onRecoveryQuizComplete]);
+
+  const recoveryDone = recoveryInfo ? recoveryInfo.completed : 0;
+  const recoveryNeeded = recoveryInfo ? recoveryInfo.needed : 0;
+
   // Session complete
   if (isSessionComplete && session) {
     const accuracy = sessionStats.total > 0 
       ? Math.round((sessionStats.correct / sessionStats.total) * 100)
       : 0;
+
+    // In recovery mode, show recovery-specific completion
+    if (isRecoveryMode) {
+      const justCompleted = recoveryDone + 1; // +1 for this quiz about to be committed
+      const remaining = recoveryNeeded - justCompleted;
+      const allDone = remaining <= 0;
+
+      return (
+        <div className="h-full flex flex-col overflow-hidden">
+          <header className="flex-shrink-0 bg-base-100/95 backdrop-blur border-b border-base-300 px-4 py-3">
+            <h1 className="text-xl font-bold text-center">
+              {allDone ? 'Streak Restored!' : 'Recovery Quiz Complete!'}
+            </h1>
+          </header>
+          
+          <div className="flex-1 overflow-auto p-4">
+            <div className="max-w-lg mx-auto">
+              <div className="card bg-base-200">
+                <div className="card-body items-center text-center py-10">
+                  <div className="text-6xl mb-4">
+                    {allDone ? '🔥' : '❄️'}
+                  </div>
+                  <h2 className="text-2xl font-bold">
+                    {allDone ? 'Your Streak is Back!' : `${remaining} more quiz${remaining !== 1 ? 'zes' : ''} to go`}
+                  </h2>
+                  <p className="text-base-content/60 mt-2">
+                    {allDone
+                      ? 'Great work! You recovered all missed days.'
+                      : `You've recovered ${justCompleted} of ${recoveryNeeded} missed day${recoveryNeeded !== 1 ? 's' : ''}.`}
+                  </p>
+
+                  {/* Recovery progress bar */}
+                  <div className="w-full max-w-xs mt-4">
+                    <div className="flex justify-between text-xs text-base-content/60 mb-1">
+                      <span>Recovery progress</span>
+                      <span>{Math.min(justCompleted, recoveryNeeded)}/{recoveryNeeded}</span>
+                    </div>
+                    <div className="w-full bg-base-300 rounded-full h-3">
+                      <div
+                        className="bg-warning rounded-full h-3 transition-all duration-700"
+                        style={{ width: `${Math.min((justCompleted / recoveryNeeded) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Score */}
+                  <div className="stats shadow mt-4 bg-base-100">
+                    <div className="stat">
+                      <div className="stat-title">Score</div>
+                      <div className="stat-value text-primary text-xl">{accuracy}%</div>
+                      <div className="stat-desc">{sessionStats.correct}/{sessionStats.total}</div>
+                    </div>
+                  </div>
+
+                  {allDone ? (
+                    <button
+                      className="btn btn-primary mt-6 gap-2"
+                      onClick={() => {
+                        handleRecoveryComplete();
+                        setSearchParams({});
+                        startNewSession();
+                      }}
+                    >
+                      <Flame className="w-5 h-5" />
+                      Continue Learning
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-warning mt-6 gap-2"
+                      onClick={() => {
+                        handleRecoveryComplete();
+                        startNewSession();
+                      }}
+                    >
+                      <Flame className="w-5 h-5" />
+                      Next Recovery Quiz
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
     
     return (
       <div className="h-full flex flex-col overflow-hidden">
@@ -444,6 +543,19 @@ export function QuizPage({ store, settingsStore, onShowHelp }: QuizPageProps) {
   // Main quiz view
   return (
     <div className="h-full bg-gradient-to-b from-base-100 to-base-200 flex flex-col overflow-hidden">
+      {/* Recovery banner */}
+      {isRecoveryMode && recoveryInfo && (
+        <div className="flex-shrink-0 bg-warning/15 border-b border-warning/30 px-4 py-2">
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <Flame className="w-4 h-4 text-warning" />
+            <span className="font-medium">
+              Recovery Quiz {recoveryInfo.completed + 1}/{recoveryInfo.needed}
+            </span>
+            <span className="text-base-content/60">— Complete to resume streak</span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-4 py-3">
         <div className="flex items-center justify-between mb-2">
