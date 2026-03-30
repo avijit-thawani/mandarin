@@ -111,55 +111,57 @@ export async function fetchFromCloud(userId: string): Promise<{
   }
 }
 
-// Get or create vocabulary entry for a word
-async function getOrCreateVocabularyId(concept: Concept): Promise<string | undefined> {
-  // First, try to find existing vocabulary entry
-  const { data: existing, error: findError } = await supabase
-    .from('vocabulary')
-    .select('id')
-    .eq('word', concept.word)
-    .eq('pinyin', concept.pinyin)
-    .eq('meaning', concept.meaning)
-    .single();
+// Build vocabulary lookup maps keyed by word (resilient to meaning/pinyin drift)
+function buildVocabMaps(vocabRows: Array<{ id: string; word: string; pinyin: string; meaning: string }>) {
+  // Primary: word -> id (works when word is unique, which covers most HSK vocab)
+  // Secondary: word|pinyin -> id (disambiguates homophones)
+  // Tertiary: word|pinyin|meaning -> id (exact match, least resilient)
+  const byWord = new Map<string, string[]>();
+  const byWordPinyin = new Map<string, string>();
+  const byExact = new Map<string, string>();
 
-  if (existing && !findError) {
-    return existing.id;
+  for (const row of vocabRows) {
+    const wordEntries = byWord.get(row.word) || [];
+    wordEntries.push(row.id);
+    byWord.set(row.word, wordEntries);
+    byWordPinyin.set(`${row.word}|${row.pinyin}`, row.id);
+    byExact.set(`${row.word}|${row.pinyin}|${row.meaning}`, row.id);
   }
 
-  // If not found, create it (this should rarely happen as vocabulary is pre-populated)
-  const { data: created, error: createError } = await supabase
-    .from('vocabulary')
-    .insert({
-      word: concept.word,
-      pinyin: concept.pinyin,
-      part_of_speech: concept.part_of_speech,
-      meaning: concept.meaning,
-      chapter: concept.chapter,
-      source: concept.source,
-    })
-    .select('id')
-    .single();
-
-  if (createError) {
-    console.error('Failed to create vocabulary entry:', createError);
-    return undefined;
-  }
-
-  return created?.id;
+  return { byWord, byWordPinyin, byExact };
 }
 
-// Save all data to Supabase (upsert)
+function resolveVocabularyId(
+  concept: Concept,
+  maps: ReturnType<typeof buildVocabMaps>
+): string | undefined {
+  // Try exact match first
+  const exactKey = `${concept.word}|${concept.pinyin}|${concept.meaning}`;
+  if (maps.byExact.has(exactKey)) return maps.byExact.get(exactKey);
+
+  // Fall back to word+pinyin (handles meaning drift from trimming)
+  const wpKey = `${concept.word}|${concept.pinyin}`;
+  if (maps.byWordPinyin.has(wpKey)) return maps.byWordPinyin.get(wpKey);
+
+  // Fall back to word alone if unambiguous
+  const wordEntries = maps.byWord.get(concept.word);
+  if (wordEntries && wordEntries.length === 1) return wordEntries[0];
+
+  return undefined;
+}
+
+// Save all data to Supabase using UPSERT (never deletes existing progress)
 export async function saveToCloud(
   userId: string,
   concepts: Concept[],
-  _srsRecords: unknown[] = []  // Legacy parameter, ignored
+  _srsRecords: unknown[] = []
 ): Promise<SyncResult> {
   if (!isSupabaseConfigured()) {
     return { success: false, error: 'Supabase not configured' };
   }
 
   try {
-    // Build a map of word+pinyin+meaning to vocabulary_id
+    // Fetch all vocabulary for lookup
     const { data: vocabRows, error: vocabError } = await supabase
       .from('vocabulary')
       .select('id, word, pinyin, meaning');
@@ -168,45 +170,33 @@ export async function saveToCloud(
       return { success: false, error: vocabError.message };
     }
 
-    const vocabMap = new Map<string, string>();
-    for (const row of vocabRows || []) {
-      const key = `${row.word}|${row.pinyin}|${row.meaning}`;
-      vocabMap.set(key, row.id);
-    }
+    const maps = buildVocabMaps(vocabRows || []);
 
-    // Delete existing progress for this user (clean sync)
-    const { error: deleteError } = await supabase
-      .from('user_progress')
-      .delete()
-      .eq('user_id', userId);
-
-    if (deleteError) {
-      return { success: false, error: deleteError.message };
-    }
-
-    // Prepare progress records
-    const progressInserts: Array<{
+    // Resolve vocabulary IDs for all concepts
+    const progressUpserts: Array<{
       user_id: string;
       vocabulary_id: string;
       knowledge: number;
       modality: ConceptModality;
       paused: boolean;
     }> = [];
+    const resolvedVocabIds = new Set<string>();
+    let skipped = 0;
 
     for (const concept of concepts) {
-      const key = `${concept.word}|${concept.pinyin}|${concept.meaning}`;
-      let vocabularyId = vocabMap.get(key);
+      const vocabularyId = resolveVocabularyId(concept, maps);
 
-      // If vocabulary doesn't exist, create it
       if (!vocabularyId) {
-        vocabularyId = await getOrCreateVocabularyId(concept);
-        if (!vocabularyId) {
-          console.warn(`Skipping concept "${concept.word}" - couldn't get vocabulary ID`);
-          continue;
-        }
+        console.warn(`[Sync] No vocabulary match for "${concept.word}" (${concept.pinyin}) — skipping, not creating duplicates`);
+        skipped++;
+        continue;
       }
 
-      progressInserts.push({
+      // Deduplicate: if we already have a record for this vocabulary_id, skip
+      if (resolvedVocabIds.has(vocabularyId)) continue;
+      resolvedVocabIds.add(vocabularyId);
+
+      progressUpserts.push({
         user_id: userId,
         vocabulary_id: vocabularyId,
         knowledge: concept.knowledge,
@@ -215,20 +205,29 @@ export async function saveToCloud(
       });
     }
 
-    // Insert progress records
-    if (progressInserts.length > 0) {
-      const { error: insertError } = await supabase
-        .from('user_progress')
-        .insert(progressInserts);
+    if (skipped > 0) {
+      console.warn(`[Sync] Skipped ${skipped} concepts with no vocabulary match`);
+    }
 
-      if (insertError) {
-        return { success: false, error: insertError.message };
+    // UPSERT: insert or update on (user_id, vocabulary_id) unique constraint
+    // This never deletes existing progress — only updates or adds
+    if (progressUpserts.length > 0) {
+      const BATCH_SIZE = 200;
+      for (let i = 0; i < progressUpserts.length; i += BATCH_SIZE) {
+        const batch = progressUpserts.slice(i, i + BATCH_SIZE);
+        const { error: upsertError } = await supabase
+          .from('user_progress')
+          .upsert(batch, { onConflict: 'user_id,vocabulary_id' });
+
+        if (upsertError) {
+          return { success: false, error: upsertError.message };
+        }
       }
     }
 
     return {
       success: true,
-      conceptsUploaded: progressInserts.length,
+      conceptsUploaded: progressUpserts.length,
     };
   } catch (err) {
     return { 

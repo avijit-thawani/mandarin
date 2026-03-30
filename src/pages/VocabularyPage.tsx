@@ -84,13 +84,12 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
   // Refresh state
   const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Auto-import HSK1 if no vocab exists
+  // Auto-import HSK1 if no vocab exists (guest only — authenticated users get data from cloud)
   useEffect(() => {
-    if (store.concepts.length === 0 && store.hsk1Vocab.length > 0) {
-      // Default bootstrap: chapter 1 known, other chapters visible but unknown.
+    if (isGuest && store.concepts.length === 0 && store.hsk1Vocab.length > 0) {
       store.importChapters(1, 1, true);
     }
-  }, [store.concepts.length, store.hsk1Vocab.length, store.importChapters]);
+  }, [isGuest, store.concepts.length, store.hsk1Vocab.length, store.importChapters]);
   
   // Async refresh on mount (shows cached data immediately, syncs in background)
   // Only refresh if there are no local unsaved changes to avoid overwriting quiz results
