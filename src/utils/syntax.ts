@@ -124,8 +124,33 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '汉语': ['language'],
 };
 
-function getCategories(word: string): string[] {
-  return SEMANTIC_CATEGORIES[word] || [];
+// Auto-derive syntax slot categories from the vocabulary JSON's SemanticCategory field.
+// This ensures words NOT in the hand-curated SEMANTIC_CATEGORIES map can still
+// participate in sentence templates (e.g. any pronoun → person/subject slot).
+const VOCAB_CATEGORY_TO_SYNTAX: Record<string, string[]> = {
+  pronoun:       ['person', 'subject'],
+  person:        ['person', 'subject'],
+  family:        ['person', 'subject', 'family'],
+  food:          ['food', 'edible'],
+  animal:        ['animal', 'describable', 'locatable'],
+  place:         ['place', 'destination'],
+  country:       ['place', 'destination', 'country'],
+  time:          ['time'],
+  object:        ['thing', 'locatable'],
+  nature:        ['describable', 'nature'],
+  weather:       ['describable', 'nature'],
+  size:          ['size_adj'],
+  emotion:       ['emotion_adj'],
+};
+
+function getCategories(word: string, vocabCategory?: string): string[] {
+  const curated = SEMANTIC_CATEGORIES[word] || [];
+  if (!vocabCategory) return curated;
+  const derived = VOCAB_CATEGORY_TO_SYNTAX[vocabCategory] || [];
+  if (curated.length === 0) return derived;
+  // Merge both, deduplicated
+  const merged = new Set([...curated, ...derived]);
+  return [...merged];
 }
 
 // ============================================================================
@@ -231,12 +256,20 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
 };
 
 // Get clean English for sentence building
-function getSentenceEnglish(word: string, position: 'subject' | 'object' = 'subject'): string {
+function getSentenceEnglish(word: string, position: 'subject' | 'object' = 'subject', meaning?: string): string {
   const entry = SENTENCE_ENGLISH[word];
   if (entry) {
     return entry[position];
   }
-  // Fallback: return word's meaning from vocab, but clean it up
+  if (meaning) {
+    // Clean dictionary meaning for sentence use: take first sense,
+    // strip leading parentheticals like "(singular)", strip "to " verb prefix
+    return meaning
+      .split(/[,;/]/)[0]
+      .trim()
+      .replace(/^\(.*?\)\s*/, '')
+      .replace(/^to\s+/i, '');
+  }
   return word;
 }
 
@@ -903,7 +936,7 @@ function findMatchingWords(
     if (usedWords.has(word.word)) return false;
     if (word.paused) return false;
     
-    const wordCategories = getCategories(word.word);
+    const wordCategories = getCategories(word.word, word.category);
     const hasMatch = slot.categories.some(cat => wordCategories.includes(cat));
     
     if (!hasMatch) return false;
@@ -956,7 +989,7 @@ export function checkSyntaxUnlock(knownVocab: Concept[]): UnlockStatus {
   });
   
   knownVocab.filter(w => !w.paused).forEach(word => {
-    getCategories(word.word).forEach(c => availableCategories.add(c));
+    getCategories(word.word, word.category).forEach(c => availableCategories.add(c));
   });
   
   const missingRoles = [...allCategories].filter(c => !availableCategories.has(c));
@@ -1077,7 +1110,7 @@ export function generateSentenceExercise(
   // Replace slot placeholders with clean English
   filledSlots.forEach((concept, role) => {
     const position = (role === 'subject' || role === 'time') ? 'subject' : 'object';
-    const cleanEnglish = getSentenceEnglish(concept.word, position);
+    const cleanEnglish = getSentenceEnglish(concept.word, position, concept.meaning);
     english = english.replace(`{${role}}`, cleanEnglish);
   });
   

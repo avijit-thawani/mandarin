@@ -209,6 +209,11 @@ Any sync strategy changes must update this section and `Known Failures`.
 - Signed in: Supabase sync with RLS user isolation.
 - Do not silently change mode semantics; this affects data expectations.
 
+### User Aliases
+| Alias | Email | Notes |
+|-------|-------|-------|
+| niyati | niyatibafna13@gmail.com | Second user account |
+
 ---
 
 ## Settings and Personalization

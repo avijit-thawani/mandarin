@@ -208,11 +208,34 @@ export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps
                 <div className="mt-4 text-sm text-base-content/50">
                   <p>Need vocabulary for:</p>
                   <div className="flex flex-wrap gap-2 mt-2 justify-center">
-                    {unlockStatus.missingRoles.slice(0, 5).map(role => (
-                      <span key={role} className="badge badge-outline">
-                        {role}
-                      </span>
-                    ))}
+                    {unlockStatus.missingRoles.slice(0, 5).map(role => {
+                      const friendly: Record<string, string> = {
+                        person: 'People (我/你/他)',
+                        subject: 'Subjects',
+                        edible: 'Food (苹果/米饭)',
+                        drinkable: 'Drinks (茶/水)',
+                        destination: 'Places (学校/家)',
+                        readable: 'Books/Text',
+                        watchable: 'TV/Movies',
+                        furniture: 'Furniture (桌子/椅子)',
+                        locatable: 'Objects',
+                        describable: 'Describable things',
+                        quality_adj: 'Quality words',
+                        size_adj: 'Size words (大/小)',
+                        appearance_adj: 'Appearance words',
+                        emotion_adj: 'Feelings (高兴)',
+                        temperature_adj: 'Temperature (冷/热)',
+                        time: 'Time (今天/明天)',
+                        vehicle: 'Transport (车/飞机)',
+                        language: 'Languages (汉语)',
+                        family: 'Family (爸爸/妈妈)',
+                      };
+                      return (
+                        <span key={role} className="badge badge-outline">
+                          {friendly[role] || role}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
                 
