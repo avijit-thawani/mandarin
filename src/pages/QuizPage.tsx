@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Volume2, BookOpen, HelpCircle, Loader2, Check, X, Zap, Square, CheckSquare, Settings2, Ban, Flame } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
+import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { QuizSession, QuizQuestion, Modality, Concept } from '../types/vocabulary';
 import { generateQuizSession, getModalityContent, modalityNeedsAudio } from '../utils/quiz';
 import { predictCorrect, computeModalityAverages } from '../utils/knowledge';
@@ -45,12 +46,13 @@ async function fireConfetti() {
 interface QuizPageProps {
   store: VocabularyStore;
   settingsStore: SettingsStore;
+  todayFilter?: TodayFilterStore;
   onShowHelp?: () => void;
   recoveryInfo?: { needed: number; completed: number };
   onRecoveryQuizComplete?: () => void;
 }
 
-export function QuizPage({ store, settingsStore, onShowHelp, recoveryInfo, onRecoveryQuizComplete }: QuizPageProps) {
+export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, recoveryInfo, onRecoveryQuizComplete }: QuizPageProps) {
   const auth = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const isRecoveryMode = searchParams.get('recovery') === 'true' && !!recoveryInfo;
@@ -90,10 +92,20 @@ export function QuizPage({ store, settingsStore, onShowHelp, recoveryInfo, onRec
     return computeModalityAverages(store.concepts.filter(c => !c.paused));
   }, [store.concepts]);
   
-  // Get available words for quiz
+  // Get available words for quiz, applying today-filter if active
   const availableWords = useMemo(() => {
-    return store.concepts.filter(c => !c.paused);
-  }, [store.concepts]);
+    let words = store.concepts.filter(c => !c.paused);
+    if (todayFilter?.active) {
+      if (todayFilter.filter.pos !== 'all') {
+        words = words.filter(c => c.part_of_speech === todayFilter.filter.pos);
+      }
+      if (todayFilter.filter.chapter !== 'all') {
+        const ch = parseInt(todayFilter.filter.chapter);
+        words = words.filter(c => c.chapter === ch);
+      }
+    }
+    return words;
+  }, [store.concepts, todayFilter?.active, todayFilter?.filter.pos, todayFilter?.filter.chapter]);
   
   // Current question
   const currentQuestion: QuizQuestion | null = session?.questions[session.currentIndex] ?? null;
@@ -355,19 +367,37 @@ export function QuizPage({ store, settingsStore, onShowHelp, recoveryInfo, onRec
           <div className="max-w-lg mx-auto">
             <div className="card bg-base-200">
               <div className="card-body items-center text-center py-10">
-                <div className="text-6xl mb-4">🎯</div>
-                <h2 className="text-2xl font-bold">Ready to Learn?</h2>
-                <p className="text-base-content/60 mt-2 max-w-xs">
-                  Import some vocabulary first to start quizzing!
-                </p>
-                
-                <Link 
-                  to="/vocab"
-                  className="btn btn-primary mt-6 gap-2"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  Go to Vocabulary
-                </Link>
+                {todayFilter?.active ? (
+                  <>
+                    <div className="text-6xl mb-4">🔍</div>
+                    <h2 className="text-2xl font-bold">No matching words</h2>
+                    <p className="text-base-content/60 mt-2 max-w-xs">
+                      No known words match your filter: <span className="font-semibold text-info">{todayFilter.label}</span>
+                    </p>
+                    <button
+                      className="btn btn-primary mt-6 gap-2"
+                      onClick={todayFilter.clear}
+                    >
+                      <X className="w-5 h-5" />
+                      Clear filter
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-6xl mb-4">🎯</div>
+                    <h2 className="text-2xl font-bold">Ready to Learn?</h2>
+                    <p className="text-base-content/60 mt-2 max-w-xs">
+                      Import some vocabulary first to start quizzing!
+                    </p>
+                    <Link 
+                      to="/vocab"
+                      className="btn btn-primary mt-6 gap-2"
+                    >
+                      <BookOpen className="w-5 h-5" />
+                      Go to Vocabulary
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -552,6 +582,24 @@ export function QuizPage({ store, settingsStore, onShowHelp, recoveryInfo, onRec
               Recovery Quiz {recoveryInfo.completed + 1}/{recoveryInfo.needed}
             </span>
             <span className="text-base-content/60">— Complete to resume streak</span>
+          </div>
+        </div>
+      )}
+
+      {/* Today-filter banner */}
+      {todayFilter?.active && (
+        <div className="flex-shrink-0 bg-info/10 border-b border-info/30 px-4 py-1.5">
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <Zap className="w-3.5 h-3.5 text-info" />
+            <span className="font-medium text-info">{todayFilter.label}</span>
+            <span className="text-base-content/50">for today</span>
+            <button
+              className="btn btn-ghost btn-xs btn-circle ml-1"
+              onClick={() => { todayFilter.clear(); startNewSession(); }}
+              title="Reset to full vocab"
+            >
+              <X className="w-3 h-3" />
+            </button>
           </div>
         </div>
       )}

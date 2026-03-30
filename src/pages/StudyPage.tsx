@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Volume2, ChevronLeft, ChevronRight, Shuffle, Loader2, BookOpen, HelpCircle, Square, CheckSquare } from 'lucide-react';
+import { Volume2, ChevronLeft, ChevronRight, Shuffle, Loader2, BookOpen, HelpCircle, Square, CheckSquare, Zap, X } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
+import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { Concept } from '../types/vocabulary';
 import type { FocusLevel } from '../types/settings';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
@@ -10,6 +11,7 @@ import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '
 interface StudyPageProps {
   store: VocabularyStore;
   settingsStore?: SettingsStore;
+  todayFilter?: TodayFilterStore;
   onShowHelp?: () => void;
 }
 
@@ -56,7 +58,7 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-export function StudyPage({ store, settingsStore, onShowHelp }: StudyPageProps) {
+export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: StudyPageProps) {
   // Session words - randomly selected from studying words
   const [sessionWords, setSessionWords] = useState<Concept[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -89,10 +91,20 @@ export function StudyPage({ store, settingsStore, onShowHelp }: StudyPageProps) 
     };
   }, [settings]);
   
-  // Get words for study - non-paused concepts
+  // Get words for study, applying today-filter if active
   const studyWords = useMemo(() => {
-    return store.concepts.filter(c => !c.paused);
-  }, [store.concepts]);
+    let words = store.concepts.filter(c => !c.paused);
+    if (todayFilter?.active) {
+      if (todayFilter.filter.pos !== 'all') {
+        words = words.filter(c => c.part_of_speech === todayFilter.filter.pos);
+      }
+      if (todayFilter.filter.chapter !== 'all') {
+        const ch = parseInt(todayFilter.filter.chapter);
+        words = words.filter(c => c.chapter === ch);
+      }
+    }
+    return words;
+  }, [store.concepts, todayFilter?.active, todayFilter?.filter.pos, todayFilter?.filter.chapter]);
 
   // Initialize a new study session
   const startNewSession = useCallback(() => {
@@ -248,19 +260,37 @@ export function StudyPage({ store, settingsStore, onShowHelp }: StudyPageProps) 
           <div className="max-w-lg mx-auto">
             <div className="card bg-base-200">
               <div className="card-body items-center text-center py-10">
-                <div className="text-6xl mb-4">📚</div>
-                <h2 className="text-2xl font-bold">No Words Yet</h2>
-                <p className="text-base-content/60 mt-2 max-w-xs">
-                  Import some vocabulary first to start studying!
-                </p>
-                
-                <Link 
-                  to="/vocab"
-                  className="btn btn-primary mt-6 gap-2"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  Go to Vocabulary
-                </Link>
+                {todayFilter?.active ? (
+                  <>
+                    <div className="text-6xl mb-4">🔍</div>
+                    <h2 className="text-2xl font-bold">No matching words</h2>
+                    <p className="text-base-content/60 mt-2 max-w-xs">
+                      No known words match your filter: <span className="font-semibold text-info">{todayFilter.label}</span>
+                    </p>
+                    <button
+                      className="btn btn-primary mt-6 gap-2"
+                      onClick={todayFilter.clear}
+                    >
+                      <X className="w-5 h-5" />
+                      Clear filter
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-6xl mb-4">📚</div>
+                    <h2 className="text-2xl font-bold">No Words Yet</h2>
+                    <p className="text-base-content/60 mt-2 max-w-xs">
+                      Import some vocabulary first to start studying!
+                    </p>
+                    <Link 
+                      to="/vocab"
+                      className="btn btn-primary mt-6 gap-2"
+                    >
+                      <BookOpen className="w-5 h-5" />
+                      Go to Vocabulary
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -272,6 +302,24 @@ export function StudyPage({ store, settingsStore, onShowHelp }: StudyPageProps) 
   // Main flashcard view
   return (
     <div className="h-full bg-gradient-to-b from-base-100 to-base-200 flex flex-col overflow-hidden">
+      {/* Today-filter banner */}
+      {todayFilter?.active && (
+        <div className="flex-shrink-0 bg-info/10 border-b border-info/30 px-4 py-1.5">
+          <div className="flex items-center justify-center gap-2 text-sm">
+            <Zap className="w-3.5 h-3.5 text-info" />
+            <span className="font-medium text-info">{todayFilter.label}</span>
+            <span className="text-base-content/50">for today</span>
+            <button
+              className="btn btn-ghost btn-xs btn-circle ml-1"
+              onClick={() => { todayFilter.clear(); startNewSession(); }}
+              title="Reset to full vocab"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-4 py-3">
         <div className="flex items-center justify-between">

@@ -43,9 +43,9 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 ## App Surfaces and Where to Edit
 
 ### Main Tabs
-- `Vocabulary`: import/browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS).
-- `Study`: passive flashcards (self-paced).
-- `Quiz`: active MCQ + scoring + attempt logging.
+- `Vocabulary`: import/browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS). "For today" buttons let you send a filtered subset to Quiz/Study as a temporary session filter.
+- `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
+- `Quiz`: active MCQ + scoring + attempt logging. Supports temporary "for today" filters set from the Vocab page.
 - `Pinyin`: pronunciation practice with listen-and-pick quiz and speak-and-check self-evaluation.
 - `Syntax`: sentence construction practice.
 - `Profile`: progress charts + settings.
@@ -67,6 +67,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 ### State and Domain Logic
 - `src/stores/vocabularyStore.ts`: concept state and vocabulary lifecycle.
 - `src/stores/settingsStore.ts`: focus weights, UI and quiz settings.
+- `src/stores/todayFilterStore.ts`: ephemeral in-memory filter (PoS/chapter) for temporary quiz/study sessions. Resets on page refresh.
 - `src/utils/knowledge.ts`: knowledge update math.
 - `src/utils/quiz.ts`: question selection and option generation.
 - `src/utils/syntax.ts`: template-driven sentence generation.

@@ -1,13 +1,16 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Download, CheckSquare, Square, Filter, HelpCircle, Check, Loader2, AlertTriangle, Cloud, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronUp, ChevronDown, ChevronsUpDown, Download, CheckSquare, Square, Filter, HelpCircle, Check, Loader2, AlertTriangle, Cloud, RefreshCw, BookOpen, Zap } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
+import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { Concept } from '../types/vocabulary';
 import { VocabCard } from '../components/VocabCard';
 
 interface VocabularyPageProps {
   store: VocabularyStore;
   settingsStore?: SettingsStore;
+  todayFilter: TodayFilterStore;
   onSync?: () => void;
   onShowHelp?: () => void;
   onRefresh?: () => Promise<void>;
@@ -71,7 +74,8 @@ function saveVocabPreferences(prefs: Partial<VocabPreferences>): void {
   }
 }
 
-export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRefresh, isGuest }: VocabularyPageProps) {
+export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onShowHelp, onRefresh, isGuest }: VocabularyPageProps) {
+  const navigate = useNavigate();
   const initialPrefs = loadVocabPreferences();
   const [sortField, setSortField] = useState<SortField>(initialPrefs.sortField);
   const [sortDir, setSortDir] = useState<SortDir>(initialPrefs.sortDir);
@@ -240,6 +244,13 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
     if (!stat) return;
     const allKnown = stat.known === stat.total;
     store.setChapterPaused(chapter, allKnown);
+  };
+
+  const hasActiveFilters = filterPoS !== 'all' || filterChapter !== 'all';
+
+  const handleForToday = (destination: '/quiz' | '/study') => {
+    todayFilter.setFilter({ pos: filterPoS, chapter: filterChapter });
+    navigate(destination);
   };
   
   const SortIcon = ({ field }: { field: SortField }) => {
@@ -447,6 +458,31 @@ export function VocabularyPage({ store, settingsStore, onSync, onShowHelp, onRef
               >
                 <Square className="w-3 h-3" />
                 Unknow ({filteredKnown})
+              </button>
+            </>
+          )}
+          
+          {/* "For today" session filter actions — only when PoS or chapter filter is active */}
+          {hasActiveFilters && filteredConcepts.filter(c => !c.paused).length > 0 && (
+            <>
+              <span className="text-base-content/20 mx-0.5 hidden sm:inline">|</span>
+              <button
+                className="btn btn-xs btn-outline btn-info gap-0.5"
+                onClick={() => handleForToday('/quiz')}
+                title="Quiz only these filtered words (temporary, resets on next visit)"
+              >
+                <Zap className="w-3 h-3" />
+                <span className="hidden sm:inline">Quiz for today</span>
+                <span className="sm:hidden">Quiz</span>
+              </button>
+              <button
+                className="btn btn-xs btn-outline btn-secondary gap-0.5"
+                onClick={() => handleForToday('/study')}
+                title="Study only these filtered words (temporary, resets on next visit)"
+              >
+                <BookOpen className="w-3 h-3" />
+                <span className="hidden sm:inline">Study for today</span>
+                <span className="sm:hidden">Study</span>
               </button>
             </>
           )}

@@ -12,6 +12,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { LoginPage } from './pages/LoginPage';
 import { useVocabularyStore } from './stores/vocabularyStore';
 import { useSettingsStore } from './stores/settingsStore';
+import { useTodayFilterStore } from './stores/todayFilterStore';
 import { useAuth } from './hooks/useAuth';
 import { useStreak } from './hooks/useStreak';
 import { Loader2, Zap } from 'lucide-react';
@@ -31,6 +32,7 @@ const ONBOARDING_KEY = 'langseed_onboarding_seen';
 function App() {
   const store = useVocabularyStore();
   const settingsStore = useSettingsStore();
+  const todayFilter = useTodayFilterStore();
   const auth = useAuth();
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasLoadedFromCloud = useRef(false);
@@ -156,6 +158,7 @@ function App() {
       <AppContent 
         store={store}
         settingsStore={settingsStore}
+        todayFilter={todayFilter}
         auth={auth} 
         onSync={handleSync}
         onSettingsSave={handleSettingsSave}
@@ -169,6 +172,7 @@ function App() {
 function AppContent({ 
   store,
   settingsStore,
+  todayFilter,
   auth, 
   onSync,
   onSettingsSave,
@@ -176,6 +180,7 @@ function AppContent({
 }: { 
   store: ReturnType<typeof useVocabularyStore>;
   settingsStore: ReturnType<typeof useSettingsStore>;
+  todayFilter: ReturnType<typeof useTodayFilterStore>;
   auth: ReturnType<typeof useAuth>;
   onSync: () => void;
   onSettingsSave: () => Promise<void>;
@@ -248,6 +253,7 @@ function AppContent({
               <VocabularyPage 
                 store={store} 
                 settingsStore={settingsStore}
+                todayFilter={todayFilter}
                 onSync={onSync}
                 onShowHelp={() => setShowHelpModal(true)}
                 onRefresh={auth.user && !isGuest ? () => store.loadFromCloud(auth.user!.id) : undefined}
@@ -261,7 +267,8 @@ function AppContent({
             element={
               <StudyPage 
                 store={store} 
-                settingsStore={settingsStore} 
+                settingsStore={settingsStore}
+                todayFilter={todayFilter}
                 onShowHelp={() => setShowHelpModal(true)}
               />
             } 
@@ -272,7 +279,8 @@ function AppContent({
             element={
               <QuizPage 
                 store={store} 
-                settingsStore={settingsStore} 
+                settingsStore={settingsStore}
+                todayFilter={todayFilter}
                 onShowHelp={() => setShowHelpModal(true)}
                 recoveryInfo={streakHook.isStreakBroken ? {
                   needed: streakHook.recoveryQuizzesNeeded,
