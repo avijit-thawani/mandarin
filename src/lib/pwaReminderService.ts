@@ -22,7 +22,19 @@ export function isReminderSupported(): boolean {
 
 export async function registerReminderServiceWorker(): Promise<void> {
   if (!isReminderSupported()) return;
-  await navigator.serviceWorker.register(SW_PATH);
+
+  const registration = await navigator.serviceWorker.register(SW_PATH);
+
+  registration.addEventListener('updatefound', () => {
+    const newWorker = registration.installing;
+    if (!newWorker) return;
+    newWorker.addEventListener('statechange', () => {
+      if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+        console.log('[PWA] New version available, reloading...');
+        window.location.reload();
+      }
+    });
+  });
 }
 
 function toUint8Array(base64String: string): Uint8Array {

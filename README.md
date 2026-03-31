@@ -161,12 +161,18 @@ Typical local keys include:
 - Sync resumes when connectivity returns.
 - Local offline indicator test path exists via `?offlineTest=1` in local development.
 
+### PWA Caching and Updates
+- `netlify.toml` sets `Cache-Control: no-cache` on `index.html`, `sw.js`, and `manifest.webmanifest` so the installed PWA always revalidates. Hashed assets under `/assets/*` are cached forever (`immutable`).
+- Service worker (`public/sw.js`) uses **network-first** for navigation requests — always fetches fresh HTML when online, falls back to cache offline.
+- `pwaReminderService.ts` listens for SW updates and **auto-reloads** the page when a new version is installed.
+- Bump `SW_VERSION` in `public/sw.js` on any deploy that changes SW behavior (Vite asset hashes change `index.html` automatically).
+
 ### PWA Push Notifications
 Per-device daily reminders via Web Push API.
 
 Architecture:
 - `push_subscriptions` table stores per-device VAPID keys, schedule, and timezone.
-- `src/lib/pwaReminderService.ts` handles subscribe/unsubscribe/schedule CRUD.
+- `src/lib/pwaReminderService.ts` handles subscribe/unsubscribe/schedule CRUD + SW update detection.
 - `supabase/functions/send-reminders/index.ts` is the Edge Function that checks each subscription's local-time schedule and sends push notifications.
 - Service worker (`public/sw.js`) handles the `push` event and shows the notification.
 
