@@ -30,10 +30,20 @@ function getDateStr(date: Date): string {
   return date.toISOString().split('T')[0];
 }
 
-function addDays(dateStr: string, days: number): string {
-  const d = new Date(dateStr + 'T12:00:00Z');
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().split('T')[0];
+/**
+ * Build an array of YYYY-MM-DD strings from N days ago to today (inclusive), in UTC.
+ * Uses noon UTC as anchor to avoid any DST/timezone edge cases.
+ */
+function buildDateArray(days: number): string[] {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const anchor = new Date(todayStr + 'T12:00:00Z');
+  const dates: string[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(anchor.getTime());
+    d.setUTCDate(d.getUTCDate() - i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  return dates;
 }
 
 function getStreakFreezes(): string[] {
@@ -72,19 +82,20 @@ function incrementRecoveryQuizzesToday(): number {
 }
 
 /**
- * Walk backward from today, counting consecutive days that have activity or are frozen.
- * Allows today to be empty (streak still holds if yesterday had activity).
+ * Walk backward from today through a pre-built date array, counting consecutive
+ * days with activity or frozen. Today can be empty without breaking the streak.
  */
 function calculateStreak(
   byDate: Record<string, DayStats>,
-  freezes: string[]
+  freezes: string[],
+  dates: string[]
 ): number {
   const freezeSet = new Set(freezes);
-  const today = getDateStr(new Date());
+  const today = dates[dates.length - 1];
   let streak = 0;
-  let date = today;
 
-  for (let i = 0; i < STREAK_DAYS_TO_FETCH; i++) {
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const date = dates[i];
     const hasActivity = (byDate[date]?.attempts ?? 0) > 0;
     const isFrozen = freezeSet.has(date);
 
@@ -95,31 +106,24 @@ function calculateStreak(
     } else {
       break;
     }
-
-    date = addDays(date, -1);
   }
 
   return streak;
 }
 
 /**
- * Find the best historical streak across all data.
+ * Find the best historical streak across the date array.
  */
 function calculateBestStreak(
   byDate: Record<string, DayStats>,
-  freezes: string[]
+  freezes: string[],
+  dates: string[]
 ): number {
   const freezeSet = new Set(freezes);
-  const allDates = Object.keys(byDate).sort();
-  if (allDates.length === 0) return 0;
-
-  const start = allDates[0];
-  const end = getDateStr(new Date());
   let best = 0;
   let current = 0;
-  let date = start;
 
-  while (date <= end) {
+  for (const date of dates) {
     const hasActivity = (byDate[date]?.attempts ?? 0) > 0;
     const isFrozen = freezeSet.has(date);
 
@@ -129,8 +133,6 @@ function calculateBestStreak(
     } else {
       current = 0;
     }
-
-    date = addDays(date, 1);
   }
 
   return best;
@@ -138,45 +140,30 @@ function calculateBestStreak(
 
 /**
  * Find missed days between the last active day (before the gap) and today.
- * These are the days that broke the streak and need recovery quizzes.
- * Capped at MAX_RECOVERY_DAYS to prevent absurd requirements after long breaks.
+ * Walk backward from yesterday; collect gap days until we hit activity.
+ * Capped at MAX_RECOVERY_DAYS.
  */
 function findMissedDays(
   byDate: Record<string, DayStats>,
-  freezes: string[]
+  freezes: string[],
+  dates: string[]
 ): string[] {
   const freezeSet = new Set(freezes);
-  const today = getDateStr(new Date());
   const missed: string[] = [];
 
-  // Walk backward from yesterday to find the gap
-  let date = addDays(today, -1);
-  let foundActivity = false;
-
-  for (let i = 0; i < STREAK_DAYS_TO_FETCH; i++) {
+  // Walk backward from yesterday (skip today = last element)
+  for (let i = dates.length - 2; i >= 0; i--) {
+    const date = dates[i];
     const hasActivity = (byDate[date]?.attempts ?? 0) > 0;
     const isFrozen = freezeSet.has(date);
 
     if (hasActivity || isFrozen) {
-      if (!foundActivity) {
-        foundActivity = true;
-      }
-      // Once we hit consecutive activity, stop
-      if (missed.length > 0) break;
+      // Hit activity — if we collected missed days, the gap is found
+      break;
     } else {
-      if (foundActivity || missed.length > 0) {
-        // We've passed through the gap and hit activity — this shouldn't happen
-        // due to the break above, but guard anyway
-        break;
-      }
       missed.unshift(date);
     }
-
-    date = addDays(date, -1);
   }
-
-  // Also check if today is a gap day between last activity and now
-  // (today doesn't count as missed since user is here now)
 
   return missed.slice(-MAX_RECOVERY_DAYS);
 }
@@ -205,12 +192,14 @@ export function useStreak(userId: string | null | undefined, isGuest?: boolean) 
     });
   }, [userId, isGuest, refreshKey]);
 
+  const dates = useMemo(() => buildDateArray(STREAK_DAYS_TO_FETCH), []);
+
   const streakData: StreakData = useMemo(() => {
-    const today = getDateStr(new Date());
+    const today = dates[dates.length - 1];
     const todayStats = byDate[today] || { attempts: 0, correct: 0 };
-    const streak = calculateStreak(byDate, streakFreezes);
-    const bestStreak = calculateBestStreak(byDate, streakFreezes);
-    const missedDays = streak === 0 ? findMissedDays(byDate, streakFreezes) : [];
+    const streak = calculateStreak(byDate, streakFreezes, dates);
+    const bestStreak = calculateBestStreak(byDate, streakFreezes, dates);
+    const missedDays = streak === 0 ? findMissedDays(byDate, streakFreezes, dates) : [];
     const isStreakBroken = missedDays.length > 0;
     const recoveryQuizzesNeeded = missedDays.length;
 
