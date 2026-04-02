@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getQuizStats } from '../lib/quizService';
 
-const STREAK_FREEZES_KEY = 'langseed_streak_freezes';
-const RECOVERY_QUIZZES_KEY = 'langseed_recovery_quizzes_today';
 const STREAK_DAYS_TO_FETCH = 90;
-const MAX_RECOVERY_DAYS = 7;
+const MAX_RECOVERY_WINDOW = 7;
 
 interface DayStats {
   attempts: number;
@@ -16,18 +14,13 @@ export interface StreakData {
   bestStreak: number;
   isStreakBroken: boolean;
   missedDays: string[];
-  recoveryQuizzesNeeded: number;
-  recoveryQuizzesCompleted: number;
+  availableExtras: number;
+  quizzesNeeded: number;
   todayAttempts: number;
   todayCorrect: number;
   todayAccuracy: number;
   loading: boolean;
   byDate: Record<string, DayStats>;
-  streakFreezes: string[];
-}
-
-function getDateStr(date: Date): string {
-  return date.toISOString().split('T')[0];
 }
 
 /**
@@ -46,133 +39,118 @@ function buildDateArray(days: number): string[] {
   return dates;
 }
 
-function getStreakFreezes(): string[] {
-  try {
-    const raw = localStorage.getItem(STREAK_FREEZES_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveStreakFreezes(freezes: string[]) {
-  localStorage.setItem(STREAK_FREEZES_KEY, JSON.stringify(freezes));
-}
-
-function getRecoveryQuizzesToday(): number {
-  try {
-    const raw = localStorage.getItem(RECOVERY_QUIZZES_KEY);
-    if (!raw) return 0;
-    const parsed = JSON.parse(raw);
-    if (parsed.date === getDateStr(new Date())) {
-      return parsed.count || 0;
-    }
-    return 0;
-  } catch {
-    return 0;
-  }
-}
-
-function incrementRecoveryQuizzesToday(): number {
-  const today = getDateStr(new Date());
-  const current = getRecoveryQuizzesToday();
-  const next = current + 1;
-  localStorage.setItem(RECOVERY_QUIZZES_KEY, JSON.stringify({ date: today, count: next }));
-  return next;
+function quizzesForDay(attempts: number, cardsPerSession: number): number {
+  if (cardsPerSession <= 0) return attempts > 0 ? 1 : 0;
+  return Math.round(attempts / cardsPerSession);
 }
 
 /**
- * Walk backward from today through a pre-built date array, counting consecutive
- * days with activity or frozen. Today can be empty without breaking the streak.
+ * Walk backward from today. Extras (quizzes beyond 1 per day) flow from recent
+ * days to cover older gaps, within a 7-day window from today.
+ * Today with 0 quizzes gets a grace period (doesn't break the streak).
  */
-function calculateStreak(
+function computeCurrentStreak(
   byDate: Record<string, DayStats>,
-  freezes: string[],
-  dates: string[]
-): number {
-  const freezeSet = new Set(freezes);
+  dates: string[],
+  cardsPerSession: number
+): { streak: number; extras: number } {
   const today = dates[dates.length - 1];
   let streak = 0;
+  let extras = 0;
 
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
-    const hasActivity = (byDate[date]?.attempts ?? 0) > 0;
-    const isFrozen = freezeSet.has(date);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+    const daysFromToday = dates.length - 1 - i;
 
-    if (hasActivity || isFrozen) {
+    if (q >= 1) {
       streak++;
+      extras += q - 1;
     } else if (date === today) {
-      // Today can be empty without breaking streak
+      // Grace period — haven't broken streak yet today
+    } else if (extras > 0 && daysFromToday <= MAX_RECOVERY_WINDOW) {
+      streak++;
+      extras--;
     } else {
       break;
     }
   }
 
-  return streak;
+  return { streak, extras };
 }
 
 /**
- * Find the best historical streak across the date array.
+ * Forward pass through all dates. Extras from earlier days cover later gaps.
+ * No recovery window cap — this is the all-time best.
  */
-function calculateBestStreak(
+function computeBestStreak(
   byDate: Record<string, DayStats>,
-  freezes: string[],
-  dates: string[]
+  dates: string[],
+  cardsPerSession: number
 ): number {
-  const freezeSet = new Set(freezes);
   let best = 0;
   let current = 0;
+  let extras = 0;
 
   for (const date of dates) {
-    const hasActivity = (byDate[date]?.attempts ?? 0) > 0;
-    const isFrozen = freezeSet.has(date);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
 
-    if (hasActivity || isFrozen) {
+    if (q >= 1) {
       current++;
-      best = Math.max(best, current);
+      extras += q - 1;
+    } else if (extras > 0) {
+      current++;
+      extras--;
     } else {
+      best = Math.max(best, current);
       current = 0;
+      extras = 0;
     }
   }
 
-  return best;
+  return Math.max(best, current);
 }
 
 /**
- * Find missed days between the last active day (before the gap) and today.
- * Walk backward from yesterday; collect gap days until we hit activity.
- * Capped at MAX_RECOVERY_DAYS.
+ * Scan the 7-day window backward from yesterday and find gap days that aren't
+ * currently covered by available extras. Returns the gap dates and how many
+ * more quizzes are needed to cover them all.
  */
-function findMissedDays(
+function computeRecoveryInfo(
   byDate: Record<string, DayStats>,
-  freezes: string[],
-  dates: string[]
-): string[] {
-  const freezeSet = new Set(freezes);
+  dates: string[],
+  cardsPerSession: number
+): { missedDays: string[]; availableExtras: number; quizzesNeeded: number } {
   const missed: string[] = [];
+  let extras = 0;
 
-  // Walk backward from yesterday (skip today = last element)
-  for (let i = dates.length - 2; i >= 0; i--) {
+  // Walk backward from today through the 7-day window
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const daysFromToday = dates.length - 1 - i;
+    if (daysFromToday > MAX_RECOVERY_WINDOW) break;
+
     const date = dates[i];
-    const hasActivity = (byDate[date]?.attempts ?? 0) > 0;
-    const isFrozen = freezeSet.has(date);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
 
-    if (hasActivity || isFrozen) {
-      // Hit activity — if we collected missed days, the gap is found
-      break;
-    } else {
-      missed.unshift(date);
+    if (q >= 1) {
+      extras += q - 1;
+    } else if (daysFromToday > 0) {
+      // Not today, and no activity — this is a gap day
+      missed.push(date);
     }
   }
 
-  return missed.slice(-MAX_RECOVERY_DAYS);
+  const quizzesNeeded = Math.max(0, missed.length - extras);
+  return { missedDays: missed, availableExtras: extras, quizzesNeeded };
 }
 
-export function useStreak(userId: string | null | undefined, isGuest?: boolean) {
+export function useStreak(
+  userId: string | null | undefined,
+  isGuest?: boolean,
+  cardsPerSession: number = 10
+) {
   const [byDate, setByDate] = useState<Record<string, DayStats>>({});
   const [loading, setLoading] = useState(true);
-  const [streakFreezes, setStreakFreezes] = useState<string[]>(getStreakFreezes());
-  const [recoveryCompleted, setRecoveryCompleted] = useState(getRecoveryQuizzesToday());
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -197,19 +175,18 @@ export function useStreak(userId: string | null | undefined, isGuest?: boolean) 
   const streakData: StreakData = useMemo(() => {
     const today = dates[dates.length - 1];
     const todayStats = byDate[today] || { attempts: 0, correct: 0 };
-    const streak = calculateStreak(byDate, streakFreezes, dates);
-    const bestStreak = calculateBestStreak(byDate, streakFreezes, dates);
-    const missedDays = streak === 0 ? findMissedDays(byDate, streakFreezes, dates) : [];
-    const isStreakBroken = missedDays.length > 0;
-    const recoveryQuizzesNeeded = missedDays.length;
+
+    const { streak, extras } = computeCurrentStreak(byDate, dates, cardsPerSession);
+    const bestStreak = computeBestStreak(byDate, dates, cardsPerSession);
+    const recovery = computeRecoveryInfo(byDate, dates, cardsPerSession);
 
     return {
       streak,
       bestStreak: Math.max(bestStreak, streak),
-      isStreakBroken,
-      missedDays,
-      recoveryQuizzesNeeded,
-      recoveryQuizzesCompleted: Math.min(recoveryCompleted, recoveryQuizzesNeeded),
+      isStreakBroken: recovery.quizzesNeeded > 0,
+      missedDays: recovery.missedDays,
+      availableExtras: extras,
+      quizzesNeeded: recovery.quizzesNeeded,
       todayAttempts: todayStats.attempts,
       todayCorrect: todayStats.correct,
       todayAccuracy: todayStats.attempts > 0
@@ -217,33 +194,15 @@ export function useStreak(userId: string | null | undefined, isGuest?: boolean) 
         : 0,
       loading,
       byDate,
-      streakFreezes,
     };
-  }, [byDate, streakFreezes, recoveryCompleted, loading]);
-
-  const completeRecoveryQuiz = useCallback(() => {
-    const { missedDays } = streakData;
-    if (missedDays.length === 0) return;
-
-    // Freeze the earliest missed day
-    const dayToFreeze = missedDays[0];
-    const updated = [...streakFreezes, dayToFreeze];
-    saveStreakFreezes(updated);
-    setStreakFreezes(updated);
-
-    const newCount = incrementRecoveryQuizzesToday();
-    setRecoveryCompleted(newCount);
-  }, [streakData, streakFreezes]);
+  }, [byDate, loading, cardsPerSession]);
 
   const refresh = useCallback(() => {
     setRefreshKey(k => k + 1);
-    setStreakFreezes(getStreakFreezes());
-    setRecoveryCompleted(getRecoveryQuizzesToday());
   }, []);
 
   return {
     ...streakData,
-    completeRecoveryQuiz,
     refresh,
   };
 }

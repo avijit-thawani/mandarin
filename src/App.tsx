@@ -195,8 +195,8 @@ function AppContent({
   // Quiz completion state - re-check when route changes
   const [quizCompletedToday, setQuizCompletedToday] = useState(hasCompletedQuizToday());
   
-  // Streak data
-  const streakHook = useStreak(auth.user?.id, isGuest);
+  // Streak data (purely computed from quiz_attempts + cardsPerSession)
+  const streakHook = useStreak(auth.user?.id, isGuest, settingsStore.settings.cardsPerSession);
   
   useEffect(() => {
     // Re-check quiz completion when navigating away from quiz
@@ -226,10 +226,6 @@ function AppContent({
     localStorage.setItem(ONBOARDING_KEY, 'true');
   };
   
-  const handleRecoveryQuizComplete = () => {
-    streakHook.completeRecoveryQuiz();
-  };
-
   return (
     <div className="h-dvh flex flex-col bg-base-100 text-base-content overflow-hidden">
       {/* Help modal */}
@@ -276,11 +272,6 @@ function AppContent({
                 settingsStore={settingsStore}
                 todayFilter={todayFilter}
                 onShowHelp={() => setShowHelpModal(true)}
-                recoveryInfo={streakHook.isStreakBroken ? {
-                  needed: streakHook.recoveryQuizzesNeeded,
-                  completed: streakHook.recoveryQuizzesCompleted,
-                } : undefined}
-                onRecoveryQuizComplete={handleRecoveryQuizComplete}
               />
             } 
           />

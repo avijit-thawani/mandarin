@@ -72,7 +72,7 @@ interface ProfilePageProps {
   onShowHelp?: () => void;
   onRefreshProgress?: () => Promise<void>;
   isGuest?: boolean;
-  streakData?: StreakData & { completeRecoveryQuiz: () => void; refresh: () => void };
+  streakData?: StreakData & { refresh: () => void };
 }
 
 // Progress bar component - uses CSS variables for reliable theming
@@ -554,30 +554,32 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                       </div>
                       <p className="text-xs text-base-content/60">
                         You missed {streakData.missedDays.length} day{streakData.missedDays.length !== 1 ? 's' : ''}.
-                        Complete {streakData.recoveryQuizzesNeeded - streakData.recoveryQuizzesCompleted} extra
-                        {' '}quiz{(streakData.recoveryQuizzesNeeded - streakData.recoveryQuizzesCompleted) !== 1 ? 'zes' : ''} to
-                        recover — one per missed day.
+                        {streakData.availableExtras > 0
+                          ? ` You have ${streakData.availableExtras} bonus quiz${streakData.availableExtras !== 1 ? 'zes' : ''} banked.`
+                          : ''
+                        }
+                        {' '}Do {streakData.quizzesNeeded} more quiz{streakData.quizzesNeeded !== 1 ? 'zes' : ''} to recover.
                       </p>
-                      {streakData.recoveryQuizzesCompleted > 0 && (
+                      {streakData.availableExtras > 0 && (
                         <div className="space-y-1.5">
                           <div className="flex justify-between text-xs text-base-content/60">
-                            <span>Recovery progress</span>
-                            <span>{streakData.recoveryQuizzesCompleted}/{streakData.recoveryQuizzesNeeded}</span>
+                            <span>Covered by extras</span>
+                            <span>{streakData.availableExtras}/{streakData.missedDays.length}</span>
                           </div>
                           <div className="w-full bg-base-100 rounded-full h-2">
                             <div
                               className="bg-warning rounded-full h-2 transition-all duration-500"
-                              style={{ width: `${(streakData.recoveryQuizzesCompleted / streakData.recoveryQuizzesNeeded) * 100}%` }}
+                              style={{ width: `${Math.min((streakData.availableExtras / streakData.missedDays.length) * 100, 100)}%` }}
                             />
                           </div>
                         </div>
                       )}
                       <button
-                        onClick={() => navigate('/quiz?recovery=true')}
+                        onClick={() => navigate('/quiz')}
                         className="btn btn-warning btn-sm w-full"
                       >
                         <Flame className="w-4 h-4" />
-                        {streakData.recoveryQuizzesCompleted > 0 ? 'Continue Recovery' : 'Start Recovery Quiz'}
+                        Take a Quiz
                       </button>
                     </div>
                   )}

@@ -1,7 +1,7 @@
 // Progress Timeline - Historical chart of daily quiz activity and accuracy
 
 import { useState, useEffect, useMemo } from 'react';
-import { Calendar, TrendingUp, Target, Loader2, Flame, Snowflake } from 'lucide-react';
+import { Calendar, TrendingUp, Target, Loader2, Flame } from 'lucide-react';
 import { getQuizStats } from '../lib/quizService';
 
 interface DayData {
@@ -10,7 +10,6 @@ interface DayData {
   attempts: number;
   correct: number;
   accuracy: number;   // 0-100
-  isFrozen: boolean;
 }
 
 interface ProgressTimelineProps {
@@ -18,27 +17,12 @@ interface ProgressTimelineProps {
   isGuest?: boolean;
   daysToShow?: number;
   streak?: number;
-  streakFreezes?: string[];
 }
 
-function getStoredStreakFreezes(): string[] {
-  try {
-    const raw = localStorage.getItem('langseed_streak_freezes');
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: externalStreak, streakFreezes }: ProgressTimelineProps) {
+export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: externalStreak }: ProgressTimelineProps) {
   const [data, setData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Stable freeze set: read from prop or localStorage once, keyed by JSON content
-  const freezeSource = streakFreezes ?? getStoredStreakFreezes();
-  const freezeKey = JSON.stringify(freezeSource);
-  const freezeSet = useMemo(() => new Set(JSON.parse(freezeKey) as string[]), [freezeKey]);
 
   // Generate date range for the last N days (UTC-consistent)
   const dateRange = useMemo(() => {
@@ -54,7 +38,7 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
     return dates;
   }, [daysToShow]);
 
-  // Fetch quiz stats from Supabase (freezeSet excluded: it doesn't affect the query)
+  // Fetch quiz stats from Supabase
   useEffect(() => {
     async function fetchData() {
       if (!userId || isGuest) {
@@ -77,7 +61,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
         return;
       }
 
-      // Build data array for each day in range (isFrozen set below in a separate memo)
       const todayStr = new Date().toISOString().split('T')[0];
       const dayData: DayData[] = dateRange.map(dateStr => {
         const stats = byDate[dateStr] || { attempts: 0, correct: 0 };
@@ -94,7 +77,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
           accuracy: stats.attempts > 0 
             ? Math.round((stats.correct / stats.attempts) * 100) 
             : 0,
-          isFrozen: false,
         };
       });
 
@@ -105,20 +87,11 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
     fetchData();
   }, [userId, isGuest, daysToShow, dateRange]);
 
-  // Merge freeze status into data reactively without re-fetching
-  const dataWithFreezes = useMemo(() => {
-    if (freezeSet.size === 0) return data;
-    return data.map(d => ({
-      ...d,
-      isFrozen: freezeSet.has(d.date),
-    }));
-  }, [data, freezeSet]);
-
   // Calculate summary stats
   const summary = useMemo(() => {
-    const totalAttempts = dataWithFreezes.reduce((sum, d) => sum + d.attempts, 0);
-    const totalCorrect = dataWithFreezes.reduce((sum, d) => sum + d.correct, 0);
-    const daysActive = dataWithFreezes.filter(d => d.attempts > 0 || d.isFrozen).length;
+    const totalAttempts = data.reduce((sum, d) => sum + d.attempts, 0);
+    const totalCorrect = data.reduce((sum, d) => sum + d.correct, 0);
+    const daysActive = data.filter(d => d.attempts > 0).length;
     const avgAccuracy = totalAttempts > 0 
       ? Math.round((totalCorrect / totalAttempts) * 100) 
       : 0;
@@ -126,22 +99,22 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
     // Use external streak if provided, otherwise calculate locally
     let streak = externalStreak ?? 0;
     if (externalStreak === undefined) {
-      for (let i = dataWithFreezes.length - 1; i >= 0; i--) {
-        if (dataWithFreezes[i].attempts > 0 || dataWithFreezes[i].isFrozen) {
+      for (let i = data.length - 1; i >= 0; i--) {
+        if (data[i].attempts > 0) {
           streak++;
-        } else if (i < dataWithFreezes.length - 1) {
+        } else if (i < data.length - 1) {
           break;
         }
       }
     }
     
     return { totalAttempts, totalCorrect, daysActive, avgAccuracy, streak };
-  }, [dataWithFreezes, externalStreak]);
+  }, [data, externalStreak]);
 
   // Find max attempts for scaling bars
   const maxAttempts = useMemo(() => 
-    Math.max(10, ...dataWithFreezes.map(d => d.attempts)), 
-    [dataWithFreezes]
+    Math.max(10, ...data.map(d => d.attempts)), 
+    [data]
   );
 
   // Guest mode - show placeholder
@@ -206,8 +179,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
     );
   }
 
-  const hasFrozenDays = dataWithFreezes.some(d => d.isFrozen);
-
   return (
     <div className="bg-base-200 rounded-xl p-4 space-y-4">
       {/* Header with summary stats */}
@@ -231,14 +202,13 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
       <div className="relative">
         {/* Bars container */}
         <div className="flex items-end gap-1 h-24">
-          {dataWithFreezes.map((day, i) => {
+          {data.map((day, i) => {
             const barHeight = day.attempts > 0 
               ? Math.max(8, (day.attempts / maxAttempts) * 100) 
-              : day.isFrozen ? 15 : 4;
-            const isToday = i === dataWithFreezes.length - 1;
+              : 4;
+            const isToday = i === data.length - 1;
             
             const getBarColor = () => {
-              if (day.isFrozen && day.attempts === 0) return 'bg-info/40';
               if (day.attempts === 0) return 'bg-base-300';
               if (day.accuracy >= 80) return 'bg-success';
               if (day.accuracy >= 60) return 'bg-warning';
@@ -256,15 +226,12 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
                   <div className="bg-base-100 shadow-lg rounded-lg px-2 py-1 text-xs 
                                 border border-base-300 whitespace-nowrap">
                     <div className="font-medium">{day.date}</div>
-                    {day.isFrozen && day.attempts === 0 ? (
-                      <div className="text-info">Recovered</div>
-                    ) : day.attempts > 0 ? (
+                    {day.attempts > 0 ? (
                       <>
                         <div>{day.attempts} questions</div>
                         <div className={day.accuracy >= 70 ? 'text-success' : 'text-warning'}>
                           {day.accuracy}% correct
                         </div>
-                        {day.isFrozen && <div className="text-info text-[10px]">+ Recovered</div>}
                       </>
                     ) : (
                       <div className="text-base-content/50">No activity</div>
@@ -272,17 +239,11 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
                   </div>
                 </div>
                 
-                {/* Frozen indicator */}
-                {day.isFrozen && day.attempts === 0 && (
-                  <Snowflake className="w-2.5 h-2.5 text-info/70 mb-0.5" />
-                )}
-                
                 {/* Bar */}
                 <div
                   className={`w-full rounded-t transition-all duration-300 ${getBarColor()} 
-                             ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-base-200' : ''}
-                             ${day.isFrozen && day.attempts === 0 ? 'border border-dashed border-info/50' : ''}`}
-                  style={{ height: `${barHeight}%`, minHeight: day.attempts > 0 ? '8px' : day.isFrozen ? '6px' : '4px' }}
+                             ${isToday ? 'ring-2 ring-primary ring-offset-1 ring-offset-base-200' : ''}`}
+                  style={{ height: `${barHeight}%`, minHeight: day.attempts > 0 ? '8px' : '4px' }}
                 />
               </div>
             );
@@ -291,8 +252,8 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
 
         {/* X-axis labels */}
         <div className="flex gap-1 mt-1">
-          {dataWithFreezes.map((day, i) => {
-            const showLabel = i === 0 || i === dataWithFreezes.length - 1 || i % 4 === 0;
+          {data.map((day, i) => {
+            const showLabel = i === 0 || i === data.length - 1 || i % 4 === 0;
             return (
               <div key={day.date} className="flex-1 text-center">
                 <span className={`text-[10px] ${showLabel ? 'text-base-content/50' : 'text-transparent'}`}>
@@ -322,12 +283,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
           <div className="w-2 h-2 rounded-sm bg-base-300" />
           <span>No activity</span>
         </div>
-        {hasFrozenDays && (
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-info/40 border border-dashed border-info/50" />
-            <span>Recovered</span>
-          </div>
-        )}
       </div>
 
       {/* Streak indicator */}

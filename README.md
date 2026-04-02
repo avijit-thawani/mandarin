@@ -54,10 +54,10 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/App.tsx`: app composition and top-level routing, streak wiring.
 - `src/components/Navbar.tsx`: tab navigation + global streak badge.
 - `src/pages/ProfilePage.tsx`: progress dashboard, streak recovery, and all settings.
-- `src/hooks/useStreak.ts`: streak calculation, freeze/recovery logic.
+- `src/hooks/useStreak.ts`: streak calculation (pure computation from quiz_attempts + cardsPerSession).
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
-- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI, logging controls, recovery mode.
+- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI, logging controls.
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/SyntaxPage.tsx`: sentence construction and grammar practice.
@@ -147,8 +147,7 @@ Typical local keys include:
 - cache/sync flags
 - vocabulary page preferences
 - `langseed_quiz_completed`: daily quiz completion flag
-- `langseed_streak_freezes`: recovered/frozen streak days (JSON array of YYYY-MM-DD)
-- `langseed_recovery_quizzes_today`: daily recovery quiz counter
+- (streak is now computed purely from quiz_attempts — no localStorage needed)
 
 ### Auto Sync Behavior
 - Debounced sync after quiz actions.
