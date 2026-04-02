@@ -230,7 +230,8 @@ export async function getQuizStats(
       .select('created_at, correct')
       .eq('user_id', userId)
       .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString());
+      .lte('created_at', endDate.toISOString())
+      .limit(10000);
 
     if (error) {
       return {
