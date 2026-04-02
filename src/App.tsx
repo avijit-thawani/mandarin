@@ -15,6 +15,7 @@ import { useSettingsStore } from './stores/settingsStore';
 import { useTodayFilterStore } from './stores/todayFilterStore';
 import { useAuth } from './hooks/useAuth';
 import { useStreak } from './hooks/useStreak';
+import { clearNotifications } from './lib/pwaReminderService';
 import { Loader2, Zap } from 'lucide-react';
 
 // Dev mode detection
@@ -207,6 +208,10 @@ function AppContent({
     // Refresh streak data when navigating (catches quiz completions)
     if (location.pathname !== '/quiz') {
       streakHook.refresh();
+    }
+    // Withdraw reminder notifications once the user has studied today
+    if (completed) {
+      clearNotifications();
     }
   }, [location.pathname]);
   

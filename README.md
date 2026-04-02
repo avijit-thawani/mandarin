@@ -172,9 +172,10 @@ Per-device daily reminders via Web Push API.
 
 Architecture:
 - `push_subscriptions` table stores per-device VAPID keys, schedule, and timezone.
-- `src/lib/pwaReminderService.ts` handles subscribe/unsubscribe/schedule CRUD + SW update detection.
+- `src/lib/pwaReminderService.ts` handles subscribe/unsubscribe/schedule CRUD + SW update detection + notification withdrawal.
 - `supabase/functions/send-reminders/index.ts` is the Edge Function that checks each subscription's local-time schedule and sends push notifications.
-- Service worker (`public/sw.js`) handles the `push` event and shows the notification.
+- Service worker (`public/sw.js`) handles `push` (show), `notificationclick` (open app), and `message` (withdraw) events. Notifications use a `tag` so withdrawal targets only reminders.
+- **Auto-withdraw**: when the user completes a quiz (streak activity), `App.tsx` calls `clearNotifications()` to dismiss any visible reminder. Profile page has a manual "Withdraw" button for testing.
 
 Key columns on `push_subscriptions`: `reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`.
 

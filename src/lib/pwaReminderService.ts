@@ -268,6 +268,18 @@ export function getBrowserTimezone(): string {
   return getInferredTimezone();
 }
 
+/**
+ * Tell the service worker to close any visible reminder notifications.
+ * Useful after the user completes their daily quiz/streak activity.
+ */
+export async function clearNotifications(): Promise<void> {
+  if (!isReminderSupported()) return;
+  const registration = await navigator.serviceWorker.ready;
+  if (registration.active) {
+    registration.active.postMessage({ type: 'CLEAR_NOTIFICATIONS' });
+  }
+}
+
 export async function sendTestReminder(userId: string): Promise<void> {
   if (!isSupabaseConfigured()) {
     throw new Error('Supabase is not configured.');

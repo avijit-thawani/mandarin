@@ -53,6 +53,7 @@ import {
   disableReminders,
   updateReminderSchedule,
   sendTestReminder,
+  clearNotifications,
   getBrowserTimezone,
 } from '../lib/pwaReminderService';
 
@@ -250,6 +251,17 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
       setReminderError(error instanceof Error ? error.message : 'Failed to trigger test reminder.');
     } finally {
       setReminderBusy(false);
+    }
+  };
+
+  const handleWithdrawNotification = async () => {
+    setReminderError(null);
+    setReminderMessage(null);
+    try {
+      await clearNotifications();
+      setReminderMessage('Notification withdrawn. If one was showing, it should be gone now.');
+    } catch (error) {
+      setReminderError(error instanceof Error ? error.message : 'Failed to withdraw notification.');
     }
   };
   
@@ -953,6 +965,15 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                     >
                       {reminderBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />}
                       Send test push
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={handleWithdrawNotification}
+                      disabled={!reminderEnabled}
+                      title="Dismiss any visible reminder notification (simulates streak completion)"
+                    >
+                      <BellOff className="w-4 h-4" />
+                      Withdraw
                     </button>
                   </div>
 

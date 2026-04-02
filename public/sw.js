@@ -1,4 +1,5 @@
-const SW_VERSION = '2025-03-29-1';
+const SW_VERSION = '2026-04-02-1';
+const REMINDER_TAG = 'mandarin-reminder';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -39,6 +40,7 @@ self.addEventListener('push', (event) => {
     body: payload.body,
     icon: '/icon-192.png',
     badge: '/icon-192.png',
+    tag: REMINDER_TAG,
     data: {
       url: payload.url || '/quiz',
     },
@@ -62,4 +64,14 @@ self.addEventListener('notificationclick', (event) => {
       return self.clients.openWindow(targetUrl);
     })
   );
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'CLEAR_NOTIFICATIONS') {
+    event.waitUntil(
+      self.registration.getNotifications({ tag: REMINDER_TAG }).then((notifications) => {
+        notifications.forEach((n) => n.close());
+      })
+    );
+  }
 });
