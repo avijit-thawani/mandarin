@@ -1,8 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { HelpModal } from './components/HelpModal';
-import { StreakModal } from './components/StreakModal';
 import { VocabularyPage } from './pages/VocabularyPage';
 import { StudyPage } from './pages/StudyPage';
 import { QuizPage, hasCompletedQuizToday } from './pages/QuizPage';
@@ -188,12 +187,10 @@ function AppContent({
   isGuest: boolean;
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Help modal state
   const [showHelpModal, setShowHelpModal] = useState(false);
-  
-  // Streak modal state
-  const [showStreakModal, setShowStreakModal] = useState(false);
   
   // Quiz completion state - re-check when route changes
   const [quizCompletedToday, setQuizCompletedToday] = useState(hasCompletedQuizToday());
@@ -237,14 +234,6 @@ function AppContent({
     <div className="h-dvh flex flex-col bg-base-100 text-base-content overflow-hidden">
       {/* Help modal */}
       <HelpModal isOpen={showHelpModal} onClose={handleCloseHelp} />
-      
-      {/* Streak modal */}
-      <StreakModal
-        isOpen={showStreakModal}
-        onClose={() => setShowStreakModal(false)}
-        streakData={streakHook}
-        quizCompletedToday={quizCompletedToday}
-      />
       
       {/* Main content area */}
       <main className="flex-1 overflow-hidden pb-16">
@@ -330,6 +319,7 @@ function AppContent({
                 onShowHelp={() => setShowHelpModal(true)}
                 onRefreshProgress={auth.user && !isGuest ? () => store.loadFromCloud(auth.user!.id) : undefined}
                 isGuest={isGuest}
+                streakData={streakHook}
               />
             } 
           />
@@ -346,7 +336,7 @@ function AppContent({
         quizCompletedToday={quizCompletedToday}
         streak={streakHook.loading ? undefined : streakHook.streak}
         isStreakBroken={streakHook.isStreakBroken}
-        onStreakClick={() => setShowStreakModal(true)}
+        onStreakClick={() => navigate('/profile')}
       />
       
       {/* Dev Mode Toggle (localhost only) */}

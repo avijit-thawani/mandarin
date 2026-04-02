@@ -53,7 +53,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 ### High-Value Files
 - `src/App.tsx`: app composition and top-level routing, streak wiring.
 - `src/components/Navbar.tsx`: tab navigation + global streak badge.
-- `src/components/StreakModal.tsx`: streak details popup with heatmap and recovery CTA.
+- `src/pages/ProfilePage.tsx`: progress dashboard, streak recovery, and all settings.
 - `src/hooks/useStreak.ts`: streak calculation, freeze/recovery logic.
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
@@ -363,7 +363,7 @@ If unsure, update both briefly and keep README high-level.
 - "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/pages/SyntaxPage.tsx`
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
-- "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/components/StreakModal.tsx`, `src/components/Navbar.tsx`
+- "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/pages/ProfilePage.tsx`, `src/components/Navbar.tsx`
 - "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
 
 ---

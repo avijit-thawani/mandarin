@@ -18,6 +18,9 @@ import {
   Play,
   Mic,
   HelpCircle,
+  Flame,
+  Snowflake,
+  Zap,
   TrendingUp,
   BarChart3,
   Layers,
@@ -26,6 +29,7 @@ import {
 } from 'lucide-react';
 import type { SettingsStore } from '../stores/settingsStore';
 import type { VocabularyStore } from '../stores/vocabularyStore';
+import type { StreakData } from '../hooks/useStreak';
 import type { 
   ThemeType, 
   FocusLevel, 
@@ -45,6 +49,7 @@ import {
   type TTSVoice,
   type BrowserType,
 } from '../services/ttsService';
+import { useNavigate } from 'react-router-dom';
 import { ProgressTimeline } from '../components/ProgressTimeline';
 import {
   isReminderSupported,
@@ -67,6 +72,7 @@ interface ProfilePageProps {
   onShowHelp?: () => void;
   onRefreshProgress?: () => Promise<void>;
   isGuest?: boolean;
+  streakData?: StreakData & { completeRecoveryQuiz: () => void; refresh: () => void };
 }
 
 // Progress bar component - uses CSS variables for reliable theming
@@ -95,7 +101,8 @@ function ProgressBar({ value, max = 100, color = 'primary', size = 'md' }: {
   );
 }
 
-export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userEmail, userId, onShowHelp, onRefreshProgress, isGuest }: ProfilePageProps) {
+export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userEmail, userId, onShowHelp, onRefreshProgress, isGuest, streakData }: ProfilePageProps) {
+  const navigate = useNavigate();
   const { settings, isSyncing, syncError, hasUnsyncedChanges, lastSyncTime } = settingsStore;
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -506,6 +513,77 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                 </div>
               </div>
               
+              {/* Streak Recovery */}
+              {streakData && !streakData.loading && (
+                <div className="bg-base-200 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                      streakData.isStreakBroken
+                        ? 'bg-base-300'
+                        : streakData.streak > 0
+                          ? 'bg-gradient-to-br from-orange-500 to-amber-400'
+                          : 'bg-base-300'
+                    }`}>
+                      {streakData.isStreakBroken ? (
+                        <Snowflake className="w-5 h-5 text-base-content/40" />
+                      ) : (
+                        <Flame className={`w-5 h-5 ${streakData.streak > 0 ? 'text-white' : 'text-base-content/40'}`} />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-lg">
+                        {streakData.isStreakBroken ? 'Streak Broken' : `${streakData.streak} Day${streakData.streak !== 1 ? 's' : ''}`}
+                      </div>
+                      <div className="text-xs text-base-content/60">
+                        {streakData.bestStreak > 0 && `Best: ${streakData.bestStreak} day${streakData.bestStreak !== 1 ? 's' : ''}`}
+                      </div>
+                    </div>
+                    {streakData.todayAttempts > 0 && (
+                      <div className="text-right">
+                        <div className="text-sm font-medium">{streakData.todayAttempts} Qs</div>
+                        <div className="text-xs text-success">{streakData.todayAccuracy}%</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {streakData.isStreakBroken && streakData.missedDays.length > 0 && (
+                    <div className="bg-base-300 rounded-lg p-3 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-warning" />
+                        <span className="font-medium text-sm">Resume Your Streak</span>
+                      </div>
+                      <p className="text-xs text-base-content/60">
+                        You missed {streakData.missedDays.length} day{streakData.missedDays.length !== 1 ? 's' : ''}.
+                        Complete {streakData.recoveryQuizzesNeeded - streakData.recoveryQuizzesCompleted} extra
+                        {' '}quiz{(streakData.recoveryQuizzesNeeded - streakData.recoveryQuizzesCompleted) !== 1 ? 'zes' : ''} to
+                        recover — one per missed day.
+                      </p>
+                      {streakData.recoveryQuizzesCompleted > 0 && (
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-xs text-base-content/60">
+                            <span>Recovery progress</span>
+                            <span>{streakData.recoveryQuizzesCompleted}/{streakData.recoveryQuizzesNeeded}</span>
+                          </div>
+                          <div className="w-full bg-base-100 rounded-full h-2">
+                            <div
+                              className="bg-warning rounded-full h-2 transition-all duration-500"
+                              style={{ width: `${(streakData.recoveryQuizzesCompleted / streakData.recoveryQuizzesNeeded) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => navigate('/quiz?recovery=true')}
+                        className="btn btn-warning btn-sm w-full"
+                      >
+                        <Flame className="w-4 h-4" />
+                        {streakData.recoveryQuizzesCompleted > 0 ? 'Continue Recovery' : 'Start Recovery Quiz'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Activity Timeline */}
               <ProgressTimeline userId={userId} isGuest={isGuest} />
             </>
