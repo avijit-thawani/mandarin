@@ -557,6 +557,7 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                   <div className="text-[10px] text-base-content/30 font-mono break-all leading-relaxed">
                     s={streakData.streak} best={streakData.bestStreak} broken={String(streakData.isStreakBroken)}{' '}
                     need={streakData.quizzesNeeded} today={streakData.todayAttempts}{' '}
+                    rows={Object.values(streakData.byDate).reduce((a, d) => a + d.attempts, 0)}{' '}
                     days={Object.keys(streakData.byDate).length}{' '}
                     err={streakData.error || 'none'}{' '}
                     keys=[{Object.keys(streakData.byDate).sort().slice(-5).join(',')}]

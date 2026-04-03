@@ -225,35 +225,43 @@ export async function getQuizStats(
   }
 
   try {
-    const { data, error } = await supabase
-      .from('quiz_attempts')
-      .select('created_at, correct')
-      .eq('user_id', userId)
-      .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString())
-      .limit(10000);
+    // Paginate to avoid Supabase's default 1000-row server limit (max_rows).
+    // .limit(N) alone is insufficient — the server silently truncates at max_rows.
+    const PAGE_SIZE = 1000;
+    const allAttempts: { created_at: string; correct: boolean }[] = [];
+    let offset = 0;
 
-    if (error) {
-      return {
-        totalAttempts: 0,
-        totalCorrect: 0,
-        byDate: {},
-        error: error.message,
-      };
+    while (true) {
+      const { data, error } = await supabase
+        .from('quiz_attempts')
+        .select('created_at, correct')
+        .eq('user_id', userId)
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString())
+        .order('created_at', { ascending: true })
+        .range(offset, offset + PAGE_SIZE - 1);
+
+      if (error) {
+        return {
+          totalAttempts: 0,
+          totalCorrect: 0,
+          byDate: {},
+          error: error.message,
+        };
+      }
+
+      const rows = data || [];
+      allAttempts.push(...rows);
+
+      if (rows.length < PAGE_SIZE) break;
+      offset += PAGE_SIZE;
     }
 
-    const attempts = data || [];
     const byDate: Record<string, { attempts: number; correct: number }> = {};
     let totalCorrect = 0;
 
-    if (attempts.length > 0) {
-      const sample = attempts[0].created_at;
-      console.log('[getQuizStats] raw created_at sample:', JSON.stringify(sample), 'type:', typeof sample);
-    }
-
-    for (const attempt of attempts) {
-      const raw = String(attempt.created_at);
-      const date = raw.substring(0, 10);
+    for (const attempt of allAttempts) {
+      const date = String(attempt.created_at).substring(0, 10);
       if (!byDate[date]) {
         byDate[date] = { attempts: 0, correct: 0 };
       }
@@ -264,10 +272,8 @@ export async function getQuizStats(
       }
     }
 
-    console.log('[getQuizStats]', attempts.length, 'rows,', Object.keys(byDate).length, 'days');
-
     return {
-      totalAttempts: attempts.length,
+      totalAttempts: allAttempts.length,
       totalCorrect,
       byDate,
       error: null,
