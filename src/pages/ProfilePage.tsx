@@ -546,6 +546,14 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                     )}
                   </div>
 
+                  {/* Temporary debug info */}
+                  <div className="text-[10px] text-base-content/30 font-mono break-all">
+                    s={streakData.streak} b={streakData.bestStreak} broken={String(streakData.isStreakBroken)} 
+                    missed={streakData.missedDays.length} extras={streakData.availableExtras} 
+                    need={streakData.quizzesNeeded} today={streakData.todayAttempts}
+                    keys={Object.keys(streakData.byDate).sort().slice(-5).join(',')}
+                  </div>
+
                   {streakData.isStreakBroken && streakData.missedDays.length > 0 && (
                     <div className="bg-base-300 rounded-lg p-3 space-y-3">
                       <div className="flex items-center gap-2">
