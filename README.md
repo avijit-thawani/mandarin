@@ -270,7 +270,9 @@ Template-driven grammar/word-order practice using known vocabulary. Levels: L1 b
 Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports.
 
 ### ML/Analysis Scripts
-`analysis/quiz_ml_model.py`, `analysis/quiz_attempts_data.json` — model experiments, not runtime. Log feature/label changes here.
+`analysis/quiz_ml_model.py` — offline model predicting quiz correctness from context features. Not runtime. Data in `analysis/quiz_attempts_data.json` (gitignored). Export via MCP Supabase read or Python client (see script docstring).
+
+**v2 (Apr 2026):** 26 features (was 11), including `knowledge_before`, modality pair one-hot encoding, individual user averages, per-concept attempt number. Models: Logistic Regression, Random Forest, HistGradientBoostingClassifier + isotonic calibration. Evaluation via stratified 5-fold CV. Best calibration: Brier 0.066 (HGB+Cal). Best discrimination: ROC-AUC 0.844 (LR). Log feature/label changes here.
 
 ---
 
@@ -309,6 +311,7 @@ Never repeat this class of failure.
 4. **PWA migration not applied (Mar 2026)**: migration adding `reminder_timezone` columns was committed but never run against production → `column does not exist` errors. Fix: run migration SQL in Dashboard SQL Editor. **Lesson**: verify migrations are applied to the live DB, not just committed.
 5. **PWA cron trigger missing (Mar 2026)**: Edge Function existed and test notifications worked (`force: true`), but no `pg_cron` job was calling it on a schedule, so scheduled reminders never fired. Fix: set up `pg_cron` + `pg_net` to POST to the function every 10 min (see PWA Push Notifications section). **Lesson**: an Edge Function without a trigger is dead code — always wire up the invocation mechanism.
 6. **PWA push dropped on mobile (Mar 2026)**: server sent successfully (FCM 201) but phone never displayed the notification. Root cause: `TTL: 60` (seconds) meant FCM silently dropped the message if the device was in Doze mode; missing `urgency: 'high'` let Android batch/delay delivery indefinitely. Fix: set `TTL: 14400` and `urgency: 'high'`. **Lesson**: always use high urgency + long TTL for user-facing push — short TTL + default urgency is only safe for devices that are always awake.
+7. **Streak showed 0 despite quiz data (Apr 2026)**: `getQuizStats` used `.limit(10000)` but Supabase's server-side `max_rows` (typically 1000) silently truncated the response. With 1747+ rows, the oldest 1000 were returned and recent days were missing, so streak computed as 0. Fix: paginate using `.range()` in a loop until all rows are fetched. **Lesson**: Supabase `.limit(N)` does NOT override the server's `max_rows` config — always paginate queries that may exceed 1000 rows, or use `.range()` with a fetch loop.
 
 ---
 
