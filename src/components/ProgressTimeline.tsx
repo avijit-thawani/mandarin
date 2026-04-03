@@ -1,7 +1,7 @@
 // Progress Timeline - Historical chart of daily quiz activity and accuracy
 
 import { useState, useEffect, useMemo } from 'react';
-import { Calendar, TrendingUp, Target, Loader2, Flame } from 'lucide-react';
+import { Calendar, TrendingUp, Target, Loader2 } from 'lucide-react';
 import { getQuizStats } from '../lib/quizService';
 
 interface DayData {
@@ -16,10 +16,9 @@ interface ProgressTimelineProps {
   userId: string | null;
   isGuest?: boolean;
   daysToShow?: number;
-  streak?: number;
 }
 
-export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: externalStreak }: ProgressTimelineProps) {
+export function ProgressTimeline({ userId, isGuest, daysToShow = 14 }: ProgressTimelineProps) {
   const [data, setData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,20 +95,8 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
       ? Math.round((totalCorrect / totalAttempts) * 100) 
       : 0;
     
-    // Use external streak if provided, otherwise calculate locally
-    let streak = externalStreak ?? 0;
-    if (externalStreak === undefined) {
-      for (let i = data.length - 1; i >= 0; i--) {
-        if (data[i].attempts > 0) {
-          streak++;
-        } else if (i < data.length - 1) {
-          break;
-        }
-      }
-    }
-    
-    return { totalAttempts, totalCorrect, daysActive, avgAccuracy, streak };
-  }, [data, externalStreak]);
+    return { totalAttempts, totalCorrect, daysActive, avgAccuracy };
+  }, [data]);
 
   // Find max attempts for scaling bars
   const maxAttempts = useMemo(() => 
@@ -285,15 +272,6 @@ export function ProgressTimeline({ userId, isGuest, daysToShow = 14, streak: ext
         </div>
       </div>
 
-      {/* Streak indicator */}
-      {summary.streak >= 1 && (
-        <div className="flex items-center justify-center gap-2 pt-2 border-t border-base-300">
-          <Flame className="w-5 h-5 text-orange-500" />
-          <span className="text-sm font-medium">
-            {summary.streak} day streak!
-          </span>
-        </div>
-      )}
     </div>
   );
 }

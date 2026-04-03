@@ -154,23 +154,15 @@ export function useStreak(
     startDate.setHours(0, 0, 0, 0);
 
     getQuizStats(userId, startDate)
-      .then(({ byDate: data, error, totalAttempts }) => {
+      .then(({ byDate: data, error }) => {
         if (cancelled) return;
-        if (error) {
-          console.error('[useStreak] query error:', error);
-          setFetchError(error);
-        }
-        console.log('[useStreak] fetched ' + totalAttempts + ' attempts, ' +
-          Object.keys(data).length + ' days' +
-          (error ? ' ERROR=' + error : ''));
+        if (error) setFetchError(error);
         setByDate(data);
         setLoading(false);
       })
       .catch((err) => {
         if (cancelled) return;
-        const msg = err instanceof Error ? err.message : 'Unknown error';
-        console.error('[useStreak] exception:', msg);
-        setFetchError(msg);
+        setFetchError(err instanceof Error ? err.message : 'Unknown error');
         setLoading(false);
       });
 
