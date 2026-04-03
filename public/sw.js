@@ -1,4 +1,4 @@
-const SW_VERSION = '2026-04-02-1';
+const SW_VERSION = '2026-04-03-1';
 const REMINDER_TAG = 'mandarin-reminder';
 
 self.addEventListener('install', () => {
@@ -6,13 +6,23 @@ self.addEventListener('install', () => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then((names) =>
+      Promise.all(names.map((name) => caches.delete(name)))
+    ).then(() => self.clients.claim())
+     .then(() =>
+       self.clients.matchAll({ type: 'window' }).then((clients) => {
+         clients.forEach((client) => client.navigate(client.url));
+       })
+     )
+  );
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request, { cache: 'no-store' })
+        .catch(() => caches.match(event.request))
     );
   }
 });

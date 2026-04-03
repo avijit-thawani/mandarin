@@ -180,6 +180,18 @@ export function useStreak(
     const bestStreak = computeBestStreak(byDate, dates, cardsPerSession);
     const recovery = computeRecoveryInfo(byDate, dates, cardsPerSession);
 
+    console.log('[useStreak]', {
+      today,
+      cardsPerSession,
+      byDateKeys: Object.keys(byDate).sort().slice(-7),
+      streak,
+      extras,
+      bestStreak,
+      broken: recovery.quizzesNeeded > 0,
+      missed: recovery.missedDays,
+      loading,
+    });
+
     return {
       streak,
       bestStreak: Math.max(bestStreak, streak),

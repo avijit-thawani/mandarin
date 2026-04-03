@@ -247,7 +247,7 @@ export async function getQuizStats(
     let totalCorrect = 0;
 
     for (const attempt of attempts) {
-      const date = attempt.created_at.split('T')[0]; // YYYY-MM-DD
+      const date = attempt.created_at.substring(0, 10); // YYYY-MM-DD (handles both T and space separators)
       if (!byDate[date]) {
         byDate[date] = { attempts: 0, correct: 0 };
       }
@@ -257,6 +257,8 @@ export async function getQuizStats(
         totalCorrect++;
       }
     }
+
+    console.log('[getQuizStats]', attempts.length, 'rows, dates:', Object.keys(byDate).sort().slice(-5));
 
     return {
       totalAttempts: attempts.length,
