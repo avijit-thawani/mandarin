@@ -20,6 +20,7 @@ export interface StreakData {
   todayCorrect: number;
   todayAccuracy: number;
   loading: boolean;
+  error: string | null;
   byDate: Record<string, DayStats>;
 }
 
@@ -40,15 +41,10 @@ function buildDateArray(days: number): string[] {
 }
 
 function quizzesForDay(attempts: number, cardsPerSession: number): number {
-  if (cardsPerSession <= 0) return attempts > 0 ? 1 : 0;
+  if (!cardsPerSession || cardsPerSession <= 0) return attempts > 0 ? 1 : 0;
   return Math.round(attempts / cardsPerSession);
 }
 
-/**
- * Walk backward from today. Extras (quizzes beyond 1 per day) flow from recent
- * days to cover older gaps, within a 7-day window from today.
- * Today with 0 quizzes gets a grace period (doesn't break the streak).
- */
 function computeCurrentStreak(
   byDate: Record<string, DayStats>,
   dates: string[],
@@ -79,10 +75,6 @@ function computeCurrentStreak(
   return { streak, extras };
 }
 
-/**
- * Forward pass through all dates. Extras from earlier days cover later gaps.
- * No recovery window cap — this is the all-time best.
- */
 function computeBestStreak(
   byDate: Record<string, DayStats>,
   dates: string[],
@@ -111,11 +103,6 @@ function computeBestStreak(
   return Math.max(best, current);
 }
 
-/**
- * Scan the 7-day window backward from yesterday and find gap days that aren't
- * currently covered by available extras. Returns the gap dates and how many
- * more quizzes are needed to cover them all.
- */
 function computeRecoveryInfo(
   byDate: Record<string, DayStats>,
   dates: string[],
@@ -124,7 +111,6 @@ function computeRecoveryInfo(
   const missed: string[] = [];
   let extras = 0;
 
-  // Walk backward from today through the 7-day window
   for (let i = dates.length - 1; i >= 0; i--) {
     const daysFromToday = dates.length - 1 - i;
     if (daysFromToday > MAX_RECOVERY_WINDOW) break;
@@ -135,7 +121,6 @@ function computeRecoveryInfo(
     if (q >= 1) {
       extras += q - 1;
     } else if (daysFromToday > 0) {
-      // Not today, and no activity — this is a gap day
       missed.push(date);
     }
   }
@@ -151,6 +136,7 @@ export function useStreak(
 ) {
   const [byDate, setByDate] = useState<Record<string, DayStats>>({});
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -159,15 +145,36 @@ export function useStreak(
       return;
     }
 
+    let cancelled = false;
     setLoading(true);
+    setFetchError(null);
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - STREAK_DAYS_TO_FETCH);
     startDate.setHours(0, 0, 0, 0);
 
-    getQuizStats(userId, startDate).then(({ byDate: data }) => {
-      setByDate(data);
-      setLoading(false);
-    });
+    getQuizStats(userId, startDate)
+      .then(({ byDate: data, error, totalAttempts }) => {
+        if (cancelled) return;
+        if (error) {
+          console.error('[useStreak] query error:', error);
+          setFetchError(error);
+        }
+        console.log('[useStreak] fetched ' + totalAttempts + ' attempts, ' +
+          Object.keys(data).length + ' days' +
+          (error ? ' ERROR=' + error : ''));
+        setByDate(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        const msg = err instanceof Error ? err.message : 'Unknown error';
+        console.error('[useStreak] exception:', msg);
+        setFetchError(msg);
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
   }, [userId, isGuest, refreshKey]);
 
   const dates = useMemo(() => buildDateArray(STREAK_DAYS_TO_FETCH), []);
@@ -179,18 +186,6 @@ export function useStreak(
     const { streak, extras } = computeCurrentStreak(byDate, dates, cardsPerSession);
     const bestStreak = computeBestStreak(byDate, dates, cardsPerSession);
     const recovery = computeRecoveryInfo(byDate, dates, cardsPerSession);
-
-    console.log('[useStreak]', {
-      today,
-      cardsPerSession,
-      byDateKeys: Object.keys(byDate).sort().slice(-7),
-      streak,
-      extras,
-      bestStreak,
-      broken: recovery.quizzesNeeded > 0,
-      missed: recovery.missedDays,
-      loading,
-    });
 
     return {
       streak,
@@ -205,9 +200,10 @@ export function useStreak(
         ? Math.round((todayStats.correct / todayStats.attempts) * 100)
         : 0,
       loading,
+      error: fetchError,
       byDate,
     };
-  }, [byDate, loading, cardsPerSession]);
+  }, [byDate, loading, cardsPerSession, fetchError]);
 
   const refresh = useCallback(() => {
     setRefreshKey(k => k + 1);

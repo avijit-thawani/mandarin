@@ -546,12 +546,20 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                     )}
                   </div>
 
-                  {/* Temporary debug info */}
-                  <div className="text-[10px] text-base-content/30 font-mono break-all">
-                    s={streakData.streak} b={streakData.bestStreak} broken={String(streakData.isStreakBroken)} 
-                    missed={streakData.missedDays.length} extras={streakData.availableExtras} 
-                    need={streakData.quizzesNeeded} today={streakData.todayAttempts}
-                    keys={Object.keys(streakData.byDate).sort().slice(-5).join(',')}
+                  {/* Streak error display */}
+                  {streakData.error && (
+                    <div className="bg-error/10 rounded-lg px-3 py-2 text-xs text-error">
+                      Streak fetch error: {streakData.error}
+                    </div>
+                  )}
+
+                  {/* Debug info — remove after fixing streak bug */}
+                  <div className="text-[10px] text-base-content/30 font-mono break-all leading-relaxed">
+                    s={streakData.streak} best={streakData.bestStreak} broken={String(streakData.isStreakBroken)}{' '}
+                    need={streakData.quizzesNeeded} today={streakData.todayAttempts}{' '}
+                    days={Object.keys(streakData.byDate).length}{' '}
+                    err={streakData.error || 'none'}{' '}
+                    keys=[{Object.keys(streakData.byDate).sort().slice(-5).join(',')}]
                   </div>
 
                   {streakData.isStreakBroken && streakData.missedDays.length > 0 && (
