@@ -14,6 +14,14 @@ import { parseTaskType, QUIZ_TASK_TYPES } from '../types/vocabulary';
 // TASK TYPE SELECTION
 // ═══════════════════════════════════════════════════════════
 
+// Pinyin ↔ Audio is trivially easy (pinyin encodes pronunciation directly),
+// so we heavily penalise these pairs to avoid wasting quiz slots.
+const TRIVIAL_PAIRS: Set<QuizTaskType> = new Set([
+  'pinyin_to_audio',
+  'audio_to_pinyin',
+]);
+const TRIVIAL_PAIR_PENALTY = 0.05; // 95% weight reduction
+
 /**
  * Get weight for a task type based on learning focus settings
  * Both question and answer modalities contribute to the weight
@@ -30,7 +38,13 @@ function getTaskWeight(taskType: QuizTaskType, learningFocus: LearningFocus): nu
   }
   
   // Combined weight (multiply for stronger preference when both are high)
-  return questionWeight * answerWeight;
+  let weight = questionWeight * answerWeight;
+
+  if (TRIVIAL_PAIRS.has(taskType)) {
+    weight *= TRIVIAL_PAIR_PENALTY;
+  }
+
+  return weight;
 }
 
 /**

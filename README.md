@@ -102,6 +102,7 @@ Experimental behavior → module-level docs first, README at principle level.
 
 ### 12 Task Directions
 All modality pairs are supported (e.g., `character -> meaning`, `audio -> pinyin`, etc.).
+**Trivial pair penalty**: `pinyin ↔ audio` directions receive a 95% weight reduction because pinyin directly encodes pronunciation, making these questions trivially easy.
 
 ### Knowledge Update Formula
 Answer modality gets full update rate; question modality gets partial recognition credit.
