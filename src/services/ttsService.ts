@@ -201,6 +201,20 @@ function getNativeVoice(voiceId: string): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === voiceId) || null;
 }
 
+// Polyphonic character overrides: single characters whose standalone TTS
+// reading differs from the intended pronunciation (e.g. 了 reads as "liǎo"
+// instead of particle "le").  The value is a short context phrase that forces
+// the correct reading.  Applied only when the spoken text exactly matches a key.
+const TTS_OVERRIDES: Record<string, string> = {
+  '了': '好了',       // le  (particle) — TTS defaults to liǎo (verb)
+  '的': '我的',       // de  (possessive) — TTS defaults to dí/dì
+  '地': '慢慢地',     // de  (adverbial) — TTS defaults to dì (earth)
+  '得': '说得好',     // de  (complement) — TTS defaults to dé/děi
+  '着': '看着',       // zhe (ongoing) — TTS defaults to zháo/zhuó
+  '过': '来过',       // guo (experiential) — TTS defaults to guò (4th tone)
+  '个': '一个',       // ge  (measure word) — TTS defaults to gè (4th tone)
+};
+
 // Generous timeout so we catch browsers that silently swallow speech requests
 const SPEAK_TIMEOUT_MS = 10_000;
 
@@ -212,7 +226,8 @@ async function speakOnce(
 ): Promise<void> {
   window.speechSynthesis.cancel();
 
-  const utterance = new SpeechSynthesisUtterance(text);
+  const spokenText = TTS_OVERRIDES[text] ?? text;
+  const utterance = new SpeechSynthesisUtterance(spokenText);
 
   let selectedVoice: SpeechSynthesisVoice | null = null;
 
