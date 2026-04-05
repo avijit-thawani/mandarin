@@ -1,5 +1,9 @@
 // Vocabulary store with localStorage persistence + Supabase cloud sync
 // Manages concepts with modality-level knowledge tracking
+//
+// When adding new single-character words to hsk1_vocabulary.json, check if
+// TTS will mispronounce them (polyphonic characters / 多音字).  If so, add
+// an override in src/services/ttsService.ts → TTS_OVERRIDES.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Concept, VocabWord, Modality, ProgressSnapshot } from '../types/vocabulary';

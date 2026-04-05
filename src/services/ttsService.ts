@@ -201,10 +201,11 @@ function getNativeVoice(voiceId: string): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === voiceId) || null;
 }
 
-// Polyphonic character overrides: single characters whose standalone TTS
-// reading differs from the intended pronunciation (e.g. 了 reads as "liǎo"
-// instead of particle "le").  The value is a short context phrase that forces
-// the correct reading.  Applied only when the spoken text exactly matches a key.
+// ⚠️  AGENT NOTE: When new single-character vocab is added to hsk1_vocabulary.json,
+// check if it is a polyphonic character (多音字).  If browser TTS defaults to the
+// wrong reading, add an override here.  The value is a short context phrase that
+// forces the correct pronunciation.  Only needed for single characters — multi-char
+// words get enough context for TTS to disambiguate on its own.
 const TTS_OVERRIDES: Record<string, string> = {
   '了': '好了',       // le  (particle) — TTS defaults to liǎo (verb)
   '的': '我的',       // de  (possessive) — TTS defaults to dí/dì
