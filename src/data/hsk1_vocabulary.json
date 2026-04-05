@@ -489,7 +489,7 @@
     "word": "几",
     "pinyin": "jǐ",
     "part_of_speech": "pronoun",
-    "meaning": "how many",
+    "meaning": "how many (small number)",
     "chapter": 5,
     "source": "hsk1",
     "category": "pronoun"
@@ -588,7 +588,7 @@
     "word": "会",
     "pinyin": "huì",
     "part_of_speech": "verb",
-    "meaning": "can, able to",
+    "meaning": "can (learned skill)",
     "chapter": 6,
     "source": "hsk1",
     "category": "grammar"
@@ -1155,7 +1155,7 @@
     "word": "能",
     "pinyin": "néng",
     "part_of_speech": "verb",
-    "meaning": "can, may",
+    "meaning": "can (permission/ability)",
     "chapter": 10,
     "source": "hsk1",
     "category": "grammar"
@@ -1227,7 +1227,7 @@
     "word": "分",
     "pinyin": "fēn",
     "part_of_speech": "measure_word",
-    "meaning": "minute (of time)",
+    "meaning": "minute (time-telling)",
     "chapter": 11,
     "source": "hsk1",
     "category": "time"
@@ -1245,7 +1245,7 @@
     "word": "午",
     "pinyin": "wǔ",
     "part_of_speech": "noun",
-    "meaning": "noon, midday",
+    "meaning": "noon (classical)",
     "chapter": 11,
     "source": "hsk1",
     "category": "time"
@@ -1407,7 +1407,7 @@
     "word": "爱",
     "pinyin": "ài",
     "part_of_speech": "verb",
-    "meaning": "to like, to love",
+    "meaning": "to love",
     "chapter": 12,
     "source": "hsk1",
     "category": "emotion"
@@ -1452,7 +1452,7 @@
     "word": "喜欢",
     "pinyin": "xǐhuan",
     "part_of_speech": "verb",
-    "meaning": "to like, to be fond of",
+    "meaning": "to like, to enjoy",
     "chapter": 13,
     "source": "hsk1",
     "category": "emotion"
@@ -1533,7 +1533,7 @@
     "word": "分钟",
     "pinyin": "fēnzhōng",
     "part_of_speech": "noun",
-    "meaning": "minute",
+    "meaning": "minute (duration)",
     "chapter": 14,
     "source": "hsk1",
     "category": "time"
@@ -2046,7 +2046,7 @@
     "word": "在里面",
     "pinyin": "zài lǐmiàn",
     "part_of_speech": "phrase",
-    "meaning": "inside",
+    "meaning": "to be inside",
     "chapter": -10,
     "source": "compound",
     "category": "direction"
@@ -2262,7 +2262,7 @@
     "word": "外",
     "pinyin": "wài",
     "part_of_speech": "noun",
-    "meaning": "outside, outer",
+    "meaning": "outer, external",
     "chapter": -10,
     "source": "hsk1",
     "category": "direction"
@@ -2388,7 +2388,7 @@
     "word": "在外面",
     "pinyin": "zài wàimiàn",
     "part_of_speech": "phrase",
-    "meaning": "outside",
+    "meaning": "to be outside",
     "chapter": -10,
     "source": "compound",
     "category": "direction"
@@ -2397,7 +2397,7 @@
     "word": "在旁边",
     "pinyin": "zài pángbiān",
     "part_of_speech": "phrase",
-    "meaning": "beside, next to",
+    "meaning": "to be beside",
     "chapter": -10,
     "source": "compound",
     "category": "direction"
@@ -2406,7 +2406,7 @@
     "word": "在对面",
     "pinyin": "zài duìmiàn",
     "part_of_speech": "phrase",
-    "meaning": "across from, opposite",
+    "meaning": "to be across from",
     "chapter": -10,
     "source": "compound",
     "category": "direction"
@@ -2550,7 +2550,7 @@
     "word": "但是",
     "pinyin": "dànshì",
     "part_of_speech": "conjunction",
-    "meaning": "but",
+    "meaning": "but (formal)",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2559,7 +2559,7 @@
     "word": "可是",
     "pinyin": "kěshì",
     "part_of_speech": "conjunction",
-    "meaning": "but",
+    "meaning": "but (casual)",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2676,7 +2676,7 @@
     "word": "往",
     "pinyin": "wǎng",
     "part_of_speech": "preposition",
-    "meaning": "toward",
+    "meaning": "toward (going)",
     "chapter": 16,
     "source": "hsk1",
     "category": "direction"
@@ -2721,7 +2721,7 @@
     "word": "按",
     "pinyin": "àn",
     "part_of_speech": "preposition",
-    "meaning": "according to",
+    "meaning": "per, following",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2730,7 +2730,7 @@
     "word": "照",
     "pinyin": "zhào",
     "part_of_speech": "preposition",
-    "meaning": "according to",
+    "meaning": "as per",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2739,7 +2739,7 @@
     "word": "为",
     "pinyin": "wèi",
     "part_of_speech": "preposition",
-    "meaning": "for / on behalf of",
+    "meaning": "for (sake of)",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2820,7 +2820,7 @@
     "word": "朝",
     "pinyin": "cháo",
     "part_of_speech": "preposition",
-    "meaning": "toward",
+    "meaning": "toward (facing)",
     "chapter": 16,
     "source": "hsk1",
     "category": "direction"
@@ -2847,7 +2847,7 @@
     "word": "替",
     "pinyin": "tì",
     "part_of_speech": "preposition",
-    "meaning": "for / on behalf of",
+    "meaning": "in place of, for",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2856,7 +2856,7 @@
     "word": "帮",
     "pinyin": "bāng",
     "part_of_speech": "preposition",
-    "meaning": "on behalf of",
+    "meaning": "for (helping)",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2865,7 +2865,7 @@
     "word": "根据",
     "pinyin": "gēnjù",
     "part_of_speech": "preposition",
-    "meaning": "according to",
+    "meaning": "based on",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -3000,7 +3000,7 @@
     "word": "教师",
     "pinyin": "jiàoshī",
     "part_of_speech": "noun",
-    "meaning": "teacher",
+    "meaning": "teacher (formal)",
     "chapter": 16,
     "source": "hsk1",
     "category": "person"
