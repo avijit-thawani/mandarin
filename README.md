@@ -57,7 +57,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/hooks/useStreak.ts`: streak calculation (pure computation from quiz_attempts + cardsPerSession).
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
-- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI, logging controls.
+- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/SyntaxPage.tsx`: sentence construction and grammar practice.

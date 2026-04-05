@@ -678,7 +678,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                       ${!showResult && isPreviewed ? 'btn-primary' : ''}
                       ${showCorrectHighlight ? 'btn-success' : ''}
                       ${showWrongHighlight ? 'btn-error' : ''}
-                      ${showResult && !isSelected && !isCorrect ? 'btn-ghost opacity-50' : ''}
+                      ${showResult && !isSelected && !isCorrect ? 'btn-ghost opacity-70' : ''}
                     `}
                     onClick={handleClick}
                     disabled={showResult}
@@ -714,6 +714,21 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                         )}
                         {isPreviewed && !showResult && (
                           <span className="text-xs opacity-70">✓ Selected</span>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Show full details for all options after result */}
+                    {showResult && (
+                      <div className="flex flex-col items-center gap-0.5 mt-1 border-t border-current/10 pt-1 w-full">
+                        {currentQuestion.answerModality !== 'character' && (
+                          <span className="hanzi text-base">{option.word}</span>
+                        )}
+                        {currentQuestion.answerModality !== 'pinyin' && (
+                          <span className="pinyin text-xs opacity-80">{option.pinyin}</span>
+                        )}
+                        {currentQuestion.answerModality !== 'meaning' && (
+                          <span className="text-xs opacity-70 leading-tight text-center">{option.meaning}</span>
                         )}
                       </div>
                     )}
