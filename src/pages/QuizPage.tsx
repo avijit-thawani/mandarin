@@ -48,9 +48,10 @@ interface QuizPageProps {
   settingsStore: SettingsStore;
   todayFilter?: TodayFilterStore;
   onShowHelp?: () => void;
+  onStreakRefresh?: () => void;
 }
 
-export function QuizPage({ store, settingsStore, todayFilter, onShowHelp }: QuizPageProps) {
+export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStreakRefresh }: QuizPageProps) {
   const auth = useAuth();
   const settings = settingsStore.settings;
   const cardsPerSession = settings.cardsPerSession;
@@ -287,6 +288,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp }: Quiz
         
         // Mark quiz completed for today
         markQuizCompletedToday();
+        onStreakRefresh?.();
         
         // Fire confetti for session completion
         if (correct > answersAfterCommit.length * 0.6) {
@@ -326,6 +328,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp }: Quiz
         
         // Mark quiz completed for today
         markQuizCompletedToday();
+        onStreakRefresh?.();
         
         // Fire confetti for session completion
         if (correct > prev.answers.length * 0.6) {

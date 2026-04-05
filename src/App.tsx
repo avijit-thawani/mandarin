@@ -272,6 +272,7 @@ function AppContent({
                 settingsStore={settingsStore}
                 todayFilter={todayFilter}
                 onShowHelp={() => setShowHelpModal(true)}
+                onStreakRefresh={streakHook.refresh}
               />
             } 
           />
