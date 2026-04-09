@@ -269,7 +269,7 @@ Template-driven grammar/word-order practice using known vocabulary. Levels: L1 b
 ### Content/Vocabulary Data
 `src/data/hsk1_vocabulary.json` — canonical word list (348 entries). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
 
-**TTS polyphonic overrides**: When adding single-character vocabulary that is a polyphonic character (多音字), check whether browser TTS will default to the wrong reading. If so, add an entry to `TTS_OVERRIDES` in `src/services/ttsService.ts`. Current overrides: 了的地得着过个. Only needed for single characters whose standalone TTS reading differs from the intended pronunciation (multi-character words get enough context for TTS to disambiguate).
+**TTS polyphonic limitation**: Browser SpeechSynthesis mispronounces single-character polyphonic words (多音字) like 了(liǎo instead of le), 的(dì instead of de), 着(zháo instead of zhe). Context-phrase workarounds were tried but the extra audio was worse UX. Pinyin on screen compensates. If a future TTS API supports phoneme hints, revisit in `src/services/ttsService.ts`.
 
 Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports.
 
@@ -367,7 +367,7 @@ If unsure, update both briefly and keep README high-level.
 - "Sync conflicts" -> `src/lib/syncService.ts`, storage key handling
 - "Attempt logs missing" -> `src/lib/quizService.ts`, quiz transition logic
 - "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
-- "TTS mispronounces a word" -> `src/services/ttsService.ts` `TTS_OVERRIDES` map
+- "TTS mispronounces a word" -> `src/services/ttsService.ts` (known polyphonic limitation, no fix yet)
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/pages/SyntaxPage.tsx`
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
 - "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/pages/ProfilePage.tsx`, `src/components/Navbar.tsx`

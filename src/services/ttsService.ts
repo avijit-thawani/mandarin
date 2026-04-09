@@ -201,20 +201,12 @@ function getNativeVoice(voiceId: string): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === voiceId) || null;
 }
 
-// ⚠️  AGENT NOTE: When new single-character vocab is added to hsk1_vocabulary.json,
-// check if it is a polyphonic character (多音字).  If browser TTS defaults to the
-// wrong reading, add an override here.  The value is a short context phrase that
-// forces the correct pronunciation.  Only needed for single characters — multi-char
-// words get enough context for TTS to disambiguate on its own.
-const TTS_OVERRIDES: Record<string, string> = {
-  '了': '好了',       // le  (particle) — TTS defaults to liǎo (verb)
-  '的': '我的',       // de  (possessive) — TTS defaults to dí/dì
-  '地': '慢慢地',     // de  (adverbial) — TTS defaults to dì (earth)
-  '得': '说得好',     // de  (complement) — TTS defaults to dé/děi
-  '着': '看着',       // zhe (ongoing) — TTS defaults to zháo/zhuó
-  '过': '来过',       // guo (experiential) — TTS defaults to guò (4th tone)
-  '个': '一个',       // ge  (measure word) — TTS defaults to gè (4th tone)
-};
+// Known limitation: browser SpeechSynthesis cannot control pronunciation of
+// polyphonic characters (多音字).  E.g. 了 reads as "liǎo" instead of particle
+// "le", 的 reads as "dì" instead of "de".  Context-phrase workarounds were tried
+// but hearing extra words (e.g. "好了" for 了) was worse UX than a wrong tone.
+// Pinyin is always shown on screen, so learners can cross-reference visually.
+// If a future TTS API supports phoneme hints / SSML, revisit this.
 
 // Generous timeout so we catch browsers that silently swallow speech requests
 const SPEAK_TIMEOUT_MS = 10_000;
@@ -227,8 +219,7 @@ async function speakOnce(
 ): Promise<void> {
   window.speechSynthesis.cancel();
 
-  const spokenText = TTS_OVERRIDES[text] ?? text;
-  const utterance = new SpeechSynthesisUtterance(spokenText);
+  const utterance = new SpeechSynthesisUtterance(text);
 
   let selectedVoice: SpeechSynthesisVoice | null = null;
 
