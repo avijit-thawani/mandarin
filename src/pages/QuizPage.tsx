@@ -634,9 +634,24 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                   {getModalityContent(currentQuestion.concept, 'character')}
                 </div>
               ) : currentQuestion.questionModality === 'pinyin' ? (
-                // Pinyin question
-                <div className="pinyin text-4xl text-secondary">
-                  {getModalityContent(currentQuestion.concept, 'pinyin')}
+                // Pinyin question with optional audio
+                <div className="flex flex-col items-center gap-3">
+                  <div className="pinyin text-4xl text-secondary">
+                    {getModalityContent(currentQuestion.concept, 'pinyin')}
+                  </div>
+                  {ttsSupported && (
+                    <button
+                      className={`btn btn-circle btn-sm ${isPlaying ? 'btn-error' : 'btn-ghost text-base-content/40 hover:text-primary'}`}
+                      onClick={playQuestionAudio}
+                      title="Listen to pronunciation"
+                    >
+                      {isPlaying ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Volume2 className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
                 </div>
               ) : (
                 // Meaning question
