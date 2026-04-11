@@ -496,13 +496,13 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       )}
 
       {/* Header */}
-      <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-4 py-3">
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h1 className="text-xl font-bold">Quiz</h1>
-            <p className="text-sm text-base-content/60">
-              {session.currentIndex + 1} / {session.questions.length}
-            </p>
+      <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-4 py-2">
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <h1 className="text-lg font-bold">Quiz</h1>
+            <span className="text-sm text-base-content/60">
+              {session.currentIndex + 1}/{session.questions.length}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1 text-sm">
@@ -600,43 +600,43 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
         
         {/* Progress bar */}
         <progress 
-          className="progress progress-primary w-full h-2" 
+          className="progress progress-primary w-full h-1.5" 
           value={session.currentIndex + 1} 
           max={session.questions.length}
         />
       </header>
 
       {/* Question Card */}
-      <div className="flex-1 p-4 max-w-lg mx-auto w-full flex flex-col overflow-auto">
+      <div className="flex-1 px-3 py-2 max-w-lg mx-auto w-full flex flex-col overflow-auto">
         <div className="card bg-base-200 shadow-xl border border-base-300">
-          <div className="card-body gap-4">
+          <div className="card-body p-4 gap-2">
             {/* Question */}
-            <div className="text-center py-4">
+            <div className="text-center py-2">
               {modalityNeedsAudio(currentQuestion.questionModality) ? (
                 // Audio question
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col items-center gap-2">
                   <button
-                    className={`btn btn-circle btn-lg ${isPlaying ? 'btn-error' : 'btn-primary'}`}
+                    className={`btn btn-circle btn-md ${isPlaying ? 'btn-error' : 'btn-primary'}`}
                     onClick={playQuestionAudio}
                     disabled={!ttsSupported}
                   >
                     {isPlaying ? (
-                      <Loader2 className="w-8 h-8 animate-spin" />
+                      <Loader2 className="w-6 h-6 animate-spin" />
                     ) : (
-                      <Volume2 className="w-8 h-8" />
+                      <Volume2 className="w-6 h-6" />
                     )}
                   </button>
-                  <p className="text-base-content/60">Tap to hear the word</p>
+                  <p className="text-sm text-base-content/60">Tap to hear the word</p>
                 </div>
               ) : currentQuestion.questionModality === 'character' ? (
-                // Character question - large display
-                <div className="hanzi text-6xl font-bold text-primary">
+                // Character question
+                <div className="hanzi text-5xl font-bold text-primary">
                   {getModalityContent(currentQuestion.concept, 'character')}
                 </div>
               ) : currentQuestion.questionModality === 'pinyin' ? (
                 // Pinyin question with optional audio
-                <div className="flex flex-col items-center gap-3">
-                  <div className="pinyin text-4xl text-secondary">
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="pinyin text-3xl text-secondary">
                     {getModalityContent(currentQuestion.concept, 'pinyin')}
                   </div>
                   {ttsSupported && (
@@ -655,14 +655,14 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                 </div>
               ) : (
                 // Meaning question
-                <div className="text-2xl font-medium">
+                <div className="text-xl font-medium">
                   {getModalityContent(currentQuestion.concept, 'meaning')}
                 </div>
               )}
             </div>
             
             {/* Options - 2 cols for 4 options, 3 cols for 6 options */}
-            <div className={`grid gap-3 mt-2 ${currentQuestion.options.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            <div className={`grid gap-2 ${currentQuestion.options.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {currentQuestion.options.map((option, index) => {
                 const isSelected = selectedOption === index;
                 const isCorrect = index === currentQuestion.correctIndex;
@@ -672,14 +672,10 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                 const isPreviewed = previewedAudioOption === index;
                 const isPlayingThis = playingOptionIndex === index;
                 
-                // For audio options: click to play audio preview
-                // For non-audio options: click to submit directly
                 const handleClick = () => {
                   if (isAudioOption && !showResult) {
-                    // Play audio preview (doesn't submit)
                     playOptionAudio(option, index);
                   } else {
-                    // Non-audio options - submit directly
                     handleSelectOption(index);
                   }
                 };
@@ -688,7 +684,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                   <button
                     key={option.id}
                     className={`
-                      btn h-auto min-h-16 py-3 px-4 flex-col gap-1 text-wrap
+                      btn h-auto min-h-12 py-2 px-3 flex-col gap-0.5 text-wrap
                       ${!showResult && !isPreviewed ? 'btn-outline hover:btn-primary' : ''}
                       ${!showResult && isPreviewed ? 'btn-primary' : ''}
                       ${showCorrectHighlight ? 'btn-success' : ''}
@@ -698,21 +694,19 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                     onClick={handleClick}
                     disabled={showResult}
                   >
-                    {/* Show icon for result */}
                     {showResult && isCorrect && (
-                      <Check className="w-5 h-5 text-success-content" />
+                      <Check className="w-4 h-4 text-success-content" />
                     )}
                     {showWrongHighlight && (
-                      <X className="w-5 h-5 text-error-content" />
+                      <X className="w-4 h-4 text-error-content" />
                     )}
                     
-                    {/* Option content */}
                     {currentQuestion.answerModality === 'character' ? (
-                      <span className="hanzi text-2xl">
+                      <span className="hanzi text-xl">
                         {getOptionDisplay(option, 'character')}
                       </span>
                     ) : currentQuestion.answerModality === 'pinyin' ? (
-                      <span className="pinyin text-lg">
+                      <span className="pinyin text-base">
                         {getOptionDisplay(option, 'pinyin')}
                       </span>
                     ) : currentQuestion.answerModality === 'meaning' ? (
@@ -720,12 +714,11 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                         {getOptionDisplay(option, 'meaning')}
                       </span>
                     ) : (
-                      // Audio answer - show play button with loading state
-                      <div className="flex flex-col items-center gap-1">
+                      <div className="flex flex-col items-center gap-0.5">
                         {isPlayingThis ? (
-                          <Loader2 className="w-6 h-6 animate-spin" />
+                          <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
-                          <Volume2 className="w-6 h-6" />
+                          <Volume2 className="w-5 h-5" />
                         )}
                         {isPreviewed && !showResult && (
                           <span className="text-xs opacity-70">✓ Selected</span>
@@ -733,17 +726,16 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                       </div>
                     )}
                     
-                    {/* Show full details for all options after result */}
                     {showResult && (
-                      <div className="flex flex-col items-center gap-0.5 mt-1 border-t border-current/10 pt-1 w-full">
+                      <div className="flex flex-col items-center gap-0 mt-0.5 border-t border-current/10 pt-0.5 w-full">
                         {currentQuestion.answerModality !== 'character' && (
-                          <span className="hanzi text-base">{option.word}</span>
+                          <span className="hanzi text-sm">{option.word}</span>
                         )}
                         {currentQuestion.answerModality !== 'pinyin' && (
-                          <span className="pinyin text-xs opacity-80">{option.pinyin}</span>
+                          <span className="pinyin text-[11px] opacity-80">{option.pinyin}</span>
                         )}
                         {currentQuestion.answerModality !== 'meaning' && (
-                          <span className="text-xs opacity-70 leading-tight text-center">{option.meaning}</span>
+                          <span className="text-[11px] opacity-70 leading-tight text-center">{option.meaning}</span>
                         )}
                       </div>
                     )}
@@ -764,29 +756,25 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
             
             {/* Result feedback & Next button */}
             {showResult && (() => {
-              // Get current paused state from store (reactive)
               const currentConcept = store.concepts.find(c => c.id === currentQuestion.concept.id);
               const isPaused = currentConcept?.paused ?? currentQuestion.concept.paused;
               
               return (
-                <div className="mt-4 space-y-3">
-                  {/* Show correct answer details */}
-                  <div className={`alert ${selectedOption === currentQuestion.correctIndex ? 'alert-success' : 'alert-info'}`}>
-                    <div className="flex flex-col gap-1">
-                      <span className="font-bold">
+                <div className="mt-2 space-y-2">
+                  <div className={`alert py-2 ${selectedOption === currentQuestion.correctIndex ? 'alert-success' : 'alert-info'}`}>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-bold text-sm">
                         {currentQuestion.concept.word} · {currentQuestion.concept.pinyin}
                       </span>
-                      <span className="text-sm opacity-80">
+                      <span className="text-xs opacity-80">
                         {currentQuestion.concept.meaning}
                       </span>
                     </div>
                   </div>
                   
-                  {/* Known/Unknown toggle, Don't log, and Next button */}
-                  <div className="flex gap-2">
-                    {/* Known toggle - checkbox style like vocab page */}
+                  <div className="flex gap-1.5">
                     <button
-                      className={`btn flex-shrink-0 gap-1.5 ${
+                      className={`btn btn-sm flex-shrink-0 gap-1 ${
                         isPaused 
                           ? 'btn-outline btn-warning' 
                           : 'btn-success'
@@ -796,32 +784,30 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                     >
                       {isPaused ? (
                         <>
-                          <Square className="w-4 h-4" />
+                          <Square className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">Unknown</span>
                         </>
                       ) : (
                         <>
-                          <CheckSquare className="w-4 h-4" />
+                          <CheckSquare className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline">Known</span>
                         </>
                       )}
                     </button>
                     
-                    {/* Don't log button - skip recording this attempt */}
                     <button
-                      className="btn btn-ghost btn-square text-base-content/50 hover:text-warning hover:bg-warning/10"
+                      className="btn btn-sm btn-ghost btn-square text-base-content/50 hover:text-warning hover:bg-warning/10"
                       onClick={skipAndNext}
                       title="Don't log this attempt — we won't learn from this question (useful if you guessed)"
                     >
-                      <Ban className="w-5 h-5" />
+                      <Ban className="w-4 h-4" />
                     </button>
                     
-                    {/* Next button */}
                     <button 
-                      className="btn btn-primary flex-1"
+                      className="btn btn-sm btn-primary flex-1"
                       onClick={goToNext}
                     >
-                      {session.currentIndex + 1 >= session.questions.length ? 'See Results' : 'Next Question'}
+                      {session.currentIndex + 1 >= session.questions.length ? 'See Results' : 'Next'}
                     </button>
                   </div>
                 </div>
