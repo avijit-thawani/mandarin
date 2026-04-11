@@ -267,7 +267,7 @@ Template-driven grammar/word-order practice using known vocabulary. Levels: L1 b
 - `npm run preview`: preview built app.
 
 ### Content/Vocabulary Data
-`src/data/hsk1_vocabulary.json` — canonical word list (348 entries). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
+`src/data/hsk1_vocabulary.json` — canonical word list (354 entries). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
 
 **TTS polyphonic limitation**: Browser SpeechSynthesis mispronounces single-character polyphonic words (多音字) like 了(liǎo instead of le), 的(dì instead of de), 着(zháo instead of zhe). Context-phrase workarounds were tried but the extra audio was worse UX. Pinyin on screen compensates. If a future TTS API supports phoneme hints, revisit in `src/services/ttsService.ts`.
 

@@ -540,6 +540,15 @@
     "category": "person"
   },
   {
+    "word": "女儿",
+    "pinyin": "nǚ'ér",
+    "part_of_speech": "noun",
+    "meaning": "daughter",
+    "chapter": 5,
+    "source": "hsk1",
+    "category": "family"
+  },
+  {
     "word": "家",
     "pinyin": "jiā",
     "part_of_speech": "noun",
@@ -661,6 +670,15 @@
     "pinyin": "cài",
     "part_of_speech": "noun",
     "meaning": "dish, cuisine",
+    "chapter": 6,
+    "source": "hsk1",
+    "category": "food"
+  },
+  {
+    "word": "好吃",
+    "pinyin": "hǎochī",
+    "part_of_speech": "adjective",
+    "meaning": "delicious, tasty",
     "chapter": 6,
     "source": "hsk1",
     "category": "food"
@@ -1161,6 +1179,15 @@
     "category": "grammar"
   },
   {
+    "word": "没有",
+    "pinyin": "méiyǒu",
+    "part_of_speech": "adverb",
+    "meaning": "not have; did not",
+    "chapter": 10,
+    "source": "hsk1",
+    "category": "grammar"
+  },
+  {
     "word": "这儿",
     "pinyin": "zhèr",
     "part_of_speech": "pronoun",
@@ -1177,6 +1204,15 @@
     "chapter": 10,
     "source": "hsk1",
     "category": "direction"
+  },
+  {
+    "word": "现在",
+    "pinyin": "xiànzài",
+    "part_of_speech": "noun",
+    "meaning": "now",
+    "chapter": 11,
+    "source": "hsk1",
+    "category": "time"
   },
   {
     "word": "两",
@@ -1429,6 +1465,24 @@
     "chapter": 12,
     "source": "hsk1",
     "category": "food"
+  },
+  {
+    "word": "喂",
+    "pinyin": "wèi",
+    "part_of_speech": "interjection",
+    "meaning": "hello (on phone)",
+    "chapter": 13,
+    "source": "hsk1",
+    "category": "greeting"
+  },
+  {
+    "word": "学习",
+    "pinyin": "xuéxí",
+    "part_of_speech": "verb",
+    "meaning": "to study, to learn",
+    "chapter": 13,
+    "source": "hsk1",
+    "category": "communication"
   },
   {
     "word": "上午",
@@ -2126,10 +2180,10 @@
   {
     "word": "吃饭",
     "pinyin": "chī fàn",
-    "part_of_speech": "phrase",
-    "meaning": "eat (a meal)",
-    "chapter": -12,
-    "source": "compound",
+    "part_of_speech": "verb",
+    "meaning": "to eat (a meal)",
+    "chapter": 11,
+    "source": "hsk1",
     "category": "food"
   },
   {
@@ -2299,7 +2353,7 @@
     "pinyin": "xiàmiàn",
     "part_of_speech": "noun",
     "meaning": "below, under",
-    "chapter": -10,
+    "chapter": 9,
     "source": "hsk1",
     "category": "direction"
   },

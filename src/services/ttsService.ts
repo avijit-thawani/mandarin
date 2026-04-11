@@ -201,12 +201,29 @@ function getNativeVoice(voiceId: string): SpeechSynthesisVoice | null {
   return voices.find(v => v.voiceURI === voiceId) || null;
 }
 
-// Known limitation: browser SpeechSynthesis cannot control pronunciation of
-// polyphonic characters (多音字).  E.g. 了 reads as "liǎo" instead of particle
-// "le", 的 reads as "dì" instead of "de".  Context-phrase workarounds were tried
-// but hearing extra words (e.g. "好了" for 了) was worse UX than a wrong tone.
-// Pinyin is always shown on screen, so learners can cross-reference visually.
-// If a future TTS API supports phoneme hints / SSML, revisit this.
+// Pre-recorded audio for polyphonic characters whose browser TTS reading is
+// completely wrong (e.g. 了→"liǎo" instead of "le").  Generated via macOS
+// `say -v Tingting` with a context phrase, then trimmed to the target syllable
+// with ffmpeg.  See scripts/generate_polyphonic_audio.sh for regeneration.
+const STATIC_AUDIO: Record<string, string> = {
+  '了': '/audio/tts/le.mp3',
+  '的': '/audio/tts/de.mp3',
+  '地': '/audio/tts/de_adverb.mp3',
+  '得': '/audio/tts/de_complement.mp3',
+  '着': '/audio/tts/zhe.mp3',
+};
+
+// Play a pre-recorded static audio file with user's rate/volume settings
+async function playStaticAudio(path: string, options: TTSOptions): Promise<void> {
+  const audio = new Audio(path);
+  audio.playbackRate = options.rate ?? 0.9;
+  audio.volume = options.volume ?? 1.0;
+  return new Promise<void>((resolve, reject) => {
+    audio.onended = () => resolve();
+    audio.onerror = () => reject(new Error(`Static audio failed: ${path}`));
+    audio.play().catch(reject);
+  });
+}
 
 // Generous timeout so we catch browsers that silently swallow speech requests
 const SPEAK_TIMEOUT_MS = 10_000;
@@ -217,6 +234,13 @@ async function speakOnce(
   options: TTSOptions,
   chineseVoices: TTSVoice[],
 ): Promise<void> {
+  // Use pre-recorded clip for polyphonic characters
+  const staticPath = STATIC_AUDIO[text];
+  if (staticPath) {
+    await playStaticAudio(staticPath, options);
+    return;
+  }
+
   window.speechSynthesis.cancel();
 
   const utterance = new SpeechSynthesisUtterance(text);
