@@ -9,14 +9,22 @@ React + TypeScript web app for learning Mandarin with adaptive quiz practice, mo
 Future agents: this file is intentionally operational. It is the first map for where to edit code safely.
 
 1. Always read `.cursorrules` and `README.md` before making changes.
-2. Keep this README between **300 and 350 lines** after edits.
-3. If any section feels outdated or uncertain, suggest updates to the user before large changes.
-4. Keep README focused on stable contracts and architecture, not fast-changing tuning details.
-5. Document known failures/incidents and any mitigation steps.
-6. When scripts change (build, data extraction, sync tooling, ML analysis), update the "Script Behavior" section.
-7. Never run risky DB migrations without explicit user confirmation and backup strategy.
-8. For volatile logic, update nearby module docs/docstrings first, then update README pointers.
-9. If a user request introduces uncertainty, propose doc updates in the same PR/task.
+2. Keep this README at or below **400 lines**. If an edit would exceed 400, rephrase or trim other sections judiciously — never just append.
+3. **Only update README for major changes** (new features, new failure modes, architecture shifts, schema changes). Do not update it for minor bug fixes, style tweaks, or tuning knob adjustments.
+4. If any section feels outdated or uncertain, suggest updates to the user before large changes.
+5. Keep README focused on stable contracts and architecture, not fast-changing tuning details.
+6. Document known failures/incidents and any mitigation steps.
+7. When scripts change (build, data extraction, sync tooling, ML analysis), update the "Script Behavior" section.
+8. Never run risky DB migrations without explicit user confirmation and backup strategy.
+9. For volatile logic, update nearby module docs/docstrings first, then update README pointers.
+10. If a user request introduces uncertainty, propose doc updates in the same PR/task.
+
+### Communicating with the User
+When discussing vocabulary, corrections, or changes with the user:
+- Use **pinyin** as the default way to reference Chinese words (e.g. "nǚ'ér" not "daughter").
+- Use **hanzi** only when characters are needed to disambiguate (e.g. 的/地/得 all read "de").
+- Use **English** for everything else (explanations, technical discussion, UI labels).
+- Do not default to hanzi-heavy output — the user is a learner, not a native speaker.
 
 ---
 
@@ -92,6 +100,19 @@ Experimental behavior → module-level docs first, README at principle level.
 
 ## Data Model (What Must Stay Consistent)
 
+### Vocabulary Data Flow (READ THIS BEFORE TOUCHING VOCAB)
+
+**The JSON file is the single source of truth for vocabulary, not Supabase.**
+
+1. `src/data/hsk1_vocabulary.json` is imported at build time by `vocabularyStore.ts`.
+2. On app load, the store **auto-merges** new words: if a user has imported chapter N, any word added to the JSON for that chapter appears automatically (paused by default, so quiz/study pool is unaffected until the user checks it).
+3. The Supabase `vocabulary` table is **secondary** — it exists only so `saveToCloud` can look up a `vocabulary_id` when syncing user progress. Words missing from Supabase skip cloud sync with a console warning.
+
+**To add new vocabulary:**
+- Add the word to `src/data/hsk1_vocabulary.json` (required fields: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`).
+- Also insert it into the Supabase `vocabulary` table (same fields minus `category`, which is local-only) so cloud sync works.
+- Do NOT treat Supabase insert as the primary step. The app reads from JSON.
+
 **Concept** (client-side): static vocab fields (including semantic `category`) + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
 
 **Quiz Attempt** (analytics + ML): vocabulary id, question/answer modalities, selected option, correctness, difficulty context, knowledge snapshot. Do not remove fields without migration and analytics review.
@@ -140,73 +161,26 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 ## Storage, Sync, and Offline Behavior
 
 ### Hybrid Persistence
-- Local: browser `localStorage` for immediate state and preferences.
-- Cloud: Supabase for signed-in users and cross-device persistence.
+Local: `localStorage` for immediate state/preferences. Cloud: Supabase for signed-in users. Notable local key: `langseed_quiz_completed` (daily flag). Streak is computed purely from `quiz_attempts`.
 
-Typical local keys include:
-- progress state
-- settings
-- cache/sync flags
-- vocabulary page preferences
-- `langseed_quiz_completed`: daily quiz completion flag
-- (streak is now computed purely from quiz_attempts — no localStorage needed)
+### Sync and Offline
+Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite stale local cache on startup. App works offline with local cache; sync resumes on reconnect. Test offline mode: `?offlineTest=1`.
 
-### Auto Sync Behavior
-- Debounced sync after quiz actions.
-- Immediate sync on hide/unload when possible.
-- On startup, cloud state can overwrite stale local cache.
-
-### Offline Mode
-- App remains usable with local cache.
-- UI indicates offline state.
-- Sync resumes when connectivity returns.
-- Local offline indicator test path exists via `?offlineTest=1` in local development.
-
-### PWA Caching and Updates
-- `netlify.toml` sets `Cache-Control: no-cache` on `index.html`, `sw.js`, and `manifest.webmanifest` so the installed PWA always revalidates. Hashed assets under `/assets/*` are cached forever (`immutable`).
-- Service worker (`public/sw.js`) uses **network-first** for navigation requests — always fetches fresh HTML when online, falls back to cache offline.
-- `pwaReminderService.ts` listens for SW updates and **auto-reloads** the page when a new version is installed.
-- Bump `SW_VERSION` in `public/sw.js` on any deploy that changes SW behavior (Vite asset hashes change `index.html` automatically).
+### PWA Caching
+`netlify.toml` sets no-cache on `index.html`/`sw.js`/`manifest.webmanifest`; hashed assets cached forever. SW uses network-first for navigation. Auto-reloads on new SW version. Bump `SW_VERSION` in `public/sw.js` for SW behavior changes.
 
 ### PWA Push Notifications
-Per-device daily reminders via Web Push API.
+Per-device daily reminders via Web Push API. Key files: `pwaReminderService.ts` (client CRUD + SW updates), `supabase/functions/send-reminders/index.ts` (Edge Function), `public/sw.js` (push/click/withdraw handlers). Auto-withdraw on quiz completion via `clearNotifications()`.
 
-Architecture:
-- `push_subscriptions` table stores per-device VAPID keys, schedule, and timezone.
-- `src/lib/pwaReminderService.ts` handles subscribe/unsubscribe/schedule CRUD + SW update detection + notification withdrawal.
-- `supabase/functions/send-reminders/index.ts` is the Edge Function that checks each subscription's local-time schedule and sends push notifications.
-- Service worker (`public/sw.js`) handles `push` (show), `notificationclick` (open app), and `message` (withdraw) events. Notifications use a `tag` so withdrawal targets only reminders.
-- **Auto-withdraw**: when the user completes a quiz (streak activity), `App.tsx` calls `clearNotifications()` to dismiss any visible reminder. Profile page has a manual "Withdraw" button for testing.
+Key table: `push_subscriptions` (`reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`).
 
-Key columns on `push_subscriptions`: `reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`.
+Migrations (apply in order): `20260213162000` (table + RLS), `20260213230500` (schedule columns), `20260324120000` (pg_cron + pg_net). Cron calls Edge Function every 5 min via service role key in Vault. Verify: `select * from cron.job;`
 
-Migrations (must all be applied in order):
-1. `20260213162000_create_push_subscriptions.sql` — creates the table + RLS policies.
-2. `20260213230500_add_push_subscription_schedule.sql` — adds schedule columns (`reminder_timezone`, etc.).
-3. `20260324120000_add_reminder_cron.sql` — enables `pg_cron` + `pg_net` extensions.
+**Critical mobile settings:** `TTL: 14400` + `urgency: 'high'` (short TTL / default urgency = silent drops). Test sends use `last_tested_at` to avoid blocking scheduled sends.
 
-**Cron setup (already applied):**
-`pg_cron` calls the Edge Function every 5 min (testing; switch to hourly for prod). Auth uses the service role key stored in Supabase Vault (`vault.decrypted_secrets` name `service_role_key`), passed as `Authorization: Bearer`. The Edge Function accepts service role key, cron secret, or user JWT.
+Env: `VITE_VAPID_PUBLIC_KEY` (client), `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (Edge Function secrets).
 
-Verify: `select * from cron.job;` / `select * from cron.job_run_details order by start_time desc limit 5;`
-
-**Push delivery settings (critical for mobile):**
-- `TTL: 14400` (4 hours) — FCM retains the message if the device is in Doze mode. A short TTL (e.g. 60s) causes silent drops.
-- `urgency: 'high'` — tells FCM to deliver immediately, bypassing Android battery optimization batching.
-- `last_sent_at` vs `last_tested_at` — test sends (`force: true`) write to `last_tested_at` so they never block scheduled sends.
-- Schedule changes same-day: if the user moves their reminder to a later time, the guard compares `last_sent_at` against the new target time, not just the date, so re-sends are allowed.
-
-Env: requires `VITE_VAPID_PUBLIC_KEY` (client) and `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` as Edge Function secrets.
-
-**iOS/Safari testing (critical checklist):**
-1. Requires **iOS 16.4+** (ideally 18.1.1+ for notification click handling).
-2. Must **install PWA to home screen** first (Safari share sheet > Add to Home Screen). Push does NOT work in a Safari tab.
-3. Open the installed app, sign in, go to Profile > Enable Reminders, grant notification permission.
-4. Send a test notification to verify delivery.
-5. Set a scheduled time and keep the app closed (fully swipe away) to test background delivery.
-6. **EU users on iOS 17.4+** may be blocked — Apple removed standalone PWA mode in EU under DMA.
-7. Push subscriptions on iOS can "disappear" after 1-2 weeks of non-use; user must re-enable.
-8. Edge Function logs include `provider: "apple"` vs `"fcm"` in `pushResults` for diagnostics.
+**iOS:** Requires 16.4+, must install PWA to home screen (not Safari tab), subscriptions expire after ~2 weeks of non-use. EU iOS 17.4+ may block standalone PWA (DMA).
 
 Any sync strategy changes must update this section and `Known Failures`.
 
@@ -267,9 +241,9 @@ Template-driven grammar/word-order practice using known vocabulary. Levels: L1 b
 - `npm run preview`: preview built app.
 
 ### Content/Vocabulary Data
-`src/data/hsk1_vocabulary.json` — canonical word list (354 entries). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
+`src/data/hsk1_vocabulary.json` — canonical word list (354 entries). This is the **primary data source** the app reads from (see "Vocabulary Data Flow" above). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
 
-**TTS polyphonic limitation**: Browser SpeechSynthesis mispronounces single-character polyphonic words (多音字) like 了(liǎo instead of le), 的(dì instead of de), 着(zháo instead of zhe). Context-phrase workarounds were tried but the extra audio was worse UX. Pinyin on screen compensates. If a future TTS API supports phoneme hints, revisit in `src/services/ttsService.ts`.
+**TTS polyphonic characters**: Browser SpeechSynthesis mispronounces polyphonic characters (多音字) like 了/的/地/得/着. Pre-recorded audio clips (`public/audio/tts/`) are used instead, generated via macOS `say -v Tingting` + ffmpeg. See `STATIC_AUDIO` map in `src/services/ttsService.ts`.
 
 Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports.
 
@@ -309,13 +283,13 @@ Never repeat this class of failure.
 
 ## Known Failures and Risk Areas
 
-1. **Past migration data loss** on quiz history (see section above).
-2. **Class imbalance in ML data** can overestimate performance if mostly correct answers are logged.
-3. **Unsynced local progress risk** if cloud load overwrites stale local state after interrupted sync.
-4. **PWA migration not applied (Mar 2026)**: migration adding `reminder_timezone` columns was committed but never run against production → `column does not exist` errors. Fix: run migration SQL in Dashboard SQL Editor. **Lesson**: verify migrations are applied to the live DB, not just committed.
-5. **PWA cron trigger missing (Mar 2026)**: Edge Function existed and test notifications worked (`force: true`), but no `pg_cron` job was calling it on a schedule, so scheduled reminders never fired. Fix: set up `pg_cron` + `pg_net` to POST to the function every 10 min (see PWA Push Notifications section). **Lesson**: an Edge Function without a trigger is dead code — always wire up the invocation mechanism.
-6. **PWA push dropped on mobile (Mar 2026)**: server sent successfully (FCM 201) but phone never displayed the notification. Root cause: `TTL: 60` (seconds) meant FCM silently dropped the message if the device was in Doze mode; missing `urgency: 'high'` let Android batch/delay delivery indefinitely. Fix: set `TTL: 14400` and `urgency: 'high'`. **Lesson**: always use high urgency + long TTL for user-facing push — short TTL + default urgency is only safe for devices that are always awake.
-7. **Streak showed 0 despite quiz data (Apr 2026)**: `getQuizStats` used `.limit(10000)` but Supabase's server-side `max_rows` (typically 1000) silently truncated the response. With 1747+ rows, the oldest 1000 were returned and recent days were missing, so streak computed as 0. Fix: paginate using `.range()` in a loop until all rows are fetched. **Lesson**: Supabase `.limit(N)` does NOT override the server's `max_rows` config — always paginate queries that may exceed 1000 rows, or use `.range()` with a fetch loop.
+1. **Past migration data loss** on quiz history (see DB safety section above).
+2. **Class imbalance in ML data** — mostly correct answers can overestimate model performance.
+3. **Unsynced local progress risk** — cloud load can overwrite stale local state after interrupted sync.
+4. **PWA migration not applied (Mar 2026)** — committed but never run against production. **Lesson**: verify migrations hit the live DB.
+5. **PWA cron trigger missing (Mar 2026)** — Edge Function existed but no pg_cron job called it. **Lesson**: wire up invocation, not just deploy.
+6. **PWA push dropped on mobile (Mar 2026)** — short TTL + default urgency = silent drops in Doze. **Lesson**: use `TTL: 14400` + `urgency: 'high'`.
+7. **Streak showed 0 (Apr 2026)** — Supabase `max_rows` silently truncated `.limit(10000)`. **Lesson**: always paginate with `.range()` for >1000 rows.
 
 ---
 
