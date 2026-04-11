@@ -1092,10 +1092,19 @@
     "word": "想",
     "pinyin": "xiǎng",
     "part_of_speech": "verb",
-    "meaning": "to want, would like",
+    "meaning": "to think, would like to",
     "chapter": 8,
     "source": "hsk1",
     "category": "emotion"
+  },
+  {
+    "word": "要",
+    "pinyin": "yào",
+    "part_of_speech": "verb",
+    "meaning": "to want, to need",
+    "chapter": 8,
+    "source": "hsk1",
+    "category": "action"
   },
   {
     "word": "杯子",
