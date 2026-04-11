@@ -103,10 +103,10 @@ function computeBestStreak(
 }
 
 /**
- * Find uncovered gap days between today and the first break in the streak.
- * Walks backward mirroring computeCurrentStreak; any gap day where we ran
- * out of extras is a "missed" day the user could still recover by doing
- * more quizzes today.
+ * Mirror computeCurrentStreak's backward walk. If the streak is unbroken
+ * (all gaps covered by extras), returns empty missedDays. If the streak IS
+ * broken (today has no activity and yesterday is a gap with no extras),
+ * scans the recent window to find how many quizzes are needed to resume.
  */
 function computeRecoveryInfo(
   byDate: Record<string, DayStats>,
@@ -114,9 +114,10 @@ function computeRecoveryInfo(
   cardsPerSession: number
 ): { missedDays: string[]; availableExtras: number; quizzesNeeded: number } {
   const today = dates[dates.length - 1];
-  const missed: string[] = [];
-  let extras = 0;
 
+  // First pass: check if the streak is broken (same logic as computeCurrentStreak)
+  let extras = 0;
+  let streakBroken = false;
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
     const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
@@ -128,14 +129,33 @@ function computeRecoveryInfo(
     } else if (extras > 0) {
       extras--;
     } else {
-      missed.push(date);
-      // Keep scanning a few more days to find nearby recoverable gaps
-      const daysFromToday = dates.length - 1 - i;
-      if (daysFromToday > MAX_RECOVERY_WINDOW) break;
+      streakBroken = true;
+      break;
     }
   }
 
-  const quizzesNeeded = missed.length;
+  if (!streakBroken) {
+    return { missedDays: [], availableExtras: extras, quizzesNeeded: 0 };
+  }
+
+  // Streak is broken — scan the 7-day window to find recoverable gap days
+  const missed: string[] = [];
+  extras = 0;
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const daysFromToday = dates.length - 1 - i;
+    if (daysFromToday > MAX_RECOVERY_WINDOW) break;
+
+    const date = dates[i];
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+
+    if (q >= 1) {
+      extras += q - 1;
+    } else if (date !== today) {
+      missed.push(date);
+    }
+  }
+
+  const quizzesNeeded = Math.max(0, missed.length - extras);
   return { missedDays: missed, availableExtras: extras, quizzesNeeded };
 }
 
