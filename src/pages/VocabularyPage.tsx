@@ -403,17 +403,19 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
         <div className="flex items-center gap-1.5 flex-wrap">
           <Filter className="w-3.5 h-3.5 text-base-content/40 shrink-0" />
           
-          {/* Chapter filter */}
-          <select
-            className="select select-xs select-bordered bg-base-200 w-auto"
-            value={filterChapter}
-            onChange={e => handleFilterChapter(e.target.value)}
-          >
-            <option value="all">Ch 1-{Math.max(...chapters, 1)}</option>
-            {chapters.map(ch => (
-              <option key={ch} value={ch}>Ch {ch}</option>
-            ))}
-          </select>
+          {/* Chapter filter (hidden for Niyati — she uses PoS-based workflow) */}
+          {!isNiyati && (
+            <select
+              className="select select-xs select-bordered bg-base-200 w-auto"
+              value={filterChapter}
+              onChange={e => handleFilterChapter(e.target.value)}
+            >
+              <option value="all">Ch 1-{Math.max(...chapters, 1)}</option>
+              {chapters.map(ch => (
+                <option key={ch} value={ch}>Ch {ch}</option>
+              ))}
+            </select>
+          )}
           
           {/* PoS filter */}
           <select
@@ -521,8 +523,8 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
           </span>
         </div>
 
-        {/* Chapter Quick Toggle Strip */}
-        {chapters.length > 0 && (
+        {/* Chapter Quick Toggle Strip (hidden for Niyati) */}
+        {chapters.length > 0 && !isNiyati && (
           <div className="flex items-center gap-1 flex-wrap mt-2">
             <span className="text-[10px] uppercase tracking-wider text-base-content/30 font-semibold mr-0.5 shrink-0">Ch</span>
             {chapters.map(ch => {
@@ -605,14 +607,16 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                       Type <SortIcon field="part_of_speech" />
                     </div>
                   </th>
-                  <th 
-                    className="cursor-pointer hover:bg-base-300 text-center whitespace-nowrap hidden sm:table-cell"
-                    onClick={() => handleSort('chapter')}
-                  >
-                    <div className="flex items-center justify-center gap-1">
-                      Ch <SortIcon field="chapter" />
-                    </div>
-                  </th>
+                  {!isNiyati && (
+                    <th 
+                      className="cursor-pointer hover:bg-base-300 text-center whitespace-nowrap hidden sm:table-cell"
+                      onClick={() => handleSort('chapter')}
+                    >
+                      <div className="flex items-center justify-center gap-1">
+                        Ch <SortIcon field="chapter" />
+                      </div>
+                    </th>
+                  )}
                   <th 
                     className="cursor-pointer hover:bg-base-300 text-center whitespace-nowrap"
                     onClick={() => handleSort('knowledge')}
@@ -647,11 +651,13 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                       {concept.meaning}
                     </td>
                     <td className="text-xs opacity-70 hidden sm:table-cell">{formatPOS(concept.part_of_speech)}</td>
-                    <td className="text-center text-sm hidden sm:table-cell">
-                      <span className={concept.chapter < 0 ? 'text-secondary' : ''} title={concept.chapter < 0 ? 'Compound phrase' : `HSK Chapter ${concept.chapter}`}>
-                        {Math.abs(concept.chapter)}
-                      </span>
-                    </td>
+                    {!isNiyati && (
+                      <td className="text-center text-sm hidden sm:table-cell">
+                        <span className={concept.chapter < 0 ? 'text-secondary' : ''} title={concept.chapter < 0 ? 'Compound phrase' : `HSK Chapter ${concept.chapter}`}>
+                          {Math.abs(concept.chapter)}
+                        </span>
+                      </td>
+                    )}
                     <td className="text-center text-sm">
                       <span className={`font-mono ${
                         concept.knowledge >= 80 ? 'text-success' :

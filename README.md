@@ -223,12 +223,21 @@ Any sync strategy changes must update this section and `Known Failures`.
 - Signed in: Supabase sync with RLS user isolation.
 - Do not silently change mode semantics; this affects data expectations.
 
-### User Aliases
+### User Aliases & Per-User UI
 
 
 | Alias  | Email                                                     | Notes               |
 | ------ | --------------------------------------------------------- | ------------------- |
 | niyati | [niyatibafna13@gmail.com](mailto:niyatibafna13@gmail.com) | Second user account |
+
+Per-user customizations are keyed on `user_id` in `VocabularyPage.tsx` (constants in `vocabularyStore.ts`):
+
+| Customization | Niyati | Avi (default) |
+|---|---|---|
+| Chapter filter dropdown | Hidden | Shown |
+| Chapter quick-toggle strip | Hidden | Shown |
+| Chapter column in vocab table | Hidden | Shown |
+| "Restore (111)" baseline button | Shown (111-word curated set) | Hidden |
 
 
 ---
