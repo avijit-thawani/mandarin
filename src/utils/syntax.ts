@@ -128,6 +128,23 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '住': [],
   '睡觉': [],
 
+  // Question/demonstrative pronouns — suppress auto-derivation from "pronoun" category
+  '什么': [],
+  '哪': [],
+  '几': [],
+  '怎么': [],
+  '怎么样': [],
+  '这': [],
+  '那': [],
+  '哪儿': [],
+  '那儿': [],
+  '这儿': [],
+  '这些': [],
+  '谁': [],
+  '您': ['person', 'subject'],
+  '这个': [],
+  '那个': [],
+
   // Nouns that should fill slots
   '身体': ['describable'],
   '钱': ['thing'],
