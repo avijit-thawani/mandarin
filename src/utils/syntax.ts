@@ -36,9 +36,9 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '你': ['person', 'subject'],
   '他': ['person', 'subject'],
   '她': ['person', 'subject'],
-  '我们': ['person', 'subject'],
-  '你们': ['person', 'subject'],
-  '他们': ['person', 'subject'],
+  '我们': ['person', 'subject', 'plural_person'],
+  '你们': ['person', 'subject', 'plural_person'],
+  '他们': ['person', 'subject', 'plural_person'],
   '爸爸': ['person', 'subject', 'family'],
   '妈妈': ['person', 'subject', 'family'],
   '老师': ['person', 'subject', 'profession'],
@@ -451,7 +451,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '她喜欢苹果', en: 'She likes apples' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
     ],
     fixedWords: [
       { word: '喜欢', pinyin: 'xǐhuan', meaning: 'like' },
@@ -1519,7 +1519,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: '吧 (ba) at the end softens a suggestion: "Let\'s..." or "How about...?"',
     example: { zh: '我们吃饭吧', en: 'We should eat food' },
     slots: [
-      { role: 'subject', categories: ['person'] },
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
       { role: 'object', categories: ['edible'] },
     ],
     fixedWords: [
@@ -1537,7 +1537,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: '吧 makes a polite suggestion: "Let\'s go to..."',
     example: { zh: '我们去学校吧', en: "We should go to school" },
     slots: [
-      { role: 'subject', categories: ['person'] },
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
       { role: 'destination', categories: ['destination'] },
     ],
     fixedWords: [
@@ -1555,7 +1555,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: '吧 softens a suggestion: "How about we drink...?"',
     example: { zh: '我们喝茶吧', en: "We should drink tea" },
     slots: [
-      { role: 'subject', categories: ['person'] },
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
       { role: 'object', categories: ['drinkable'] },
     ],
     fixedWords: [
@@ -2050,6 +2050,361 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     chineseOrder: ['subject', '读', 'object'],
     englishPattern: '{subject} reads {object} aloud',
     difficulty: 1,
+  },
+
+  // ========== 的 (possessive) — Ch 4 ==========
+  {
+    id: 'possessive_book',
+    name: "Someone's book/show",
+    description: 'Subject + 的 + Readable/Watchable',
+    explanation: '的 (de) marks possession: 我的书 = my book. Like English "\'s".',
+    example: { zh: '我的书', en: "my books" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '的', pinyin: 'de', meaning: "'s" },
+    ],
+    chineseOrder: ['subject', '的', 'object'],
+    englishPattern: "{subject}'s {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'possessive_food',
+    name: "Someone's food",
+    description: 'Subject + 的 + Edible',
+    explanation: '的 (de) marks possession: 他的苹果 = his apples.',
+    example: { zh: '他的苹果', en: "his apples" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '的', pinyin: 'de', meaning: "'s" },
+    ],
+    chineseOrder: ['subject', '的', 'object'],
+    englishPattern: "{subject}'s {object}",
+    difficulty: 2,
+  },
+
+  // ========== 都 (all/both) — Ch 14 ==========
+  {
+    id: 'person_all_like',
+    name: 'They all like [something]',
+    description: 'Subject + 都 + 喜欢 + Object',
+    explanation: '都 (dōu) = all/both. Placed before the verb: 我们都喜欢 = we all like.',
+    example: { zh: '我们都喜欢苹果', en: 'We all like apples' },
+    slots: [
+      { role: 'subject', categories: ['plural_person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '都', pinyin: 'dōu', meaning: 'all' },
+      { word: '喜欢', pinyin: 'xǐhuan', meaning: 'like' },
+    ],
+    chineseOrder: ['subject', '都', '喜欢', 'object'],
+    englishPattern: '{subject} all like {object}',
+    difficulty: 2,
+  },
+
+  // ========== 怎么 + V (how to) — Ch 6 ==========
+  {
+    id: 'how_to_say',
+    name: 'How does someone say it?',
+    description: 'Subject + 怎么 + 说',
+    explanation: '怎么 (zěnme) = how. Before a verb to ask method: 怎么说 = how to say.',
+    example: { zh: '你怎么说', en: 'How do you say it?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '怎么', pinyin: 'zěnme', meaning: 'how' },
+      { word: '说', pinyin: 'shuō', meaning: 'say' },
+    ],
+    chineseOrder: ['subject', '怎么', '说'],
+    englishPattern: 'how does {subject} say it?',
+    difficulty: 2,
+  },
+  {
+    id: 'how_to_write',
+    name: 'How do you write this character?',
+    description: '这个字 + 怎么 + 写',
+    explanation: '怎么 (zěnme) + 写 (xiě) = how to write. 这个字 = this character.',
+    example: { zh: '这个字怎么写', en: 'How do you write this character?' },
+    slots: [],
+    fixedWords: [
+      { word: '这个', pinyin: 'zhège', meaning: 'this' },
+      { word: '字', pinyin: 'zì', meaning: 'character' },
+      { word: '怎么', pinyin: 'zěnme', meaning: 'how' },
+      { word: '写', pinyin: 'xiě', meaning: 'write' },
+    ],
+    chineseOrder: ['这个', '字', '怎么', '写'],
+    englishPattern: 'how do you write this character?',
+    difficulty: 2,
+  },
+
+  // ========== Negation combos (bu/mei + verb) ==========
+  {
+    id: 'person_not_like',
+    name: "Someone doesn't like something",
+    description: 'Subject + 不 + 喜欢 + Object',
+    explanation: '不 (bù) negates present/habitual actions: 不喜欢 = don\'t like.',
+    example: { zh: '我不喜欢米饭', en: "I don't like rice" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '喜欢', pinyin: 'xǐhuan', meaning: 'like' },
+    ],
+    chineseOrder: ['subject', '不', '喜欢', 'object'],
+    englishPattern: "{subject} doesn't like {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_want_eat',
+    name: "Someone doesn't want to eat",
+    description: 'Subject + 不 + 想 + 吃 + Object',
+    explanation: '不想 = don\'t want to. Negating desire/intention.',
+    example: { zh: '我不想吃苹果', en: "I don't want to eat apples" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '想', pinyin: 'xiǎng', meaning: 'want to' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['subject', '不', '想', '吃', 'object'],
+    englishPattern: "{subject} doesn't want to eat {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_want_go',
+    name: "Someone doesn't want to go",
+    description: 'Subject + 不 + 想 + 去 + Place',
+    explanation: '不想去 = don\'t want to go. Negating intention + destination.',
+    example: { zh: '她不想去学校', en: "She doesn't want to go to school" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '想', pinyin: 'xiǎng', meaning: 'want to' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+    ],
+    chineseOrder: ['subject', '不', '想', '去', 'destination'],
+    englishPattern: "{subject} doesn't want to go to {destination}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_didnt_buy',
+    name: "Someone didn't buy something",
+    description: 'Subject + 没 + 买 + Object',
+    explanation: '没 (méi) negates completed actions: 没买 = didn\'t buy.',
+    example: { zh: '我没买书', en: "I didn't buy books" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable', 'thing'] },
+    ],
+    fixedWords: [
+      { word: '没', pinyin: 'méi', meaning: "didn't" },
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+    ],
+    chineseOrder: ['subject', '没', '买', 'object'],
+    englishPattern: "{subject} didn't buy {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_bought',
+    name: 'Someone bought something',
+    description: 'Subject + 买 + Object + 了',
+    explanation: '了 (le) after verb marks completed action: 买了 = bought.',
+    example: { zh: '他买书了', en: 'He bought books' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable', 'thing'] },
+    ],
+    fixedWords: [
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+      { word: '了', pinyin: 'le', meaning: '(completed)' },
+    ],
+    chineseOrder: ['subject', '买', 'object', '了'],
+    englishPattern: '{subject} bought {object}',
+    difficulty: 2,
+  },
+
+  // ========== 也 (also) extensions ==========
+  {
+    id: 'person_also_drink',
+    name: 'Someone also drinks something',
+    description: 'Subject + 也 + 喝 + Object',
+    explanation: '也 (yě) = also. Placed before verb: 我也喝茶 = I also drink tea.',
+    example: { zh: '她也喝茶', en: 'She also drinks tea' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '也', pinyin: 'yě', meaning: 'also' },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+    ],
+    chineseOrder: ['subject', '也', '喝', 'object'],
+    englishPattern: '{subject} also drinks {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_also_go',
+    name: 'Someone also goes somewhere',
+    description: 'Subject + 也 + 去 + Place',
+    explanation: '也 (yě) = also. 我也去学校 = I also go to school.',
+    example: { zh: '我也去学校', en: 'I also go to school' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '也', pinyin: 'yě', meaning: 'also' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+    ],
+    chineseOrder: ['subject', '也', '去', 'destination'],
+    englishPattern: '{subject} also goes to {destination}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_also_like',
+    name: 'Someone also likes something',
+    description: 'Subject + 也 + 喜欢 + Object',
+    explanation: '也 (yě) = also. 她也喜欢苹果 = She also likes apples.',
+    example: { zh: '她也喜欢苹果', en: 'She also likes apples' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '也', pinyin: 'yě', meaning: 'also' },
+      { word: '喜欢', pinyin: 'xǐhuan', meaning: 'like' },
+    ],
+    chineseOrder: ['subject', '也', '喜欢', 'object'],
+    englishPattern: '{subject} also likes {object}',
+    difficulty: 2,
+  },
+
+  // ========== 吗 question extensions ==========
+  {
+    id: 'person_go_question',
+    name: 'Does someone go somewhere?',
+    description: 'Subject + 去 + Place + 吗',
+    explanation: '吗 turns a statement into a yes/no question.',
+    example: { zh: '你去学校吗', en: 'Do you go to school?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '吗', pinyin: 'ma', meaning: '(question)' },
+    ],
+    chineseOrder: ['subject', '去', 'destination', '吗'],
+    englishPattern: 'does {subject} go to {destination}?',
+    difficulty: 2,
+  },
+  {
+    id: 'person_buy_question',
+    name: 'Does someone buy something?',
+    description: 'Subject + 买 + Object + 吗',
+    explanation: '吗 turns "buys X" into "does [subject] buy X?"',
+    example: { zh: '你买书吗', en: 'Do you buy books?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable', 'thing'] },
+    ],
+    fixedWords: [
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+      { word: '吗', pinyin: 'ma', meaning: '(question)' },
+    ],
+    chineseOrder: ['subject', '买', 'object', '吗'],
+    englishPattern: 'does {subject} buy {object}?',
+    difficulty: 2,
+  },
+
+  // ========== 什么 question extensions ==========
+  {
+    id: 'what_buy',
+    name: 'What does someone buy?',
+    description: 'Subject + 买 + 什么',
+    explanation: '什么 (shénme) = what. After verb to ask "what do you buy?"',
+    example: { zh: '你买什么', en: 'What do you buy?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+      { word: '什么', pinyin: 'shénme', meaning: 'what' },
+    ],
+    chineseOrder: ['subject', '买', '什么'],
+    englishPattern: 'what does {subject} buy?',
+    difficulty: 2,
+  },
+  {
+    id: 'what_watch',
+    name: 'What does someone watch?',
+    description: 'Subject + 看 + 什么',
+    explanation: '什么 after 看 asks "what do you watch?"',
+    example: { zh: '你看什么', en: 'What do you watch?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '看', pinyin: 'kàn', meaning: 'watch' },
+      { word: '什么', pinyin: 'shénme', meaning: 'what' },
+    ],
+    chineseOrder: ['subject', '看', '什么'],
+    englishPattern: 'what does {subject} watch?',
+    difficulty: 2,
+  },
+
+  // ========== More negation combos ==========
+  {
+    id: 'person_not_want_drink',
+    name: "Someone doesn't want to drink",
+    description: 'Subject + 不 + 想 + 喝 + Object',
+    explanation: '不想喝 = don\'t want to drink. Negating desire + drink.',
+    example: { zh: '我不想喝茶', en: "I don't want to drink tea" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '想', pinyin: 'xiǎng', meaning: 'want to' },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+    ],
+    chineseOrder: ['subject', '不', '想', '喝', 'object'],
+    englishPattern: "{subject} doesn't want to drink {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_didnt_drink',
+    name: "Someone didn't drink something",
+    description: 'Subject + 没 + 喝 + Object',
+    explanation: '没 negates completed actions: 没喝 = didn\'t drink.',
+    example: { zh: '他没喝茶', en: "He didn't drink tea" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '没', pinyin: 'méi', meaning: "didn't" },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+    ],
+    chineseOrder: ['subject', '没', '喝', 'object'],
+    englishPattern: "{subject} didn't drink {object}",
+    difficulty: 2,
   },
 ];
 

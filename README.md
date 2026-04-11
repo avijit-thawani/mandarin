@@ -256,11 +256,11 @@ Pronunciation practice using known vocab words. **Listen** mode: audio quiz with
 
 ## Syntax Tab Behavior
 
-Template-driven grammar/word-order practice using known vocabulary (~80 templates). Covers HSK1 textbook grammar from chapters 3–15:
+Template-driven grammar/word-order practice using known vocabulary (~109 templates). Covers HSK1 textbook grammar from chapters 3–15:
 
-- **L1**: Basic SVO (吃/喝/去/看/学/坐/买/回/来/爱/听/读), 是 identity, 有 possession, 很+adj, 请 imperative.
-- **L2**: 吗 questions, 不 negation, 想/会/能 modals, 也 adverb, 在+location words, 在+place+verb, 什么/谁/哪儿/怎么样 questions, serial verbs (去+place+V), 太...了, 在...呢 progressive, 吧 suggestions, 了 completion, 没 past negation, 有 existential (place+有+thing), 住在, 工作.
-- **L3**: Time+S+V expressions, 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner).
+- **L1**: Basic SVO (吃/喝/去/看/学/坐/买/回/来/爱/听/读), 是 identity, 有 possession, 很+adj, 请 imperative, 的 possessive.
+- **L2**: 吗 questions, 不 negation (不喜欢/不想吃/不想去/不想喝), 没 past negation (没买/没喝/没来), 想/会/能 modals, 也 adverb (也吃/也喝/也去/也喜欢), 都 (all), 在+location words, 在+place+verb, 什么/谁/哪儿/怎么样/怎么 questions, serial verbs (去+place+V), 太...了, 在...呢 progressive (reading/watching), 吧 suggestions, 了 completion (买了), 有 existential (place+有+thing), 住在, 工作.
+- **L3**: Time+S+V expressions (present/future time), past tense (昨天+V+了), 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner).
 
 ### Exercise Format Rules
 
