@@ -148,11 +148,9 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
       const selectedCh = parseInt(filterChapter);
       result = result.filter(c => {
         if (c.chapter > 0) {
-          // HSK word: exact chapter match
           return c.chapter === selectedCh;
         } else {
-          // Compound phrase: show if level (absolute value) <= selected chapter
-          return Math.abs(c.chapter) <= selectedCh;
+          return Math.abs(c.chapter) === selectedCh;
         }
       });
     }
