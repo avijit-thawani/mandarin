@@ -48,13 +48,12 @@ function buildDisplayDays(
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
     const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
-    const daysFromToday = dates.length - 1 - i;
 
     if (q >= 1) {
       extras += q - 1;
     } else if (date === todayStr) {
       // grace period
-    } else if (extras > 0 && daysFromToday <= 7) {
+    } else if (extras > 0) {
       recoveredSet.add(date);
       extras--;
     } else {

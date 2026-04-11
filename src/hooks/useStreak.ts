@@ -57,14 +57,13 @@ function computeCurrentStreak(
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
     const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
-    const daysFromToday = dates.length - 1 - i;
 
     if (q >= 1) {
       streak++;
       extras += q - 1;
     } else if (date === today) {
-      // Grace period — haven't broken streak yet today
-    } else if (extras > 0 && daysFromToday <= MAX_RECOVERY_WINDOW) {
+      // Grace period
+    } else if (extras > 0) {
       streak++;
       extras--;
     } else {
@@ -103,29 +102,40 @@ function computeBestStreak(
   return Math.max(best, current);
 }
 
+/**
+ * Find uncovered gap days between today and the first break in the streak.
+ * Walks backward mirroring computeCurrentStreak; any gap day where we ran
+ * out of extras is a "missed" day the user could still recover by doing
+ * more quizzes today.
+ */
 function computeRecoveryInfo(
   byDate: Record<string, DayStats>,
   dates: string[],
   cardsPerSession: number
 ): { missedDays: string[]; availableExtras: number; quizzesNeeded: number } {
+  const today = dates[dates.length - 1];
   const missed: string[] = [];
   let extras = 0;
 
   for (let i = dates.length - 1; i >= 0; i--) {
-    const daysFromToday = dates.length - 1 - i;
-    if (daysFromToday > MAX_RECOVERY_WINDOW) break;
-
     const date = dates[i];
     const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
 
     if (q >= 1) {
       extras += q - 1;
-    } else if (daysFromToday > 0) {
+    } else if (date === today) {
+      // grace
+    } else if (extras > 0) {
+      extras--;
+    } else {
       missed.push(date);
+      // Keep scanning a few more days to find nearby recoverable gaps
+      const daysFromToday = dates.length - 1 - i;
+      if (daysFromToday > MAX_RECOVERY_WINDOW) break;
     }
   }
 
-  const quizzesNeeded = Math.max(0, missed.length - extras);
+  const quizzesNeeded = missed.length;
   return { missedDays: missed, availableExtras: extras, quizzesNeeded };
 }
 
