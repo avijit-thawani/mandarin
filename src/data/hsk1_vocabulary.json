@@ -2664,6 +2664,15 @@
     "category": "direction"
   },
   {
+    "word": "这儿有人吗",
+    "pinyin": "zhèr yǒu rén ma",
+    "part_of_speech": "phrase",
+    "meaning": "Is anyone here? / Is this seat taken?",
+    "chapter": -10,
+    "source": "compound",
+    "category": "place"
+  },
+  {
     "word": "凌晨",
     "pinyin": "língchén",
     "part_of_speech": "noun",

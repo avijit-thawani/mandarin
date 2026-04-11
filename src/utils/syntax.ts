@@ -74,13 +74,13 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '中国': ['place', 'destination', 'country'],
   '美国': ['place', 'destination', 'country'],
   
-  // Time expressions
-  '今天': ['time'],
-  '明天': ['time'],
-  '昨天': ['time'],
-  '上午': ['time'],
-  '下午': ['time'],
-  '中午': ['time'],
+  // Time expressions (subcategorized for tense-correct English)
+  '今天': ['time', 'present_time'],
+  '明天': ['time', 'future_time'],
+  '昨天': ['time', 'past_time'],
+  '上午': ['time', 'present_time'],
+  '下午': ['time', 'present_time'],
+  '中午': ['time', 'present_time'],
   
   // Readable/Watchable things
   '书': ['readable', 'thing', 'locatable'],
@@ -134,9 +134,9 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '衣服': ['thing', 'locatable'],
   
   // Time (extended)
-  '早上': ['time'],
-  '晚上': ['time'],
-  '凌晨': ['time'],
+  '早上': ['time', 'present_time'],
+  '晚上': ['time', 'present_time'],
+  '凌晨': ['time', 'present_time'],
   
   // Months
   '一月': ['time'],
@@ -251,7 +251,7 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   
   // Places
   '学校': { subject: 'school', object: 'school' },
-  '家': { subject: 'home', object: 'home' },
+  '家': { subject: 'home', object: 'their home' },
   '医院': { subject: 'the hospital', object: 'the hospital' },
   '商店': { subject: 'the store', object: 'the store' },
   '银行': { subject: 'the bank', object: 'the bank' },
@@ -479,19 +479,36 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
   },
   {
     id: 'person_read_book',
-    name: 'Someone reads/watches',
-    description: 'Subject + 看 + Readable/Watchable',
-    explanation: '看 (kàn) means both "read" and "watch"',
+    name: 'Someone reads something',
+    description: 'Subject + 看 + Readable',
+    explanation: '看 (kàn) means "read" for books/text and "watch" for TV/movies',
     example: { zh: '我看书', en: 'I read books' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['readable', 'watchable'] },
+      { role: 'object', categories: ['readable'] },
     ],
     fixedWords: [
-      { word: '看', pinyin: 'kàn', meaning: 'read/watch' },
+      { word: '看', pinyin: 'kàn', meaning: 'read' },
     ],
     chineseOrder: ['subject', '看', 'object'],
     englishPattern: '{subject} reads {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_watch_thing',
+    name: 'Someone watches something',
+    description: 'Subject + 看 + Watchable',
+    explanation: '看 (kàn) means "watch" for TV/movies. Same verb as "read" — context decides.',
+    example: { zh: '他看电视', en: 'He watches TV' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['watchable'] },
+    ],
+    fixedWords: [
+      { word: '看', pinyin: 'kàn', meaning: 'watch' },
+    ],
+    chineseOrder: ['subject', '看', 'object'],
+    englishPattern: '{subject} watches {object}',
     difficulty: 1,
   },
   {
@@ -788,10 +805,10 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     difficulty: 2,
   },
   {
-    id: 'person_on_place',
-    name: 'Someone is at a place (on/above)',
-    description: 'Person + 在 + Place + 上面',
-    explanation: 'Same location pattern with people: 他在学校前面 = He is in front of the school',
+    id: 'person_inside_place',
+    name: 'Someone is inside a place',
+    description: 'Person + 在 + Place + 里面',
+    explanation: '在 + Place + 里面 = inside a place. 里面 (lǐmiàn) = inside.',
     example: { zh: '爸爸在家里面', en: 'Dad is inside the house' },
     slots: [
       { role: 'subject', categories: ['person'] },
@@ -832,7 +849,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: 'In Chinese, time words come BEFORE the subject (opposite of English)',
     example: { zh: '今天我去学校', en: 'Today I go to school' },
     slots: [
-      { role: 'time', categories: ['time'] },
+      { role: 'time', categories: ['present_time', 'future_time'] },
       { role: 'subject', categories: ['person'] },
       { role: 'destination', categories: ['destination'] },
     ],
@@ -850,7 +867,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: 'In Chinese, time words come BEFORE the subject (opposite of English)',
     example: { zh: '明天他吃苹果', en: 'Tomorrow he eats apples' },
     slots: [
-      { role: 'time', categories: ['time'] },
+      { role: 'time', categories: ['present_time', 'future_time'] },
       { role: 'subject', categories: ['person'] },
       { role: 'object', categories: ['edible'] },
     ],
@@ -868,7 +885,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: 'In Chinese, time words come BEFORE the subject (opposite of English)',
     example: { zh: '上午我喝茶', en: 'In the morning I drink tea' },
     slots: [
-      { role: 'time', categories: ['time'] },
+      { role: 'time', categories: ['present_time', 'future_time'] },
       { role: 'subject', categories: ['person'] },
       { role: 'object', categories: ['drinkable'] },
     ],
@@ -897,7 +914,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
       { word: '去', pinyin: 'qù', meaning: 'go to' },
     ],
     chineseOrder: ['上个', 'time_unit', 'subject', '去', 'destination'],
-    englishPattern: '{subject} goes to {destination} last {time_unit}',
+    englishPattern: '{subject} went to {destination} last {time_unit}',
     difficulty: 3,
   },
   {
@@ -1205,14 +1222,33 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     slots: [
       { role: 'subject', categories: ['person'] },
       { role: 'destination', categories: ['destination'] },
-      { role: 'object', categories: ['readable', 'watchable'] },
+      { role: 'object', categories: ['readable'] },
     ],
     fixedWords: [
       { word: '去', pinyin: 'qù', meaning: 'go to' },
-      { word: '看', pinyin: 'kàn', meaning: 'read/watch' },
+      { word: '看', pinyin: 'kàn', meaning: 'read' },
     ],
     chineseOrder: ['subject', '去', 'destination', '看', 'object'],
     englishPattern: '{subject} goes to {destination} to read {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'go_place_watch',
+    name: 'Go somewhere to watch',
+    description: 'Subject + 去 + Place + 看 + Watchable',
+    explanation: 'Serial verb: 去 (go) + 看 (watch) = go somewhere to watch something.',
+    example: { zh: '我去家看电视', en: 'I go home to watch TV' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+      { role: 'object', categories: ['watchable'] },
+    ],
+    fixedWords: [
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '看', pinyin: 'kàn', meaning: 'watch' },
+    ],
+    chineseOrder: ['subject', '去', 'destination', '看', 'object'],
+    englishPattern: '{subject} goes to {destination} to watch {object}',
     difficulty: 2,
   },
   {
@@ -1352,7 +1388,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '明天天气怎么样', en: 'How is the weather tomorrow?' },
     slots: [
       { role: 'time', categories: ['time'] },
-      { role: 'subject', categories: ['describable', 'nature'] },
+      { role: 'subject', categories: ['describable'] },
     ],
     fixedWords: [
       { word: '怎么样', pinyin: 'zěnmeyàng', meaning: 'how about' },
@@ -1384,20 +1420,39 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
   {
     id: 'person_reading_now',
     name: 'Someone is reading now',
-    description: 'Subject + 在 + 看 + Object + 呢',
+    description: 'Subject + 在 + 看 + Readable + 呢',
     explanation: '在...呢 = action in progress (like English "-ing"). 在 before verb, 呢 at end.',
     example: { zh: '我在看书呢', en: 'I am reading books' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['readable', 'watchable'] },
+      { role: 'object', categories: ['readable'] },
     ],
     fixedWords: [
       { word: '在', pinyin: 'zài', meaning: '(progressive)' },
-      { word: '看', pinyin: 'kàn', meaning: 'read/watch' },
+      { word: '看', pinyin: 'kàn', meaning: 'read' },
       { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
     ],
     chineseOrder: ['subject', '在', '看', 'object', '呢'],
     englishPattern: '{subject} is reading {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_watching_now',
+    name: 'Someone is watching now',
+    description: 'Subject + 在 + 看 + Watchable + 呢',
+    explanation: '在...呢 progressive with 看 = watching TV/movies right now.',
+    example: { zh: '他在看电视呢', en: 'He is watching TV' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['watchable'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '看', pinyin: 'kàn', meaning: 'watch' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '看', 'object', '呢'],
+    englishPattern: '{subject} is watching {object}',
     difficulty: 2,
   },
   {
@@ -1794,7 +1849,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: 'Time word before subject: 明天我回家 = Tomorrow I go home.',
     example: { zh: '明天我回家', en: 'Tomorrow I return home' },
     slots: [
-      { role: 'time', categories: ['time'] },
+      { role: 'time', categories: ['present_time', 'future_time'] },
       { role: 'subject', categories: ['person'] },
       { role: 'destination', categories: ['destination'] },
     ],
@@ -1803,6 +1858,46 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['time', 'subject', '回', 'destination'],
     englishPattern: '{subject} returns to {destination} {time}',
+    difficulty: 3,
+  },
+
+  // ========== Past tense time templates (zuotian) ==========
+  {
+    id: 'yesterday_person_go',
+    name: 'Yesterday someone went somewhere',
+    description: '昨天 + Subject + 去 + Place + 了',
+    explanation: '昨天 (zuótiān) = yesterday. 了 marks completed action.',
+    example: { zh: '昨天我去学校了', en: 'I went to school yesterday' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '昨天', pinyin: 'zuótiān', meaning: 'yesterday' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '了', pinyin: 'le', meaning: '(completed)' },
+    ],
+    chineseOrder: ['昨天', 'subject', '去', 'destination', '了'],
+    englishPattern: '{subject} went to {destination} yesterday',
+    difficulty: 3,
+  },
+  {
+    id: 'yesterday_person_eat',
+    name: 'Yesterday someone ate something',
+    description: '昨天 + Subject + 吃 + Object + 了',
+    explanation: '昨天 (zuótiān) = yesterday. 了 marks completed action.',
+    example: { zh: '昨天她吃米饭了', en: 'She ate rice yesterday' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '昨天', pinyin: 'zuótiān', meaning: 'yesterday' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+      { word: '了', pinyin: 'le', meaning: '(completed)' },
+    ],
+    chineseOrder: ['昨天', 'subject', '吃', 'object', '了'],
+    englishPattern: '{subject} ate {object} yesterday',
     difficulty: 3,
   },
 
@@ -1928,7 +2023,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我听音乐', en: 'I listen to music' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['watchable', 'readable'] },
+      { role: 'object', categories: ['watchable'] },
     ],
     fixedWords: [
       { word: '听', pinyin: 'tīng', meaning: 'listen to' },
@@ -2194,6 +2289,7 @@ export function generateSentenceExercise(
     english = english.replace(' lives ', ' live ');
     english = english.replace(' loves ', ' love ');
     english = english.replace(' listens ', ' listen ');
+    english = english.replace(' watches ', ' watch ');
     english = english.replace(' is at ', ' am at ');
     english = english.replace(' is very ', ' am very ');
     english = english.replace(' is on ', ' am on ');

@@ -20,7 +20,9 @@ Future agents: this file is intentionally operational. It is the first map for w
 10. If a user request introduces uncertainty, propose doc updates in the same PR/task.
 
 ### Communicating with the User
+
 When discussing vocabulary, corrections, or changes with the user:
+
 - Use **pinyin** as the default way to reference Chinese words (e.g. "nǚ'ér" not "daughter").
 - Use **hanzi** only when characters are needed to disambiguate (e.g. 的/地/得 all read "de").
 - Use **English** for everything else (explanations, technical discussion, UI labels).
@@ -31,18 +33,22 @@ When discussing vocabulary, corrections, or changes with the user:
 ## Product Goals and Core Rules
 
 ### Learning Philosophy
+
 - Keep users around a ~70-80% quiz success range.
 - Track knowledge per modality: `character`, `pinyin`, `meaning`, `audio`.
 - Reward recovery: wrong answers reduce score less than correct answers increase it.
 - Show progress clearly (overall + per modality).
 
 ### Critical Concept: Known vs Unknown Words
+
 Binary categories only:
 
-| Status | Checkbox | In Revise/Quiz Pool |
-|---|---|---|
-| Known | Checked | Yes |
-| Unknown | Unchecked | No |
+
+| Status  | Checkbox  | In Revise/Quiz Pool |
+| ------- | --------- | ------------------- |
+| Known   | Checked   | Yes                 |
+| Unknown | Unchecked | No                  |
+
 
 This is the primary anti-overwhelm mechanism. Do not silently alter this behavior.
 
@@ -51,6 +57,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 ## App Surfaces and Where to Edit
 
 ### Main Tabs
+
 - `Vocabulary`: import/browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS). "For today" buttons let you send a filtered subset to Quiz/Study as a temporary session filter.
 - `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
 - `Quiz`: active MCQ + scoring + attempt logging. Supports temporary "for today" filters set from the Vocab page.
@@ -59,6 +66,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `Profile`: progress charts + settings.
 
 ### High-Value Files
+
 - `src/App.tsx`: app composition and top-level routing, streak wiring.
 - `src/components/Navbar.tsx`: tab navigation + global streak badge.
 - `src/pages/ProfilePage.tsx`: progress dashboard, streak recovery, and all settings.
@@ -73,6 +81,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/pages/SettingsPage.tsx`: user preferences.
 
 ### State and Domain Logic
+
 - `src/stores/vocabularyStore.ts`: concept state and vocabulary lifecycle.
 - `src/stores/settingsStore.ts`: focus weights, UI and quiz settings.
 - `src/stores/todayFilterStore.ts`: ephemeral in-memory filter (PoS/chapter) for temporary quiz/study sessions. Resets on page refresh.
@@ -82,6 +91,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/services/ttsService.ts`: speech playback.
 
 ### Cloud/Sync Layer
+
 - `src/lib/supabase.ts`: Supabase client.
 - `src/lib/syncService.ts`: sync orchestration.
 - `src/lib/quizService.ts`: quiz attempt writes and related persistence.
@@ -109,6 +119,7 @@ Experimental behavior → module-level docs first, README at principle level.
 3. The Supabase `vocabulary` table is **secondary** — it exists only so `saveToCloud` can look up a `vocabulary_id` when syncing user progress. Words missing from Supabase skip cloud sync with a console warning.
 
 **To add new vocabulary:**
+
 - Add the word to `src/data/hsk1_vocabulary.json` (required fields: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`).
 - Also insert it into the Supabase `vocabulary` table (same fields minus `category`, which is local-only) so cloud sync works.
 - Do NOT treat Supabase insert as the primary step. The app reads from JSON.
@@ -122,13 +133,16 @@ Experimental behavior → module-level docs first, README at principle level.
 ## Quiz and Knowledge Behavior
 
 ### 12 Task Directions
+
 All modality pairs are supported (e.g., `character -> meaning`, `audio -> pinyin`, etc.).
 **Trivial pair penalty**: `pinyin ↔ audio` directions receive a 95% weight reduction because pinyin directly encodes pronunciation, making these questions trivially easy.
 
 ### Knowledge Update Formula
+
 Answer modality gets full update rate; question modality gets partial recognition credit.
 
 Approximate update rates:
+
 - Correct answer modality: +25% of remaining distance to 100
 - Incorrect answer modality: -17.5% of current value
 - Question modality uses half-strength rates
@@ -136,6 +150,7 @@ Approximate update rates:
 This asymmetry is intentional and should only change with explicit product decision.
 
 ### Quiz Logging Flow
+
 1. User answers.
 2. UI shows result.
 3. On next question transition, log attempt asynchronously.
@@ -144,12 +159,15 @@ This asymmetry is intentional and should only change with explicit product decis
 If changing this flow, update analytics expectations and user-facing copy.
 
 ### Difficulty and Prediction Guidance
+
 - Difficulty/strategy behavior changes often; treat `src/utils/quiz.ts` as source-of-truth for selection logic.
 - Keep README language stable (intent and invariants), and put exact heuristics or scoring formulas in code docstrings.
 - If ML predictions affect runtime behavior, document decision boundaries next to implementation and link from README.
 
 ### Distractor Selection
+
 MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz.ts`):
+
 - **Semantic category** (`category` field in vocabulary JSON): same-category words are strongly preferred in hard/expert mode (e.g., 爸爸 draws 妈妈/儿子, not 桌子/学校).
 - **Character structure**: words with matching repetition patterns (AA like 爸爸/妈妈/谢谢) are preferred as distractors for each other, preventing the "spot the doubled character" shortcut.
 - POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert).
@@ -161,15 +179,19 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 ## Storage, Sync, and Offline Behavior
 
 ### Hybrid Persistence
+
 Local: `localStorage` for immediate state/preferences. Cloud: Supabase for signed-in users. Notable local key: `langseed_quiz_completed` (daily flag). Streak is computed purely from `quiz_attempts`.
 
 ### Sync and Offline
+
 Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite stale local cache on startup. App works offline with local cache; sync resumes on reconnect. Test offline mode: `?offlineTest=1`.
 
 ### PWA Caching
+
 `netlify.toml` sets no-cache on `index.html`/`sw.js`/`manifest.webmanifest`; hashed assets cached forever. SW uses network-first for navigation. Auto-reloads on new SW version. Bump `SW_VERSION` in `public/sw.js` for SW behavior changes.
 
 ### PWA Push Notifications
+
 Per-device daily reminders via Web Push API. Key files: `pwaReminderService.ts` (client CRUD + SW updates), `supabase/functions/send-reminders/index.ts` (Edge Function), `public/sw.js` (push/click/withdraw handlers). Auto-withdraw on quiz completion via `clearNotifications()`.
 
 Key table: `push_subscriptions` (`reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`).
@@ -193,16 +215,21 @@ Any sync strategy changes must update this section and `Known Failures`.
 - Do not silently change mode semantics; this affects data expectations.
 
 ### User Aliases
-| Alias | Email | Notes |
-|-------|-------|-------|
-| niyati | niyatibafna13@gmail.com | Second user account |
+
+
+| Alias  | Email                                                     | Notes               |
+| ------ | --------------------------------------------------------- | ------------------- |
+| niyati | [niyatibafna13@gmail.com](mailto:niyatibafna13@gmail.com) | Second user account |
+
 
 ---
 
 ## Settings and Personalization
 
 ### Learning Focus Weights (0-3)
+
 Controls:
+
 1. Relative frequency of quiz task modalities.
 2. Study card reveal preference.
 3. Weighted overall knowledge score.
@@ -210,6 +237,7 @@ Controls:
 Weight meaning: `0` skip, `1` low, `2` medium, `3` high.
 
 ### Other User Controls
+
 - cards per session
 - theme
 - character size
@@ -229,17 +257,20 @@ Pronunciation practice using known vocab words. **Listen** mode: audio quiz with
 ## Syntax Tab Behavior
 
 Template-driven grammar/word-order practice using known vocabulary (~80 templates). Covers HSK1 textbook grammar from chapters 3–15:
+
 - **L1**: Basic SVO (吃/喝/去/看/学/坐/买/回/来/爱/听/读), 是 identity, 有 possession, 很+adj, 请 imperative.
 - **L2**: 吗 questions, 不 negation, 想/会/能 modals, 也 adverb, 在+location words, 在+place+verb, 什么/谁/哪儿/怎么样 questions, serial verbs (去+place+V), 太...了, 在...呢 progressive, 吧 suggestions, 了 completion, 没 past negation, 有 existential (place+有+thing), 住在, 工作.
 - **L3**: Time+S+V expressions, 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner).
 
 ### Exercise Format Rules
+
 - **Tile reordering**: User arranges shuffled word tiles into correct order. No distractors — only the correct pieces are shown.
 - **English→Chinese**: Full English sentence shown as prompt (sentence-cased on first character only). User arranges Chinese tiles (characters, pinyin, or audio depending on modality).
 - **Chinese→English**: Chinese shown as prompt. English appears as **lowercase shuffled tiles** (`getEnglishTiles` strips punctuation and lowercases all words). This prevents guessing word order from capitalization.
 - **English patterns must make grammatical sense** as standalone sentences. Verb conjugation is auto-adjusted for subject person (3rd-person patterns in code, converted to base form for I/you/we/they, is→am→are).
 
 ### Slot Filling and Vocabulary Eligibility
+
 - Words fill template slots based on semantic categories: `SEMANTIC_CATEGORIES` (hand-curated per-word map) merged with `VOCAB_CATEGORY_TO_SYNTAX` (auto-derived from vocabulary JSON `category` field).
 - Words with zero matching categories never appear in exercises. Verbs, particles, and numbers are intentionally excluded from slot filling — they appear only as `fixedWords` in templates.
 - Only known (checked) and unpaused words participate. Templates only unlock when enough words exist to fill all slots.
@@ -252,12 +283,14 @@ See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If gen
 ## Script Behavior (Update When Scripts Change)
 
 ### NPM Scripts
+
 - `npm run dev`: start Vite dev server.
 - `npm run build`: TypeScript build + production bundle.
 - `npm run lint`: ESLint checks.
 - `npm run preview`: preview built app.
 
 ### Content/Vocabulary Data
+
 `src/data/hsk1_vocabulary.json` — canonical word list (354 entries). This is the **primary data source** the app reads from (see "Vocabulary Data Flow" above). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
 
 **TTS polyphonic characters**: Browser SpeechSynthesis mispronounces polyphonic characters (多音字) like 了/的/地/得/着. Pre-recorded audio clips (`public/audio/tts/`) are used instead, generated via macOS `say -v Tingting` + ffmpeg. See `STATIC_AUDIO` map in `src/services/ttsService.ts`.
@@ -265,6 +298,7 @@ See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If gen
 Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports.
 
 ### ML/Analysis Scripts
+
 `analysis/quiz_ml_model.py` — offline model predicting quiz correctness from context features. Not runtime. Data in `analysis/quiz_attempts_data.json` (gitignored). Export via MCP Supabase read or Python client (see script docstring).
 
 **v2 (Apr 2026):** 26 features (was 11), including `knowledge_before`, modality pair one-hot encoding, individual user averages, per-concept attempt number. Models: Logistic Regression, Random Forest, HistGradientBoostingClassifier + isotonic calibration. Evaluation via stratified 5-fold CV. Best calibration: Brier 0.066 (HGB+Cal). Best discrimination: ROC-AUC 0.844 (LR). Log feature/label changes here.
@@ -274,16 +308,19 @@ Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textboo
 ## Database and Migration Safety (Critical)
 
 Historical incident (Feb 2, 2026):
+
 - A migration changed ID references and added a FK path that orphaned/deleted large quiz history.
 
 Never repeat this class of failure.
 
 ### Unsafe Patterns (Do Not Do)
+
 - adding FK constraints against remapped IDs without mapping table
 - using `ON DELETE CASCADE` on user-history paths without full impact analysis
 - destructive table recreation on live user tables
 
 ### Required Safety Process
+
 1. Back up production data first.
 2. Show exact SQL to user before execution.
 3. Explain at-risk tables and blast radius.
@@ -291,6 +328,7 @@ Never repeat this class of failure.
 5. Test on a production-like copy/branch before real run.
 
 ### Sensitive Tables
+
 - `quiz_attempts` (history + analytics + ML inputs)
 - `user_progress` (current learning state)
 - `user_settings` (behavioral preferences)
@@ -313,6 +351,7 @@ Never repeat this class of failure.
 ## Setup and Local Development
 
 ### Install
+
 ```bash
 git clone https://github.com/avi-otterai/mandarin.git
 cd avi-mandarin
@@ -320,6 +359,7 @@ npm install
 ```
 
 ### Environment
+
 ```bash
 cp .env.example .env
 ```
@@ -328,6 +368,7 @@ Required: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 Optional: `VITE_DEV_USER_EMAIL`, `VITE_DEV_USER_PASSWORD`, `VITE_VAPID_PUBLIC_KEY` (PWA reminders).
 
 ### Run
+
 ```bash
 npm run dev
 ```
