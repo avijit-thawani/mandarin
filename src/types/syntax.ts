@@ -72,6 +72,7 @@ export interface SyntaxSessionState {
 
 export const SEMANTIC_TAGS: Record<string, string[]> = {
   time: ['今天', '明天', '昨天', '现在', '上午', '下午', '晚上', '早上', '凌晨', '星期', '月', '年', '小时', '分钟', '中午'],
+  time_unit: ['星期', '月', '年'],
   place: ['家', '学校', '医院', '商店', '饭店', '银行', '大学', '中国', '美国'],
   food: ['苹果', '茶', '水', '米饭', '菜', '鱼', '水果', '饭', '中国菜'],
   drink: ['茶', '水'],

@@ -228,7 +228,11 @@ Pronunciation practice using known vocab words. **Listen** mode: audio quiz with
 
 ## Syntax Tab Behavior
 
-Template-driven grammar/word-order practice using known vocabulary. Levels: L1 basic SVO + 在/很, L2 questions/negation/want/prepositions, L3 time expressions. See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If generation logic changes, update both template code and this section.
+Template-driven grammar/word-order practice using known vocabulary (69 templates). Covers HSK1 textbook grammar from chapters 3–15:
+- **L1** (13): Basic SVO (吃/喝/去/看/学/坐), 是 identity, 有 possession, 很+adj, 请 imperative.
+- **L2** (48): 吗 questions, 不 negation, 想/会/能 modals, 也 adverb, 在+location words, 在+place+verb, 什么/谁/哪儿/怎么样 questions, serial verbs (去+place+V), 太...了, 在...呢 progressive, 吧 suggestions, 了 completion, 没 past negation, 有 existential (place+有+thing).
+- **L3** (8): Time+S+V expressions, 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner).
+See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If generation logic changes, update both template code and this section.
 
 ---
 

@@ -846,6 +846,177 @@
     "category": "communication"
   },
   {
+    "word": "一月",
+    "pinyin": "yīyuè",
+    "part_of_speech": "noun",
+    "meaning": "January",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "二月",
+    "pinyin": "èryuè",
+    "part_of_speech": "noun",
+    "meaning": "February",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "三月",
+    "pinyin": "sānyuè",
+    "part_of_speech": "noun",
+    "meaning": "March",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "四月",
+    "pinyin": "sìyuè",
+    "part_of_speech": "noun",
+    "meaning": "April",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "五月",
+    "pinyin": "wǔyuè",
+    "part_of_speech": "noun",
+    "meaning": "May",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "六月",
+    "pinyin": "liùyuè",
+    "part_of_speech": "noun",
+    "meaning": "June",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "七月",
+    "pinyin": "qīyuè",
+    "part_of_speech": "noun",
+    "meaning": "July",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "八月",
+    "pinyin": "bāyuè",
+    "part_of_speech": "noun",
+    "meaning": "August",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "九月",
+    "pinyin": "jiǔyuè",
+    "part_of_speech": "noun",
+    "meaning": "September",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "十月",
+    "pinyin": "shíyuè",
+    "part_of_speech": "noun",
+    "meaning": "October",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "十一月",
+    "pinyin": "shíyīyuè",
+    "part_of_speech": "noun",
+    "meaning": "November",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "十二月",
+    "pinyin": "shí'èryuè",
+    "part_of_speech": "noun",
+    "meaning": "December",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期一",
+    "pinyin": "xīngqīyī",
+    "part_of_speech": "noun",
+    "meaning": "Monday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期二",
+    "pinyin": "xīngqī'èr",
+    "part_of_speech": "noun",
+    "meaning": "Tuesday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期三",
+    "pinyin": "xīngqīsān",
+    "part_of_speech": "noun",
+    "meaning": "Wednesday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期四",
+    "pinyin": "xīngqīsì",
+    "part_of_speech": "noun",
+    "meaning": "Thursday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期五",
+    "pinyin": "xīngqīwǔ",
+    "part_of_speech": "noun",
+    "meaning": "Friday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期六",
+    "pinyin": "xīngqīliù",
+    "part_of_speech": "noun",
+    "meaning": "Saturday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
+    "word": "星期天",
+    "pinyin": "xīngqītiān",
+    "part_of_speech": "noun",
+    "meaning": "Sunday",
+    "chapter": 7,
+    "source": "hsk1",
+    "category": "time"
+  },
+  {
     "word": "下午",
     "pinyin": "xiàwǔ",
     "part_of_speech": "noun",

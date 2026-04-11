@@ -120,6 +120,34 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '晚上': ['time'],
   '凌晨': ['time'],
   
+  // Months
+  '一月': ['time'],
+  '二月': ['time'],
+  '三月': ['time'],
+  '四月': ['time'],
+  '五月': ['time'],
+  '六月': ['time'],
+  '七月': ['time'],
+  '八月': ['time'],
+  '九月': ['time'],
+  '十月': ['time'],
+  '十一月': ['time'],
+  '十二月': ['time'],
+
+  // Days of the week
+  '星期一': ['time', 'time_unit'],
+  '星期二': ['time', 'time_unit'],
+  '星期三': ['time', 'time_unit'],
+  '星期四': ['time', 'time_unit'],
+  '星期五': ['time', 'time_unit'],
+  '星期六': ['time', 'time_unit'],
+  '星期天': ['time', 'time_unit'],
+
+  // Time units (can follow 上个/这个/下个)
+  '星期': ['time', 'time_unit'],
+  '月': ['time', 'time_unit'],
+  '年': ['time', 'time_unit'],
+  
   // Languages
   '汉语': ['language'],
 };
@@ -212,6 +240,34 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   '上午': { subject: 'this morning', object: 'this morning' },
   '下午': { subject: 'this afternoon', object: 'this afternoon' },
   '中午': { subject: 'at noon', object: 'at noon' },
+  
+  // Months
+  '一月': { subject: 'in January', object: 'in January' },
+  '二月': { subject: 'in February', object: 'in February' },
+  '三月': { subject: 'in March', object: 'in March' },
+  '四月': { subject: 'in April', object: 'in April' },
+  '五月': { subject: 'in May', object: 'in May' },
+  '六月': { subject: 'in June', object: 'in June' },
+  '七月': { subject: 'in July', object: 'in July' },
+  '八月': { subject: 'in August', object: 'in August' },
+  '九月': { subject: 'in September', object: 'in September' },
+  '十月': { subject: 'in October', object: 'in October' },
+  '十一月': { subject: 'in November', object: 'in November' },
+  '十二月': { subject: 'in December', object: 'in December' },
+
+  // Days of the week
+  '星期一': { subject: 'Monday', object: 'Monday' },
+  '星期二': { subject: 'Tuesday', object: 'Tuesday' },
+  '星期三': { subject: 'Wednesday', object: 'Wednesday' },
+  '星期四': { subject: 'Thursday', object: 'Thursday' },
+  '星期五': { subject: 'Friday', object: 'Friday' },
+  '星期六': { subject: 'Saturday', object: 'Saturday' },
+  '星期天': { subject: 'Sunday', object: 'Sunday' },
+
+  // Time units (for 上个/这个/下个 patterns)
+  '星期': { subject: 'week', object: 'week' },
+  '月': { subject: 'month', object: 'month' },
+  '年': { subject: 'year', object: 'year' },
   
   // Readable/Watchable
   '书': { subject: 'books', object: 'books' },
@@ -790,6 +846,65 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     difficulty: 3,
   },
 
+  // ========== Level 3: 上个/这个/下个 + time unit ==========
+  {
+    id: 'last_timeunit_go',
+    name: 'Last [week/month] someone goes',
+    description: '上个 + Time Unit + Subject + Verb',
+    explanation: 'Use 上个 (shàng ge) before time units like 星期 (week), 月 (month), or 年 (year) to say "last." Time comes BEFORE the subject in Chinese.',
+    example: { zh: '上个星期我去学校', en: 'I went to school last week' },
+    slots: [
+      { role: 'time_unit', categories: ['time_unit'] },
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '上个', pinyin: 'shàng ge', meaning: 'last' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+    ],
+    chineseOrder: ['上个', 'time_unit', 'subject', '去', 'destination'],
+    englishPattern: '{subject} goes to {destination} last {time_unit}',
+    difficulty: 3,
+  },
+  {
+    id: 'this_timeunit_eat',
+    name: 'This [week/month] someone eats',
+    description: '这个 + Time Unit + Subject + Verb + Object',
+    explanation: 'Use 这个 (zhè ge) before time units like 星期 (week) or 月 (month) to say "this." Compare: 上个 = last, 这个 = this, 下个 = next.',
+    example: { zh: '这个月她吃中国菜', en: 'She eats Chinese food this month' },
+    slots: [
+      { role: 'time_unit', categories: ['time_unit'] },
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '这个', pinyin: 'zhè ge', meaning: 'this' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['这个', 'time_unit', 'subject', '吃', 'object'],
+    englishPattern: '{subject} eats {object} this {time_unit}',
+    difficulty: 3,
+  },
+  {
+    id: 'next_timeunit_go',
+    name: 'Next [week/month] someone goes',
+    description: '下个 + Time Unit + Subject + Verb',
+    explanation: 'Use 下个 (xià ge) before time units like 星期 (week), 月 (month), or 年 (year) to say "next." The full pattern: 上个 = last, 这个 = this, 下个 = next.',
+    example: { zh: '下个星期他去中国', en: 'He goes to China next week' },
+    slots: [
+      { role: 'time_unit', categories: ['time_unit'] },
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '下个', pinyin: 'xià ge', meaning: 'next' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+    ],
+    chineseOrder: ['下个', 'time_unit', 'subject', '去', 'destination'],
+    englishPattern: '{subject} goes to {destination} next {time_unit}',
+    difficulty: 3,
+  },
+
   // ========== New patterns: 也, 有/没有, 坐, 在+V, 学 ==========
   {
     id: 'person_have_thing',
@@ -895,6 +1010,676 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     chineseOrder: ['subject', '在', 'location', '吃', 'object'],
     englishPattern: '{subject} eats {object} at {location}',
     difficulty: 2,
+  },
+
+  // ========== Ch 3: 是 sentences ==========
+  {
+    id: 'person_is_identity',
+    name: 'Someone is [identity]',
+    description: 'Subject + 是 + Noun',
+    explanation: '是 (shì) links a subject to an identity. Unlike English, no article "a" is needed.',
+    example: { zh: '我是学生', en: 'I am a student' },
+    slots: [
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
+      { role: 'identity', categories: ['profession'] },
+    ],
+    fixedWords: [
+      { word: '是', pinyin: 'shì', meaning: 'is/am/are' },
+    ],
+    chineseOrder: ['subject', '是', 'identity'],
+    englishPattern: '{subject} is {identity}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_is_identity_question',
+    name: 'Are you a [identity]?',
+    description: 'Subject + 是 + Noun + 吗',
+    explanation: 'Add 吗 to a 是 sentence to ask about someone\'s identity',
+    example: { zh: '你是老师吗', en: 'Are you a teacher?' },
+    slots: [
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
+      { role: 'identity', categories: ['profession'] },
+    ],
+    fixedWords: [
+      { word: '是', pinyin: 'shì', meaning: 'is/am/are' },
+      { word: '吗', pinyin: 'ma', meaning: '(question)' },
+    ],
+    chineseOrder: ['subject', '是', 'identity', '吗'],
+    englishPattern: 'Is {subject} {identity}?',
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_is',
+    name: 'Someone is not [identity]',
+    description: 'Subject + 不 + 是 + Noun',
+    explanation: 'Negate 是 with 不: "I am not a teacher". Unlike 没, use 不 for 是.',
+    example: { zh: '我不是老师', en: 'I am not a teacher' },
+    slots: [
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
+      { role: 'identity', categories: ['profession'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '是', pinyin: 'shì', meaning: 'is/am/are' },
+    ],
+    chineseOrder: ['subject', '不', '是', 'identity'],
+    englishPattern: '{subject} is not {identity}',
+    difficulty: 2,
+  },
+
+  // ========== Ch 4: 谁 question ==========
+  {
+    id: 'who_is',
+    name: 'Who is someone?',
+    description: 'Subject + 是 + 谁',
+    explanation: '谁 (shéi) asks about identity. Chinese keeps the same word order as a statement.',
+    example: { zh: '他是谁', en: 'Who is he?' },
+    slots: [
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
+    ],
+    fixedWords: [
+      { word: '是', pinyin: 'shì', meaning: 'is/am/are' },
+      { word: '谁', pinyin: 'shéi', meaning: 'who' },
+    ],
+    chineseOrder: ['subject', '是', '谁'],
+    englishPattern: 'Who is {subject}?',
+    difficulty: 2,
+  },
+
+  // ========== Ch 6: 会 ability ==========
+  {
+    id: 'person_can_speak',
+    name: 'Someone can speak [language]',
+    description: 'Subject + 会 + 说 + Language',
+    explanation: '会 (huì) before a verb = ability gained through learning: "I can speak Chinese"',
+    example: { zh: '我会说汉语', en: 'I can speak Chinese' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['language'] },
+    ],
+    fixedWords: [
+      { word: '会', pinyin: 'huì', meaning: 'can' },
+      { word: '说', pinyin: 'shuō', meaning: 'speak' },
+    ],
+    chineseOrder: ['subject', '会', '说', 'object'],
+    englishPattern: '{subject} can speak {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_can_write',
+    name: 'Someone can write [something]',
+    description: 'Subject + 会 + 写 + Object',
+    explanation: '会 + 写 = can write (learned ability). 汉字 = Chinese characters.',
+    example: { zh: '她会写汉字', en: 'She can write Chinese characters' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['readable'] },
+    ],
+    fixedWords: [
+      { word: '会', pinyin: 'huì', meaning: 'can' },
+      { word: '写', pinyin: 'xiě', meaning: 'write' },
+    ],
+    chineseOrder: ['subject', '会', '写', 'object'],
+    englishPattern: '{subject} can write {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_can_make',
+    name: 'Someone can cook [food]',
+    description: 'Subject + 会 + 做 + Food',
+    explanation: '会 + 做 = can make/cook (learned ability)',
+    example: { zh: '妈妈会做中国菜', en: 'Mom can cook Chinese food' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '会', pinyin: 'huì', meaning: 'can' },
+      { word: '做', pinyin: 'zuò', meaning: 'make/cook' },
+    ],
+    chineseOrder: ['subject', '会', '做', 'object'],
+    englishPattern: '{subject} can cook {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_cant_speak',
+    name: "Someone can't speak [language]",
+    description: 'Subject + 不 + 会 + 说 + Language',
+    explanation: 'Negate 会 with 不: 不会 = don\'t have the ability.',
+    example: { zh: '他不会说汉语', en: "He can't speak Chinese" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['language'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '会', pinyin: 'huì', meaning: 'can' },
+      { word: '说', pinyin: 'shuō', meaning: 'speak' },
+    ],
+    chineseOrder: ['subject', '不', '会', '说', 'object'],
+    englishPattern: "{subject} can't speak {object}",
+    difficulty: 2,
+  },
+
+  // ========== Ch 7: Serial verb 去+place+V ==========
+  {
+    id: 'go_place_read',
+    name: 'Go somewhere to read',
+    description: 'Subject + 去 + Place + 看 + Readable',
+    explanation: 'Serial verb: two verbs share one subject. 去 (go) + 看 (read) = go somewhere to read.',
+    example: { zh: '我去学校看书', en: 'I go to school to read books' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+      { role: 'object', categories: ['readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '看', pinyin: 'kàn', meaning: 'read/watch' },
+    ],
+    chineseOrder: ['subject', '去', 'destination', '看', 'object'],
+    englishPattern: '{subject} goes to {destination} to read {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'go_place_study',
+    name: 'Go somewhere to study',
+    description: 'Subject + 去 + Place + 学 + Language',
+    explanation: 'Serial verb: 去 (go) + 学 (study) = go somewhere to study.',
+    example: { zh: '我去中国学汉语', en: 'I go to China to study Chinese' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+      { role: 'object', categories: ['language'] },
+    ],
+    fixedWords: [
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '学', pinyin: 'xué', meaning: 'study' },
+    ],
+    chineseOrder: ['subject', '去', 'destination', '学', 'object'],
+    englishPattern: '{subject} goes to {destination} to study {object}',
+    difficulty: 2,
+  },
+
+  // ========== Ch 10: 有 existential, 能, 请 ==========
+  {
+    id: 'location_has_thing_on',
+    name: 'There is something on [ref]',
+    description: 'Reference + 上面 + 有 + Thing',
+    explanation: 'Existential 有: location + 有 + thing = "there is [thing] at [location]". Opposite of 在 pattern.',
+    example: { zh: '桌子上面有书', en: 'The table has books on it' },
+    slots: [
+      { role: 'reference', categories: ['furniture'] },
+      { role: 'item', categories: ['locatable', 'readable'] },
+    ],
+    fixedWords: [
+      { word: '上面', pinyin: 'shàngmiàn', meaning: 'on/above' },
+      { word: '有', pinyin: 'yǒu', meaning: 'have/there is' },
+    ],
+    chineseOrder: ['reference', '上面', '有', 'item'],
+    englishPattern: '{reference} has {item} on it',
+    difficulty: 2,
+  },
+  {
+    id: 'location_has_thing_under',
+    name: 'There is something under [ref]',
+    description: 'Reference + 下面 + 有 + Thing',
+    explanation: 'Existential 有 with location. Location words go AFTER the reference.',
+    example: { zh: '椅子下面有猫', en: 'The chair has a cat under it' },
+    slots: [
+      { role: 'reference', categories: ['furniture'] },
+      { role: 'item', categories: ['locatable', 'animal'] },
+    ],
+    fixedWords: [
+      { word: '下面', pinyin: 'xiàmiàn', meaning: 'under/below' },
+      { word: '有', pinyin: 'yǒu', meaning: 'have/there is' },
+    ],
+    chineseOrder: ['reference', '下面', '有', 'item'],
+    englishPattern: '{reference} has {item} under it',
+    difficulty: 2,
+  },
+  {
+    id: 'location_has_thing_inside',
+    name: 'There is something inside [ref]',
+    description: 'Reference + 里面 + 有 + Thing',
+    explanation: 'Existential 有: different from 在 (specific location) — 有 states existence.',
+    example: { zh: '桌子里面有书', en: 'The desk has books inside it' },
+    slots: [
+      { role: 'reference', categories: ['furniture'] },
+      { role: 'item', categories: ['locatable', 'readable'] },
+    ],
+    fixedWords: [
+      { word: '里面', pinyin: 'lǐmiàn', meaning: 'inside' },
+      { word: '有', pinyin: 'yǒu', meaning: 'have/there is' },
+    ],
+    chineseOrder: ['reference', '里面', '有', 'item'],
+    englishPattern: '{reference} has {item} inside it',
+    difficulty: 2,
+  },
+  {
+    id: 'person_able_go',
+    name: 'Someone can go somewhere',
+    description: 'Subject + 能 + 去 + Place',
+    explanation: '能 (néng) = can/able to (ability or permission). Different from 会 (learned skill).',
+    example: { zh: '我能去商店', en: 'I can go to the store' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '能', pinyin: 'néng', meaning: 'can/able to' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+    ],
+    chineseOrder: ['subject', '能', '去', 'destination'],
+    englishPattern: '{subject} can go to {destination}',
+    difficulty: 2,
+  },
+  {
+    id: 'please_drink',
+    name: 'Please have a drink',
+    description: '请 + 喝 + Drink',
+    explanation: '请 (qǐng) before a verb = polite invitation: "Please [do something]"',
+    example: { zh: '请喝茶', en: 'Please have some tea' },
+    slots: [
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '请', pinyin: 'qǐng', meaning: 'please' },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+    ],
+    chineseOrder: ['请', '喝', 'object'],
+    englishPattern: 'Please drink {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'please_eat',
+    name: 'Please eat something',
+    description: '请 + 吃 + Food',
+    explanation: '请 before a verb = polite invitation. 请吃 = "please eat / help yourself"',
+    example: { zh: '请吃水果', en: 'Please have some fruit' },
+    slots: [
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '请', pinyin: 'qǐng', meaning: 'please' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['请', '吃', 'object'],
+    englishPattern: 'Please eat {object}',
+    difficulty: 1,
+  },
+
+  // ========== Ch 12: 怎么样, 太...了 ==========
+  {
+    id: 'how_is_thing',
+    name: 'How is [something]?',
+    description: 'Time + Subject + 怎么样',
+    explanation: '怎么样 (zěnmeyàng) asks about condition: "How is the weather tomorrow?"',
+    example: { zh: '明天天气怎么样', en: 'How is the weather tomorrow?' },
+    slots: [
+      { role: 'time', categories: ['time'] },
+      { role: 'subject', categories: ['describable', 'nature'] },
+    ],
+    fixedWords: [
+      { word: '怎么样', pinyin: 'zěnmeyàng', meaning: 'how about' },
+    ],
+    chineseOrder: ['time', 'subject', '怎么样'],
+    englishPattern: 'How is {subject} {time}?',
+    difficulty: 2,
+  },
+  {
+    id: 'too_adj',
+    name: 'Something is too [adj]',
+    description: 'Subject + 太 + Adjective + 了',
+    explanation: '太...了 (tài...le) = "too...!" Express that something is excessive.',
+    example: { zh: '天气太冷了', en: 'The weather is too cold' },
+    slots: [
+      { role: 'subject', categories: ['describable', 'nature', 'person'] },
+      { role: 'adjective', categories: ['quality_adj', 'size_adj', 'temperature_adj', 'appearance_adj', 'emotion_adj'] },
+    ],
+    fixedWords: [
+      { word: '太', pinyin: 'tài', meaning: 'too' },
+      { word: '了', pinyin: 'le', meaning: '(emphasis)' },
+    ],
+    chineseOrder: ['subject', '太', 'adjective', '了'],
+    englishPattern: '{subject} is too {adjective}',
+    difficulty: 2,
+  },
+
+  // ========== Ch 13: 在...呢 progressive, 吧 suggestion ==========
+  {
+    id: 'person_reading_now',
+    name: 'Someone is reading now',
+    description: 'Subject + 在 + 看 + Object + 呢',
+    explanation: '在...呢 = action in progress (like English "-ing"). 在 before verb, 呢 at end.',
+    example: { zh: '我在看书呢', en: 'I am reading books' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '看', pinyin: 'kàn', meaning: 'read/watch' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '看', 'object', '呢'],
+    englishPattern: '{subject} is reading {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_eating_now',
+    name: 'Someone is eating now',
+    description: 'Subject + 在 + 吃 + Object + 呢',
+    explanation: '在...呢 = action in progress. 呢 at the end reinforces the ongoing sense.',
+    example: { zh: '他在吃苹果呢', en: 'He is eating apples' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '吃', 'object', '呢'],
+    englishPattern: '{subject} is eating {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_drinking_now',
+    name: 'Someone is drinking now',
+    description: 'Subject + 在 + 喝 + Object + 呢',
+    explanation: '在...呢 = action in progress.',
+    example: { zh: '她在喝茶呢', en: 'She is drinking tea' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '喝', 'object', '呢'],
+    englishPattern: '{subject} is drinking {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_studying_now',
+    name: 'Someone is studying now',
+    description: 'Subject + 在 + 学 + Object + 呢',
+    explanation: '在...呢 = action in progress.',
+    example: { zh: '他在学汉语呢', en: 'He is studying Chinese' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['language'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '学', pinyin: 'xué', meaning: 'study' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '学', 'object', '呢'],
+    englishPattern: '{subject} is studying {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'should_eat',
+    name: "Let's eat [something]",
+    description: 'Subject + 吃 + Object + 吧',
+    explanation: '吧 (ba) at the end softens a suggestion: "Let\'s..." or "How about...?"',
+    example: { zh: '我们吃饭吧', en: 'We should eat food' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+      { word: '吧', pinyin: 'ba', meaning: '(suggestion)' },
+    ],
+    chineseOrder: ['subject', '吃', 'object', '吧'],
+    englishPattern: '{subject} should eat {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'should_go',
+    name: "Let's go [somewhere]",
+    description: 'Subject + 去 + Place + 吧',
+    explanation: '吧 makes a polite suggestion: "Let\'s go to..."',
+    example: { zh: '我们去学校吧', en: "We should go to school" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '吧', pinyin: 'ba', meaning: '(suggestion)' },
+    ],
+    chineseOrder: ['subject', '去', 'destination', '吧'],
+    englishPattern: '{subject} should go to {destination}',
+    difficulty: 2,
+  },
+  {
+    id: 'should_drink',
+    name: "Let's drink [something]",
+    description: 'Subject + 喝 + Object + 吧',
+    explanation: '吧 softens a suggestion: "How about we drink...?"',
+    example: { zh: '我们喝茶吧', en: "We should drink tea" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+      { word: '吧', pinyin: 'ba', meaning: '(suggestion)' },
+    ],
+    chineseOrder: ['subject', '喝', 'object', '吧'],
+    englishPattern: '{subject} should drink {object}',
+    difficulty: 2,
+  },
+
+  // ========== Ch 14: 了 completion, 没 past negation ==========
+  {
+    id: 'person_went',
+    name: 'Someone went somewhere',
+    description: 'Subject + 去 + Place + 了',
+    explanation: '了 (le) after verb/object = completed action (past tense).',
+    example: { zh: '我去商店了', en: 'I went to the store' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '了', pinyin: 'le', meaning: '(completed)' },
+    ],
+    chineseOrder: ['subject', '去', 'destination', '了'],
+    englishPattern: '{subject} went to {destination}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_ate',
+    name: 'Someone ate something',
+    description: 'Subject + 吃 + Object + 了',
+    explanation: '了 marks completed action. Compare: 我吃苹果 (I eat) vs 我吃苹果了 (I ate).',
+    example: { zh: '他吃苹果了', en: 'He ate apples' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+      { word: '了', pinyin: 'le', meaning: '(completed)' },
+    ],
+    chineseOrder: ['subject', '吃', 'object', '了'],
+    englishPattern: '{subject} ate {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_drank',
+    name: 'Someone drank something',
+    description: 'Subject + 喝 + Object + 了',
+    explanation: '了 marks completed action.',
+    example: { zh: '她喝茶了', en: 'She drank tea' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+      { word: '了', pinyin: 'le', meaning: '(completed)' },
+    ],
+    chineseOrder: ['subject', '喝', 'object', '了'],
+    englishPattern: '{subject} drank {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_didnt_eat',
+    name: "Someone didn't eat",
+    description: 'Subject + 没 + 吃 + Object',
+    explanation: 'Use 没 (méi), NOT 不, to negate past actions. No 了 in the negative form.',
+    example: { zh: '我没吃饭', en: "I didn't eat food" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '没', pinyin: 'méi', meaning: 'not (past)' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['subject', '没', '吃', 'object'],
+    englishPattern: "{subject} didn't eat {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_didnt_go',
+    name: "Someone didn't go",
+    description: 'Subject + 没 + 去 + Place',
+    explanation: 'Use 没 to negate past actions. 没去 = didn\'t go.',
+    example: { zh: '他没去学校', en: "He didn't go to school" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '没', pinyin: 'méi', meaning: 'not (past)' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+    ],
+    chineseOrder: ['subject', '没', '去', 'destination'],
+    englishPattern: "{subject} didn't go to {destination}",
+    difficulty: 2,
+  },
+
+  // ========== Questions: 什么, 哪儿 ==========
+  {
+    id: 'what_eat',
+    name: 'What do you eat?',
+    description: 'Subject + 吃 + 什么',
+    explanation: '什么 (shénme) = "what". Unlike English, it stays where the answer goes (no word order change).',
+    example: { zh: '你吃什么', en: 'What do you eat?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+      { word: '什么', pinyin: 'shénme', meaning: 'what' },
+    ],
+    chineseOrder: ['subject', '吃', '什么'],
+    englishPattern: 'What does {subject} eat?',
+    difficulty: 2,
+  },
+  {
+    id: 'what_drink',
+    name: 'What do you drink?',
+    description: 'Subject + 喝 + 什么',
+    explanation: '什么 stays in the object position in Chinese (unlike English where "what" moves to front).',
+    example: { zh: '你喝什么', en: 'What do you drink?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+      { word: '什么', pinyin: 'shénme', meaning: 'what' },
+    ],
+    chineseOrder: ['subject', '喝', '什么'],
+    englishPattern: 'What does {subject} drink?',
+    difficulty: 2,
+  },
+  {
+    id: 'what_want_eat',
+    name: 'What do you want to eat?',
+    description: 'Subject + 想 + 吃 + 什么',
+    explanation: '想 + verb + 什么 = "What do you want to [verb]?"',
+    example: { zh: '你想吃什么', en: 'What do you want to eat?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '想', pinyin: 'xiǎng', meaning: 'want to' },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+      { word: '什么', pinyin: 'shénme', meaning: 'what' },
+    ],
+    chineseOrder: ['subject', '想', '吃', '什么'],
+    englishPattern: 'What does {subject} want to eat?',
+    difficulty: 2,
+  },
+  {
+    id: 'where_is',
+    name: 'Where is [something]?',
+    description: 'Subject + 在 + 哪儿',
+    explanation: '哪儿 (nǎr) = "where". Chinese keeps the question word in place (no inversion).',
+    example: { zh: '猫在哪儿', en: 'Where is the cat?' },
+    slots: [
+      { role: 'subject', categories: ['person', 'animal', 'locatable'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at/in' },
+      { word: '哪儿', pinyin: 'nǎr', meaning: 'where' },
+    ],
+    chineseOrder: ['subject', '在', '哪儿'],
+    englishPattern: 'Where is {subject}?',
+    difficulty: 2,
+  },
+
+  // ========== Ch 15: 是...的 emphasis ==========
+  {
+    id: 'emphasis_time',
+    name: 'Emphasize when someone came',
+    description: 'Subject + 是 + Time + 来 + 的',
+    explanation: '是...的 emphasizes WHEN something happened. The action (coming) is already known.',
+    example: { zh: '我是昨天来的', en: 'I came yesterday' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'time', categories: ['time'] },
+    ],
+    fixedWords: [
+      { word: '是', pinyin: 'shì', meaning: '(emphasis)' },
+      { word: '来', pinyin: 'lái', meaning: 'come' },
+      { word: '的', pinyin: 'de', meaning: '(emphasis)' },
+    ],
+    chineseOrder: ['subject', '是', 'time', '来', '的'],
+    englishPattern: '{subject} came {time}',
+    difficulty: 3,
+  },
+  {
+    id: 'emphasis_vehicle',
+    name: 'Emphasize how someone came',
+    description: 'Subject + 是 + 坐 + Vehicle + 来 + 的',
+    explanation: '是...的 emphasizes HOW someone came. 坐 + vehicle = "by [vehicle]".',
+    example: { zh: '我是坐飞机来的', en: 'I came by plane' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['vehicle'] },
+    ],
+    fixedWords: [
+      { word: '是', pinyin: 'shì', meaning: '(emphasis)' },
+      { word: '坐', pinyin: 'zuò', meaning: 'take/ride' },
+      { word: '来', pinyin: 'lái', meaning: 'come' },
+      { word: '的', pinyin: 'de', meaning: '(emphasis)' },
+    ],
+    chineseOrder: ['subject', '是', '坐', 'object', '来', '的'],
+    englishPattern: '{subject} came by {object}',
+    difficulty: 3,
   },
 ];
 
@@ -1141,6 +1926,13 @@ export function generateSentenceExercise(
     
     // Fix "Does I" → "Do I", "Does we" → "Do we", etc.
     english = english.replace(/^Does (I|you|we|you all|they) /, 'Do $1 ');
+
+    // Generic is→am catch-all for 是/progressive/太/question patterns
+    english = english.replace(/^Is /, 'Am ');
+    english = english.replace(/ is /g, ' am ');
+    english = english.replace(/ is\?/g, ' am?');
+    // Generic does→do for 什么 questions ("What does I eat?" → "What do I eat?")
+    english = english.replace(/ does /g, ' do ');
   }
   
   // Fix "we am" → "we are", "they am" → "they are"
@@ -1153,6 +1945,11 @@ export function generateSentenceExercise(
     english = english.replace(' am behind ', ' are behind ');
     english = english.replace(' am inside ', ' are inside ');
     english = english.replace(' am beside ', ' are beside ');
+
+    // Generic am→are catch-all for all new patterns
+    english = english.replace(/^Am /, 'Are ');
+    english = english.replace(/ am /g, ' are ');
+    english = english.replace(/ am\?/g, ' are?');
   }
   
   english = english.charAt(0).toUpperCase() + english.slice(1);

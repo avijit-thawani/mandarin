@@ -226,6 +226,7 @@ export function SyntaxPage({ store, settingsStore, onShowHelp }: SyntaxPageProps
                         emotion_adj: 'Feelings (高兴)',
                         temperature_adj: 'Temperature (冷/热)',
                         time: 'Time (今天/明天)',
+                        time_unit: 'Time units (星期/月/年)',
                         vehicle: 'Transport (车/飞机)',
                         language: 'Languages (汉语)',
                         family: 'Family (爸爸/妈妈)',
