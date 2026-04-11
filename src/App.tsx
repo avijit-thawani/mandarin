@@ -248,6 +248,7 @@ function AppContent({
                 onShowHelp={() => setShowHelpModal(true)}
                 onRefresh={auth.user && !isGuest ? () => store.loadFromCloud(auth.user!.id) : undefined}
                 isGuest={isGuest}
+                userId={auth.user?.id}
               />
             } 
           />

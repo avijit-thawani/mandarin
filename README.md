@@ -19,6 +19,15 @@ Future agents: this file is intentionally operational. It is the first map for w
 9. For volatile logic, update nearby module docs/docstrings first, then update README pointers.
 10. If a user request introduces uncertainty, propose doc updates in the same PR/task.
 
+### MCP Supabase Access Policy
+
+Two Supabase MCP servers are configured (in `~/.cursor/mcp.json`):
+
+- **`supabase-read`** (`?read_only=true`): Server-side read-only mode. Safe for autonomous use — mutations are rejected by the Supabase MCP server itself. **Allowlist this server's `execute_sql` tool** in Cursor's tool approval settings so agents can run SELECT queries without manual confirmation. Use this for data exploration, ML data exports, debugging, and schema inspection.
+- **`supabase-admin`**: Full read/write access. **Always require explicit user approval.** Never allowlist write-capable tools (`execute_sql`, `apply_migration`, `deploy_edge_function`, etc.) from this server.
+
+Future agents: prefer `supabase-read` for all read operations. Only escalate to `supabase-admin` when you need to write data, and always get user approval first (see "Database and Migration Safety" below).
+
 ### Communicating with the User
 
 When discussing vocabulary, corrections, or changes with the user:
@@ -250,33 +259,17 @@ Weight meaning: `0` skip, `1` low, `2` medium, `3` high.
 
 ## Pinyin Tab Behavior
 
-Pronunciation practice using known vocab words. **Listen** mode: audio quiz with 6 pinyin options. **Speak** mode: self-evaluation — see pinyin, speak, compare with TTS, self-rate.
+Pronunciation practice using known vocab words. **Listen**: audio quiz with 6 pinyin options. **Speak**: self-evaluation — see pinyin, speak, compare with TTS, self-rate.
 
 ---
 
 ## Syntax Tab Behavior
 
-Template-driven grammar/word-order practice using known vocabulary (~130 templates). Covers HSK1 textbook grammar from chapters 3–15:
+Template-driven grammar/word-order practice using known vocabulary (~130 templates). Covers HSK1 chapters 3–15 grammar at three levels (L1: basic SVO/是/有/很/不/请/的; L2: questions, negation, modals, adverbs, progressive, completion; L3: time expressions, past tense, 是...的 emphasis). See `src/utils/syntax.ts` for full grammar catalog.
 
-- **L1**: Basic SVO (吃/喝/去/看/学/坐/买/回/来/爱/听/读), 是 identity, 有 possession, 很+adj, 不+adj, 不太+adj, 请 imperative, 的 possessive.
-- **L2**: 吗 questions, 不 negation (不喜欢/不想吃/不想去/不想喝/不爱吃/不爱喝/不在), 没 past negation (没买/没喝/没来), 没在 negative progressive (没在看), 想/会/能 modals, 能+V+吗 permission, 会来/不会来 future possibility, 也 adverb (也吃/也喝/也去/也喜欢), 都 (all: 都喜欢/都是), 在+location words, 在+place+verb (吃/看/喝), 什么/谁/哪儿/怎么样/怎么 questions, 在做什么呢 progressive question, serial verbs (去+place+V), 太...了, 在...呢 progressive (reading/watching/sleeping), 吧 suggestions, 了 completion (买了), 有 existential (place+有+thing), 住在, 工作, 不会写/不会做.
-- **L3**: Time+S+V expressions (present/future time), past tense (昨天+V+了), 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner/place), 不是...的 negative emphasis.
+**Exercise format**: tile reordering (no distractors). EN→CN shows English prompt, user arranges Chinese tiles. CN→EN shows Chinese, English tiles are lowercase-shuffled to prevent capitalization-based guessing. Verb conjugation auto-adjusts for subject person.
 
-### Exercise Format Rules
-
-- **Tile reordering**: User arranges shuffled word tiles into correct order. No distractors — only the correct pieces are shown.
-- **English→Chinese**: Full English sentence shown as prompt (sentence-cased on first character only). User arranges Chinese tiles (characters, pinyin, or audio depending on modality).
-- **Chinese→English**: Chinese shown as prompt. English appears as **lowercase shuffled tiles** (`getEnglishTiles` strips punctuation and lowercases all words). This prevents guessing word order from capitalization.
-- **English patterns must make grammatical sense** as standalone sentences. Verb conjugation is auto-adjusted for subject person (3rd-person patterns in code, converted to base form for I/you/we/they, is→am→are).
-
-### Slot Filling and Vocabulary Eligibility
-
-- Words fill template slots based on semantic categories: `SEMANTIC_CATEGORIES` (hand-curated per-word map) merged with `VOCAB_CATEGORY_TO_SYNTAX` (auto-derived from vocabulary JSON `category` field).
-- Words with zero matching categories never appear in exercises. Verbs, particles, and numbers are intentionally excluded from slot filling — they appear only as `fixedWords` in templates.
-- Only known (checked) and unpaused words participate. Templates only unlock when enough words exist to fill all slots.
-- `SENTENCE_ENGLISH` provides clean English for slot words (e.g., 我→"I"/"me", 老师→"the teacher"). Words without entries fall back to cleaned dictionary meanings.
-
-See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If generation logic changes, update both template code and this section.
+**Slot filling**: words fill template slots via `SEMANTIC_CATEGORIES` + `VOCAB_CATEGORY_TO_SYNTAX`. Only known/unpaused words participate. Verbs, particles, numbers appear only as `fixedWords`. See `src/types/syntax.ts` for details.
 
 ---
 
@@ -385,12 +378,7 @@ If schema contracts change, update `src/types/database.ts`, sync services, and R
 
 ## Change Documentation Policy (For Future Agents)
 
-Layers: README (stable contracts, architecture, safety), module docstrings (volatile implementation), script headers (run instructions).
-Update README for: user-visible behavior changes, new failure modes, setup/schema/script workflow changes.
-Update module docs for: quiz heuristics, ML features/thresholds, syntax templates, layout tweaks.
-If unsure, update both briefly and keep README high-level.
-
----
+Layers: README (stable contracts, architecture, safety), module docstrings (volatile implementation), script headers (run instructions). Update README for user-visible behavior, new failures, setup/schema changes. Update module docs for quiz heuristics, ML thresholds, syntax templates.
 
 ## Quick Task Routing Cheat Sheet
 

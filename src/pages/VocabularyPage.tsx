@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Download, CheckSquare, Square, Filter, HelpCircle, Check, Loader2, AlertTriangle, Cloud, RefreshCw, BookOpen, Zap } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, Download, CheckSquare, Square, Filter, HelpCircle, Check, Loader2, AlertTriangle, Cloud, RefreshCw, BookOpen, Zap, RotateCcw } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
+import { NIYATI_USER_ID, NIYATI_BASELINE_WORDS } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
 import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { Concept } from '../types/vocabulary';
@@ -15,6 +16,7 @@ interface VocabularyPageProps {
   onShowHelp?: () => void;
   onRefresh?: () => Promise<void>;
   isGuest?: boolean;
+  userId?: string;
 }
 
 type SortField = 'pinyin' | 'word' | 'meaning' | 'part_of_speech' | 'chapter' | 'knowledge';
@@ -74,7 +76,7 @@ function saveVocabPreferences(prefs: Partial<VocabPreferences>): void {
   }
 }
 
-export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onShowHelp, onRefresh, isGuest }: VocabularyPageProps) {
+export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onShowHelp, onRefresh, isGuest, userId }: VocabularyPageProps) {
   const navigate = useNavigate();
   const initialPrefs = loadVocabPreferences();
   const [sortField, setSortField] = useState<SortField>(initialPrefs.sortField);
@@ -282,7 +284,24 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
       }
     });
   };
-  
+
+  const isNiyati = userId === NIYATI_USER_ID;
+  const niyatiBaselineMatches = useMemo(() => {
+    if (!isNiyati) return true;
+    const activeWords = new Set(store.concepts.filter(c => !c.paused).map(c => c.word));
+    if (activeWords.size !== NIYATI_BASELINE_WORDS.size) return false;
+    for (const w of NIYATI_BASELINE_WORDS) {
+      if (!activeWords.has(w)) return false;
+    }
+    return true;
+  }, [isNiyati, store.concepts]);
+
+  const handleRestoreBaseline = () => {
+    if (window.confirm(`Reset to your ${NIYATI_BASELINE_WORDS.size} words? Everything else will be paused.`)) {
+      store.restoreNiyatiBaseline();
+    }
+  };
+
   // Format last sync time
   const formatTime = (isoString: string | null) => {
     if (!isoString) return 'Never';
@@ -458,6 +477,17 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                 Unknow ({filteredKnown})
               </button>
             </>
+          )}
+
+          {isNiyati && !niyatiBaselineMatches && (
+            <button
+              className="btn btn-xs btn-outline btn-accent gap-0.5"
+              onClick={handleRestoreBaseline}
+              title={`Restore your original ${NIYATI_BASELINE_WORDS.size} words`}
+            >
+              <RotateCcw className="w-3 h-3" />
+              Restore ({NIYATI_BASELINE_WORDS.size})
+            </button>
           )}
           
           {/* "For today" session filter actions — only when PoS or chapter filter is active */}

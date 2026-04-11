@@ -16,6 +16,28 @@ const LAST_SYNC_KEY = 'langseed_last_sync';
 const PROGRESS_CACHE_KEY = 'langseed_progress_cache';
 const PENDING_SYNC_KEY = 'langseed_pending_sync';
 
+export const NIYATI_USER_ID = 'f547d7a2-1440-4c7a-ab74-130787ba9878';
+
+// Niyati's 111-word study set, established in the original vocab expansion session.
+// 34 non-Ch16 (4 Ch-10 direction + 30 Ch1-15 core) + all 77 Ch16 words.
+export const NIYATI_BASELINE_WORDS = new Set([
+  // Ch-10 direction words
+  '右边', '外', '左边', '旁边',
+  // Ch1-15 core words
+  '叫', '人', '吗', '是', '呢', '国', '的', '了', '口', '家',
+  '有', '做', '说', '去', '看', '买', '吃', '喝', '想', '在',
+  '上', '下', '和', '里', '前', '来', '听', '后', '啊', '开',
+  // Ch16 words (particles, conjunctions, prepositions, verbs, nouns)
+  '中间', '为', '为了', '从', '以', '但是', '体', '依据', '关', '关于',
+  '到', '卖', '厂', '可是', '向', '吧', '呀', '呐', '员', '哇',
+  '啦', '嘛', '因', '因为', '地', '城', '如果', '学', '学家', '学科',
+  '室', '对', '对于', '师', '帮', '店', '形', '往', '得', '或者',
+  '所以', '找', '把', '拿', '按', '放', '教', '教师', '文', '替',
+  '朝', '本着', '机', '村', '根据', '比', '法', '照', '物', '生',
+  '用', '由', '着', '离', '经', '经由', '给', '者', '而且', '自',
+  '至于', '虽然', '被', '跟', '过', '还是', '馆',
+]);
+
 // Generate UUID (compatible with Supabase)
 function generateId(): string {
   return crypto.randomUUID();
@@ -121,6 +143,9 @@ export interface VocabularyStore {
   getModalityAverages: () => Record<Modality, number>;
   getKnowledgeCounts: () => { above80: number; above50: number; below50: number };
   
+  // Niyati-specific baseline restore
+  restoreNiyatiBaseline: () => void;
+
   // Cloud sync actions
   syncToCloud: (userId: string) => Promise<SyncResult>;
   loadFromCloud: (userId: string) => Promise<void>;
@@ -353,6 +378,15 @@ export function useVocabularyStore(): VocabularyStore {
     setConcepts(prev => prev.map(c => {
       if (c.chapter !== chapter || c.paused === paused) return c;
       return { ...c, paused };
+    }));
+    markPendingSync();
+  }, [markPendingSync]);
+
+  const restoreNiyatiBaseline = useCallback(() => {
+    setConcepts(prev => prev.map(c => {
+      const shouldBeActive = NIYATI_BASELINE_WORDS.has(c.word);
+      if (c.paused === !shouldBeActive) return c;
+      return { ...c, paused: !shouldBeActive };
     }));
     markPendingSync();
   }, [markPendingSync]);
@@ -615,6 +649,7 @@ export function useVocabularyStore(): VocabularyStore {
     removeChapters,
     togglePaused,
     setChapterPaused,
+    restoreNiyatiBaseline,
     getConceptById,
     getConceptByWord,
     // Quiz actions
