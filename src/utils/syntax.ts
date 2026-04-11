@@ -126,6 +126,7 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '来': [],
   '工作': [],
   '住': [],
+  '睡觉': [],
 
   // Nouns that should fill slots
   '身体': ['describable'],
@@ -478,6 +479,23 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     difficulty: 1,
   },
   {
+    id: 'person_not_at',
+    name: 'Someone is not at a place',
+    description: 'Subject + 不在 + Place',
+    explanation: '不在 = not at. Negation of location verb 在.',
+    example: { zh: '爸爸不在家', en: 'Dad is not at home' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'location', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '不在', pinyin: 'bú zài', meaning: 'not at' },
+    ],
+    chineseOrder: ['subject', '不在', 'location'],
+    englishPattern: '{subject} is not at {location}',
+    difficulty: 1,
+  },
+  {
     id: 'person_read_book',
     name: 'Someone reads something',
     description: 'Subject + 看 + Readable',
@@ -527,6 +545,40 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     chineseOrder: ['subject', '很', 'adjective'],
     englishPattern: '{subject} is very {adjective}',
     difficulty: 1,
+  },
+  {
+    id: 'thing_not_adj',
+    name: 'Something is not [adjective]',
+    description: 'Subject + 不 + Adjective',
+    explanation: 'Negate adjective predicates with 不: 不冷 = not cold. No 很 needed.',
+    example: { zh: '天气不冷', en: 'The weather is not cold' },
+    slots: [
+      { role: 'subject', categories: ['describable', 'nature', 'animal', 'person'] },
+      { role: 'adjective', categories: ['quality_adj', 'size_adj', 'appearance_adj', 'emotion_adj', 'temperature_adj', 'weather_adj'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+    ],
+    chineseOrder: ['subject', '不', 'adjective'],
+    englishPattern: '{subject} is not {adjective}',
+    difficulty: 1,
+  },
+  {
+    id: 'thing_not_very_adj',
+    name: 'Something is not very [adjective]',
+    description: 'Subject + 不太 + Adjective',
+    explanation: '不太 (bù tài) = not very / not too. Mild, polite negation.',
+    example: { zh: '身体不太好', en: 'Health is not very good' },
+    slots: [
+      { role: 'subject', categories: ['describable', 'nature', 'animal', 'person'] },
+      { role: 'adjective', categories: ['quality_adj', 'size_adj', 'appearance_adj', 'emotion_adj', 'temperature_adj', 'weather_adj'] },
+    ],
+    fixedWords: [
+      { word: '不太', pinyin: 'bù tài', meaning: 'not very' },
+    ],
+    chineseOrder: ['subject', '不太', 'adjective'],
+    englishPattern: '{subject} is not very {adjective}',
+    difficulty: 2,
   },
   
   // ========== Level 2: Questions and Negation ==========
@@ -690,6 +742,24 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['subject', '想', '去', 'destination'],
     englishPattern: '{subject} wants to go to {destination}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_want_study',
+    name: 'Someone wants to study',
+    description: 'Subject + 想 + 学 + Language',
+    explanation: '想学 = want to study/learn. Common for expressing learning goals.',
+    example: { zh: '我想学汉语', en: 'I want to study Chinese' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['language'] },
+    ],
+    fixedWords: [
+      { word: '想', pinyin: 'xiǎng', meaning: 'want to' },
+      { word: '学', pinyin: 'xué', meaning: 'study' },
+    ],
+    chineseOrder: ['subject', '想', '学', 'object'],
+    englishPattern: '{subject} wants to study {object}',
     difficulty: 2,
   },
   
@@ -1062,6 +1132,44 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: '{subject} eats {object} at {location}',
     difficulty: 2,
   },
+  {
+    id: 'person_at_place_read',
+    name: 'Someone reads at a place',
+    description: 'Subject + 在 + Place + 看 + Readable',
+    explanation: '在 + Place + V: doing an activity at a location.',
+    example: { zh: '他们在学校看书', en: 'They read books at school' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'location', categories: ['destination'] },
+      { role: 'object', categories: ['readable'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '看', pinyin: 'kàn', meaning: 'read' },
+    ],
+    chineseOrder: ['subject', '在', 'location', '看', 'object'],
+    englishPattern: '{subject} reads {object} at {location}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_at_place_drink',
+    name: 'Someone drinks at a place',
+    description: 'Subject + 在 + Place + 喝 + Drinkable',
+    explanation: '在 + Place + V: doing an activity at a location.',
+    example: { zh: '我在朋友家喝茶', en: "I drink tea at my friend's home" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'location', categories: ['destination'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+    ],
+    chineseOrder: ['subject', '在', 'location', '喝', 'object'],
+    englishPattern: '{subject} drinks {object} at {location}',
+    difficulty: 2,
+  },
 
   // ========== Ch 3: 是 sentences ==========
   {
@@ -1211,6 +1319,44 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: "{subject} can't speak {object}",
     difficulty: 2,
   },
+  {
+    id: 'person_cant_write',
+    name: "Someone can't write [language]",
+    description: 'Subject + 不 + 会 + 写 + Language/Readable',
+    explanation: '不会写 = can\'t write. Negating a learned skill.',
+    example: { zh: '我不会写汉字', en: "I can't write Chinese characters" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['language', 'readable'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '会', pinyin: 'huì', meaning: 'can' },
+      { word: '写', pinyin: 'xiě', meaning: 'write' },
+    ],
+    chineseOrder: ['subject', '不', '会', '写', 'object'],
+    englishPattern: "{subject} can't write {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_cant_make',
+    name: "Someone can't cook [food]",
+    description: 'Subject + 不 + 会 + 做 + Food',
+    explanation: '不会做 = can\'t cook/make. Negating an ability.',
+    example: { zh: '我不会做中国菜', en: "I can't cook Chinese food" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '不', pinyin: 'bù', meaning: 'not' },
+      { word: '会', pinyin: 'huì', meaning: 'can' },
+      { word: '做', pinyin: 'zuò', meaning: 'cook/make' },
+    ],
+    chineseOrder: ['subject', '不', '会', '做', 'object'],
+    englishPattern: "{subject} can't cook {object}",
+    difficulty: 2,
+  },
 
   // ========== Ch 7: Serial verb 去+place+V ==========
   {
@@ -1342,6 +1488,25 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['subject', '能', '去', 'destination'],
     englishPattern: '{subject} can go to {destination}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_able_question',
+    name: 'Can someone go somewhere?',
+    description: 'Subject + 能 + 去 + Place + 吗',
+    explanation: '能+V+吗 asks for permission or ability: "Can I go to...?"',
+    example: { zh: '你能去学校吗', en: 'Can you go to school?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '能', pinyin: 'néng', meaning: 'can' },
+      { word: '去', pinyin: 'qù', meaning: 'go to' },
+      { word: '吗', pinyin: 'ma', meaning: '(question)' },
+    ],
+    chineseOrder: ['subject', '能', '去', 'destination', '吗'],
+    englishPattern: 'can {subject} go to {destination}?',
     difficulty: 2,
   },
   {
@@ -1510,6 +1675,79 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['subject', '在', '学', 'object', '呢'],
     englishPattern: '{subject} is studying {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_sleeping_now',
+    name: 'Someone is sleeping',
+    description: 'Subject + 在 + 睡觉 + 呢',
+    explanation: '在睡觉呢 = is sleeping right now. Progressive with intransitive verb.',
+    example: { zh: '他在睡觉呢', en: 'He is sleeping' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '睡觉', pinyin: 'shuìjiào', meaning: 'sleep' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '睡觉', '呢'],
+    englishPattern: '{subject} is sleeping',
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_watching',
+    name: 'Someone is not watching something',
+    description: 'Subject + 没在 + 看 + Watchable',
+    explanation: '没在 + V = negative progressive. Not doing something right now.',
+    example: { zh: '我没在看电视', en: 'I am not watching TV' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['watchable'] },
+    ],
+    fixedWords: [
+      { word: '没在', pinyin: 'méi zài', meaning: 'not (doing)' },
+      { word: '看', pinyin: 'kàn', meaning: 'watch' },
+    ],
+    chineseOrder: ['subject', '没在', '看', 'object'],
+    englishPattern: '{subject} is not watching {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_reading',
+    name: 'Someone is not reading something',
+    description: 'Subject + 没在 + 看 + Readable',
+    explanation: '没在 + V = negative progressive. Not reading right now.',
+    example: { zh: '他没在看书', en: 'He is not reading books' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['readable'] },
+    ],
+    fixedWords: [
+      { word: '没在', pinyin: 'méi zài', meaning: 'not (doing)' },
+      { word: '看', pinyin: 'kàn', meaning: 'read' },
+    ],
+    chineseOrder: ['subject', '没在', '看', 'object'],
+    englishPattern: '{subject} is not reading {object}',
+    difficulty: 2,
+  },
+  {
+    id: 'what_doing_now',
+    name: 'What is someone doing?',
+    description: 'Subject + 在 + 做 + 什么 + 呢',
+    explanation: '在做什么呢 = What are you doing (right now)? Progressive question.',
+    example: { zh: '你在做什么呢', en: 'What are you doing?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: '(progressive)' },
+      { word: '做', pinyin: 'zuò', meaning: 'do' },
+      { word: '什么', pinyin: 'shénme', meaning: 'what' },
+      { word: '呢', pinyin: 'ne', meaning: '(ongoing)' },
+    ],
+    chineseOrder: ['subject', '在', '做', '什么', '呢'],
+    englishPattern: 'what is {subject} doing?',
     difficulty: 2,
   },
   {
@@ -1786,6 +2024,45 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: '{subject} came by {object}',
     difficulty: 3,
   },
+  {
+    id: 'emphasis_place_buy',
+    name: 'Emphasize where something was bought',
+    description: 'Subject + 是 + 在 + Place + 买 + 的',
+    explanation: '是在+Place+V+的 emphasizes WHERE something happened.',
+    example: { zh: '书是在商店买的', en: 'The books were bought at the store' },
+    slots: [
+      { role: 'subject', categories: ['readable', 'watchable', 'thing'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '是', pinyin: 'shì', meaning: '(emphasis)' },
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+      { word: '的', pinyin: 'de', meaning: '(emphasis)' },
+    ],
+    chineseOrder: ['subject', '是', '在', 'destination', '买', '的'],
+    englishPattern: '{subject} was bought at {destination}',
+    difficulty: 3,
+  },
+  {
+    id: 'emphasis_not_time',
+    name: "Emphasize someone didn't come at [time]",
+    description: 'Subject + 不是 + Time + 来 + 的',
+    explanation: '不是...的 negates emphasis: didn\'t come at that time.',
+    example: { zh: '我不是昨天来的', en: "I didn't come yesterday" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'time', categories: ['time'] },
+    ],
+    fixedWords: [
+      { word: '不是', pinyin: 'bú shì', meaning: "wasn't" },
+      { word: '来', pinyin: 'lái', meaning: 'come' },
+      { word: '的', pinyin: 'de', meaning: '(emphasis)' },
+    ],
+    chineseOrder: ['subject', '不是', 'time', '来', '的'],
+    englishPattern: "{subject} didn't come {time}",
+    difficulty: 3,
+  },
 
   // ========== 买 (buy) — Ch 8 ==========
   {
@@ -1936,6 +2213,40 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: "{subject} didn't come",
     difficulty: 2,
   },
+  {
+    id: 'person_will_come',
+    name: 'Someone will come',
+    description: 'Subject + 会 + 来',
+    explanation: '会 (huì) for future possibility: 会来 = will come. Different from 会 = ability.',
+    example: { zh: '她会来', en: 'She will come' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '会', pinyin: 'huì', meaning: 'will' },
+      { word: '来', pinyin: 'lái', meaning: 'come' },
+    ],
+    chineseOrder: ['subject', '会', '来'],
+    englishPattern: '{subject} will come',
+    difficulty: 2,
+  },
+  {
+    id: 'person_wont_come',
+    name: "Someone won't come",
+    description: 'Subject + 不会 + 来',
+    explanation: '不会来 = won\'t come. Negating future possibility.',
+    example: { zh: '她不会来', en: "She won't come" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '不会', pinyin: 'bú huì', meaning: "won't" },
+      { word: '来', pinyin: 'lái', meaning: 'come' },
+    ],
+    chineseOrder: ['subject', '不会', '来'],
+    englishPattern: "{subject} won't come",
+    difficulty: 2,
+  },
 
   // ========== 工作 (work) — Ch 9 ==========
   {
@@ -2011,6 +2322,24 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['subject', '爱', 'object', '吗'],
     englishPattern: 'Does {subject} love {object}?',
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_love_eat',
+    name: "Someone doesn't love to eat something",
+    description: 'Subject + 不爱 + 吃 + Object',
+    explanation: '不爱 (bù ài) + V = doesn\'t love to / doesn\'t like to do something.',
+    example: { zh: '她不爱吃饭', en: "She doesn't love to eat food" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible'] },
+    ],
+    fixedWords: [
+      { word: '不爱', pinyin: 'bú ài', meaning: "doesn't love to" },
+      { word: '吃', pinyin: 'chī', meaning: 'eat' },
+    ],
+    chineseOrder: ['subject', '不爱', '吃', 'object'],
+    englishPattern: "{subject} doesn't love to eat {object}",
     difficulty: 2,
   },
 
@@ -2107,6 +2436,24 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: '{subject} all like {object}',
     difficulty: 2,
   },
+  {
+    id: 'person_all_are',
+    name: 'They are all [identity]',
+    description: 'Subject + 都 + 是 + Identity',
+    explanation: '都 (dōu) + 是: 我们都是中国人 = we are all Chinese.',
+    example: { zh: '我们都是中国人', en: 'We are all Chinese' },
+    slots: [
+      { role: 'subject', categories: ['plural_person'] },
+      { role: 'identity', categories: ['profession'] },
+    ],
+    fixedWords: [
+      { word: '都', pinyin: 'dōu', meaning: 'all' },
+      { word: '是', pinyin: 'shì', meaning: 'are' },
+    ],
+    chineseOrder: ['subject', '都', '是', 'identity'],
+    englishPattern: '{subject} are all {identity}',
+    difficulty: 2,
+  },
 
   // ========== 怎么 + V (how to) — Ch 6 ==========
   {
@@ -2124,6 +2471,23 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['subject', '怎么', '说'],
     englishPattern: 'how does {subject} say it?',
+    difficulty: 2,
+  },
+  {
+    id: 'how_to_read',
+    name: 'How does someone read/pronounce it?',
+    description: 'Subject + 怎么 + 读',
+    explanation: '怎么读 = how to read/pronounce. Common when learning new characters.',
+    example: { zh: '你怎么读', en: 'How do you read it?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '怎么', pinyin: 'zěnme', meaning: 'how' },
+      { word: '读', pinyin: 'dú', meaning: 'read/pronounce' },
+    ],
+    chineseOrder: ['subject', '怎么', '读'],
+    englishPattern: 'how does {subject} read it?',
     difficulty: 2,
   },
   {
@@ -2404,6 +2768,24 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     ],
     chineseOrder: ['subject', '没', '喝', 'object'],
     englishPattern: "{subject} didn't drink {object}",
+    difficulty: 2,
+  },
+  {
+    id: 'person_not_love_drink',
+    name: "Someone doesn't love to drink something",
+    description: 'Subject + 不爱 + 喝 + Object',
+    explanation: '不爱喝 = doesn\'t love to drink. Expressing dislike for a drink habit.',
+    example: { zh: '他不爱喝水', en: "He doesn't love to drink water" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['drinkable'] },
+    ],
+    fixedWords: [
+      { word: '不爱', pinyin: 'bú ài', meaning: "doesn't love to" },
+      { word: '喝', pinyin: 'hē', meaning: 'drink' },
+    ],
+    chineseOrder: ['subject', '不爱', '喝', 'object'],
+    englishPattern: "{subject} doesn't love to drink {object}",
     difficulty: 2,
   },
 ];

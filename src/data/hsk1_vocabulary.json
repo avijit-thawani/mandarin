@@ -3373,5 +3373,131 @@
     "chapter": 16,
     "source": "hsk1",
     "category": "direction"
+  },
+  {
+    "word": "北京",
+    "pinyin": "Běijīng",
+    "part_of_speech": "noun",
+    "meaning": "Beijing (northern capital)",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "上海",
+    "pinyin": "Shànghǎi",
+    "part_of_speech": "noun",
+    "meaning": "Shanghai (on the sea)",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "香港",
+    "pinyin": "Xiānggǎng",
+    "part_of_speech": "noun",
+    "meaning": "Hong Kong (fragrant harbor)",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "纽约",
+    "pinyin": "Niǔyuē",
+    "part_of_speech": "noun",
+    "meaning": "New York City",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "洛杉矶",
+    "pinyin": "Luòshānjī",
+    "part_of_speech": "noun",
+    "meaning": "Los Angeles",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "波士顿",
+    "pinyin": "Bōshìdùn",
+    "part_of_speech": "noun",
+    "meaning": "Boston",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "巴尔的摩",
+    "pinyin": "Bā'ěrdìmó",
+    "part_of_speech": "noun",
+    "meaning": "Baltimore",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "勒克瑙",
+    "pinyin": "Lèkènǎo",
+    "part_of_speech": "noun",
+    "meaning": "Lucknow",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "浦那",
+    "pinyin": "Pǔnà",
+    "part_of_speech": "noun",
+    "meaning": "Pune",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "东京",
+    "pinyin": "Dōngjīng",
+    "part_of_speech": "noun",
+    "meaning": "Tokyo (eastern capital)",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "伦敦",
+    "pinyin": "Lúndūn",
+    "part_of_speech": "noun",
+    "meaning": "London",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "巴黎",
+    "pinyin": "Bālí",
+    "part_of_speech": "noun",
+    "meaning": "Paris",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "旧金山",
+    "pinyin": "Jiùjīnshān",
+    "part_of_speech": "noun",
+    "meaning": "San Francisco (old gold mountain)",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
+  },
+  {
+    "word": "南京",
+    "pinyin": "Nánjīng",
+    "part_of_speech": "noun",
+    "meaning": "Nanjing (southern capital)",
+    "chapter": 17,
+    "source": "hsk1",
+    "category": "city"
   }
 ]
