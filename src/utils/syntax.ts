@@ -106,6 +106,7 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   
   // Adjectives for descriptions
   '好': ['quality_adj'],
+  '好吃': ['quality_adj'],
   '大': ['size_adj'],
   '小': ['size_adj'],
   '高': ['size_adj'],
@@ -114,6 +115,23 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '热': ['temperature_adj', 'weather_adj'],
   '漂亮': ['appearance_adj'],
   '高兴': ['emotion_adj'],
+
+  // Verbs — suppress bad derivations; these are always fixedWords in templates
+  '吃': [],
+  '喝': [],
+  '想': [],
+  '爱': [],
+  '买': [],
+  '回': [],
+  '来': [],
+  '工作': [],
+  '住': [],
+
+  // Nouns that should fill slots
+  '身体': ['describable'],
+  '钱': ['thing'],
+  '名字': ['thing'],
+  '衣服': ['thing', 'locatable'],
   
   // Time (extended)
   '早上': ['time'],
@@ -169,6 +187,15 @@ const VOCAB_CATEGORY_TO_SYNTAX: Record<string, string[]> = {
   weather:       ['describable', 'nature'],
   size:          ['size_adj'],
   emotion:       ['emotion_adj'],
+  body:          ['thing', 'locatable'],
+  // Intentionally empty — verbs/particles/numbers handled as fixedWords or need dedicated templates
+  communication: [],
+  action:        [],
+  movement:      [],
+  greeting:      [],
+  number:        [],
+  direction:     [],
+  other:         [],
 };
 
 function getCategories(word: string, vocabCategory?: string): string[] {
@@ -275,16 +302,16 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   '电影': { subject: 'movies', object: 'movies' },
   '汉字': { subject: 'Chinese characters', object: 'Chinese characters' },
   
-  // Describable
-  '天气': { subject: 'The weather', object: 'the weather' },
-  '狗': { subject: 'The dog', object: 'the dog' },
-  '猫': { subject: 'The cat', object: 'the cat' },
-  '山': { subject: 'The mountain', object: 'the mountain' },
+  // Describable (lowercase "the" — sentence-casing handles first-letter capitalization)
+  '天气': { subject: 'the weather', object: 'the weather' },
+  '狗': { subject: 'the dog', object: 'the dog' },
+  '猫': { subject: 'the cat', object: 'the cat' },
+  '山': { subject: 'the mountain', object: 'the mountain' },
   
   // Furniture / locatable things
-  '椅子': { subject: 'The chair', object: 'the chair' },
-  '桌子': { subject: 'The table', object: 'the table' },
-  '电脑': { subject: 'The computer', object: 'the computer' },
+  '椅子': { subject: 'the chair', object: 'the chair' },
+  '桌子': { subject: 'the table', object: 'the table' },
+  '电脑': { subject: 'the computer', object: 'the computer' },
   
   // Time (extended)
   '早上': { subject: 'this morning', object: 'this morning' },
@@ -309,6 +336,13 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   '热': { subject: 'hot', object: 'hot' },
   '漂亮': { subject: 'beautiful', object: 'beautiful' },
   '高兴': { subject: 'happy', object: 'happy' },
+
+  // Newly slot-eligible nouns/adjectives
+  '身体': { subject: 'health', object: 'health' },
+  '钱': { subject: 'money', object: 'money' },
+  '名字': { subject: 'a name', object: 'a name' },
+  '衣服': { subject: 'clothes', object: 'clothes' },
+  '好吃': { subject: 'delicious', object: 'delicious' },
 };
 
 // Get clean English for sentence building
@@ -468,7 +502,7 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '天气好', en: 'The weather is good' },
     slots: [
       { role: 'subject', categories: ['describable', 'nature', 'animal', 'person'] },
-      { role: 'adjective', categories: ['quality_adj', 'size_adj', 'appearance_adj', 'emotion_adj'] },
+      { role: 'adjective', categories: ['quality_adj', 'size_adj', 'appearance_adj', 'emotion_adj', 'temperature_adj', 'weather_adj'] },
     ],
     fixedWords: [
       { word: '很', pinyin: 'hěn', meaning: 'very' },
@@ -1640,6 +1674,22 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     englishPattern: 'Where is {subject}?',
     difficulty: 2,
   },
+  {
+    id: 'how_much_money',
+    name: 'How much is [something]?',
+    description: 'Thing + 多少钱',
+    explanation: '多少钱 (duōshao qián) asks about price. Put the item first, then 多少钱. No verb needed.',
+    example: { zh: '苹果多少钱', en: 'How much are apples?' },
+    slots: [
+      { role: 'item', categories: ['edible', 'drinkable', 'thing', 'readable', 'locatable'] },
+    ],
+    fixedWords: [
+      { word: '多少钱', pinyin: 'duōshao qián', meaning: 'how much (money)' },
+    ],
+    chineseOrder: ['item', '多少钱'],
+    englishPattern: 'How much is {item}?',
+    difficulty: 2,
+  },
 
   // ========== Ch 15: 是...的 emphasis ==========
   {
@@ -1680,6 +1730,231 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     chineseOrder: ['subject', '是', '坐', 'object', '来', '的'],
     englishPattern: '{subject} came by {object}',
     difficulty: 3,
+  },
+
+  // ========== 买 (buy) — Ch 8 ==========
+  {
+    id: 'person_buy_thing',
+    name: 'Someone buys something',
+    description: 'Subject + 买 + Thing',
+    explanation: '买 (mǎi) = to buy. Basic SVO: subject + 买 + what you buy.',
+    example: { zh: '我买书', en: 'I buy books' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['thing', 'edible', 'drinkable', 'readable', 'locatable'] },
+    ],
+    fixedWords: [
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+    ],
+    chineseOrder: ['subject', '买', 'object'],
+    englishPattern: '{subject} buys {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_want_buy',
+    name: 'Someone wants to buy',
+    description: 'Subject + 想 + 买 + Thing',
+    explanation: '想 + 买 = want to buy. Two verbs in sequence, sharing one subject.',
+    example: { zh: '我想买水果', en: 'I want to buy fruit' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['thing', 'edible', 'drinkable', 'readable', 'locatable'] },
+    ],
+    fixedWords: [
+      { word: '想', pinyin: 'xiǎng', meaning: 'want to' },
+      { word: '买', pinyin: 'mǎi', meaning: 'buy' },
+    ],
+    chineseOrder: ['subject', '想', '买', 'object'],
+    englishPattern: '{subject} wants to buy {object}',
+    difficulty: 2,
+  },
+
+  // ========== 回 (return) — Ch 11 ==========
+  {
+    id: 'person_return_place',
+    name: 'Someone returns somewhere',
+    description: 'Subject + 回 + Place',
+    explanation: '回 (huí) = to return/go back. 回家 = go home, 回学校 = go back to school.',
+    example: { zh: '我回家', en: 'I go back home' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '回', pinyin: 'huí', meaning: 'return to' },
+    ],
+    chineseOrder: ['subject', '回', 'destination'],
+    englishPattern: '{subject} returns to {destination}',
+    difficulty: 1,
+  },
+  {
+    id: 'time_person_return',
+    name: 'When someone returns',
+    description: 'Time + Subject + 回 + Place',
+    explanation: 'Time word before subject: 明天我回家 = Tomorrow I go home.',
+    example: { zh: '明天我回家', en: 'Tomorrow I return home' },
+    slots: [
+      { role: 'time', categories: ['time'] },
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '回', pinyin: 'huí', meaning: 'return to' },
+    ],
+    chineseOrder: ['time', 'subject', '回', 'destination'],
+    englishPattern: '{subject} returns to {destination} {time}',
+    difficulty: 3,
+  },
+
+  // ========== 来 (come) — Ch 12 ==========
+  {
+    id: 'person_come_place',
+    name: 'Someone comes somewhere',
+    description: 'Subject + 来 + Place',
+    explanation: '来 (lái) = to come. Opposite of 去 (go).',
+    example: { zh: '他来学校', en: 'He comes to school' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'destination', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '来', pinyin: 'lái', meaning: 'come to' },
+    ],
+    chineseOrder: ['subject', '来', 'destination'],
+    englishPattern: '{subject} comes to {destination}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_not_come',
+    name: "Someone didn't come",
+    description: 'Subject + 没 + 来',
+    explanation: '没 + 来 = didn\'t come. 没 negates past actions.',
+    example: { zh: '他没来', en: "He didn't come" },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+    ],
+    fixedWords: [
+      { word: '没', pinyin: 'méi', meaning: 'not (past)' },
+      { word: '来', pinyin: 'lái', meaning: 'come' },
+    ],
+    chineseOrder: ['subject', '没', '来'],
+    englishPattern: "{subject} didn't come",
+    difficulty: 2,
+  },
+
+  // ========== 工作 (work) — Ch 9 ==========
+  {
+    id: 'person_work_at',
+    name: 'Someone works at a place',
+    description: 'Subject + 在 + Place + 工作',
+    explanation: '在 + place + verb = doing something at a place. 我在医院工作 = I work at the hospital.',
+    example: { zh: '他在医院工作', en: 'He works at the hospital' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'location', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '在', pinyin: 'zài', meaning: 'at' },
+      { word: '工作', pinyin: 'gōngzuò', meaning: 'work' },
+    ],
+    chineseOrder: ['subject', '在', 'location', '工作'],
+    englishPattern: '{subject} works at {location}',
+    difficulty: 2,
+  },
+
+  // ========== 住 (live) — Ch 11 ==========
+  {
+    id: 'person_live_at',
+    name: 'Someone lives somewhere',
+    description: 'Subject + 住 + 在 + Place',
+    explanation: '住在 = live at/in. Note: 住 comes BEFORE 在 (opposite of 在+place+verb).',
+    example: { zh: '我住在中国', en: 'I live in China' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'location', categories: ['destination'] },
+    ],
+    fixedWords: [
+      { word: '住', pinyin: 'zhù', meaning: 'live' },
+      { word: '在', pinyin: 'zài', meaning: 'at/in' },
+    ],
+    chineseOrder: ['subject', '住', '在', 'location'],
+    englishPattern: '{subject} lives in {location}',
+    difficulty: 2,
+  },
+
+  // ========== 爱 (love) — Ch 12 ==========
+  {
+    id: 'person_love_thing',
+    name: 'Someone loves something',
+    description: 'Subject + 爱 + Object',
+    explanation: '爱 (ài) = to love. Can be used for people, food, activities.',
+    example: { zh: '我爱中国菜', en: 'I love Chinese food' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '爱', pinyin: 'ài', meaning: 'love' },
+    ],
+    chineseOrder: ['subject', '爱', 'object'],
+    englishPattern: '{subject} loves {object}',
+    difficulty: 1,
+  },
+  {
+    id: 'person_love_question',
+    name: 'Do you love...?',
+    description: 'Subject + 爱 + Object + 吗',
+    explanation: 'Add 吗 to ask about preferences: "Do you love...?"',
+    example: { zh: '你爱中国菜吗', en: 'Do you love Chinese food?' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+    ],
+    fixedWords: [
+      { word: '爱', pinyin: 'ài', meaning: 'love' },
+      { word: '吗', pinyin: 'ma', meaning: '(question)' },
+    ],
+    chineseOrder: ['subject', '爱', 'object', '吗'],
+    englishPattern: 'Does {subject} love {object}?',
+    difficulty: 2,
+  },
+
+  // ========== 听 (listen) — Ch 15 ==========
+  {
+    id: 'person_listen_thing',
+    name: 'Someone listens to something',
+    description: 'Subject + 听 + Object',
+    explanation: '听 (tīng) = to listen. No preposition needed in Chinese (unlike English "listen to").',
+    example: { zh: '我听音乐', en: 'I listen to music' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['watchable', 'readable'] },
+    ],
+    fixedWords: [
+      { word: '听', pinyin: 'tīng', meaning: 'listen to' },
+    ],
+    chineseOrder: ['subject', '听', 'object'],
+    englishPattern: '{subject} listens to {object}',
+    difficulty: 1,
+  },
+
+  // ========== 读 (read aloud) — Ch 6 ==========
+  {
+    id: 'person_read_aloud',
+    name: 'Someone reads [something] aloud',
+    description: 'Subject + 读 + Readable',
+    explanation: '读 (dú) = to read aloud. Compare: 看 = read silently/watch, 读 = read aloud/study.',
+    example: { zh: '他读书', en: 'He reads books aloud' },
+    slots: [
+      { role: 'subject', categories: ['person'] },
+      { role: 'object', categories: ['readable'] },
+    ],
+    fixedWords: [
+      { word: '读', pinyin: 'dú', meaning: 'read aloud' },
+    ],
+    chineseOrder: ['subject', '读', 'object'],
+    englishPattern: '{subject} reads {object} aloud',
+    difficulty: 1,
   },
 ];
 
@@ -1912,6 +2187,13 @@ export function generateSentenceExercise(
     english = english.replace(' takes ', ' take ');
     english = english.replace(' studies ', ' study ');
     english = english.replace(' also eats ', ' also eat ');
+    english = english.replace(' buys ', ' buy ');
+    english = english.replace(' returns ', ' return ');
+    english = english.replace(' comes ', ' come ');
+    english = english.replace(' works ', ' work ');
+    english = english.replace(' lives ', ' live ');
+    english = english.replace(' loves ', ' love ');
+    english = english.replace(' listens ', ' listen ');
     english = english.replace(' is at ', ' am at ');
     english = english.replace(' is very ', ' am very ');
     english = english.replace(' is on ', ' am on ');

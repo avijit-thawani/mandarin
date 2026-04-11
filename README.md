@@ -228,10 +228,23 @@ Pronunciation practice using known vocab words. **Listen** mode: audio quiz with
 
 ## Syntax Tab Behavior
 
-Template-driven grammar/word-order practice using known vocabulary (69 templates). Covers HSK1 textbook grammar from chapters 3–15:
-- **L1** (13): Basic SVO (吃/喝/去/看/学/坐), 是 identity, 有 possession, 很+adj, 请 imperative.
-- **L2** (48): 吗 questions, 不 negation, 想/会/能 modals, 也 adverb, 在+location words, 在+place+verb, 什么/谁/哪儿/怎么样 questions, serial verbs (去+place+V), 太...了, 在...呢 progressive, 吧 suggestions, 了 completion, 没 past negation, 有 existential (place+有+thing).
-- **L3** (8): Time+S+V expressions, 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner).
+Template-driven grammar/word-order practice using known vocabulary (~80 templates). Covers HSK1 textbook grammar from chapters 3–15:
+- **L1**: Basic SVO (吃/喝/去/看/学/坐/买/回/来/爱/听/读), 是 identity, 有 possession, 很+adj, 请 imperative.
+- **L2**: 吗 questions, 不 negation, 想/会/能 modals, 也 adverb, 在+location words, 在+place+verb, 什么/谁/哪儿/怎么样 questions, serial verbs (去+place+V), 太...了, 在...呢 progressive, 吧 suggestions, 了 completion, 没 past negation, 有 existential (place+有+thing), 住在, 工作.
+- **L3**: Time+S+V expressions, 上个/这个/下个+time unit (last/this/next), 是...的 emphasis (time/manner).
+
+### Exercise Format Rules
+- **Tile reordering**: User arranges shuffled word tiles into correct order. No distractors — only the correct pieces are shown.
+- **English→Chinese**: Full English sentence shown as prompt (sentence-cased on first character only). User arranges Chinese tiles (characters, pinyin, or audio depending on modality).
+- **Chinese→English**: Chinese shown as prompt. English appears as **lowercase shuffled tiles** (`getEnglishTiles` strips punctuation and lowercases all words). This prevents guessing word order from capitalization.
+- **English patterns must make grammatical sense** as standalone sentences. Verb conjugation is auto-adjusted for subject person (3rd-person patterns in code, converted to base form for I/you/we/they, is→am→are).
+
+### Slot Filling and Vocabulary Eligibility
+- Words fill template slots based on semantic categories: `SEMANTIC_CATEGORIES` (hand-curated per-word map) merged with `VOCAB_CATEGORY_TO_SYNTAX` (auto-derived from vocabulary JSON `category` field).
+- Words with zero matching categories never appear in exercises. Verbs, particles, and numbers are intentionally excluded from slot filling — they appear only as `fixedWords` in templates.
+- Only known (checked) and unpaused words participate. Templates only unlock when enough words exist to fill all slots.
+- `SENTENCE_ENGLISH` provides clean English for slot words (e.g., 我→"I"/"me", 老师→"the teacher"). Words without entries fall back to cleaned dictionary meanings.
+
 See `src/types/syntax.ts` and `src/utils/syntax.ts` for template details. If generation logic changes, update both template code and this section.
 
 ---
