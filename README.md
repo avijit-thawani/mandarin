@@ -67,11 +67,11 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 
 ### Main Tabs
 
-- `Vocabulary`: import/browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS). "For today" buttons let you send a filtered subset to Quiz/Study as a temporary session filter.
+- `Vocabulary`: browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS). "For today" buttons let you send a filtered subset to Quiz/Study as a temporary session filter.
 - `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
-- `Quiz`: active MCQ + scoring + attempt logging. Supports temporary "for today" filters set from the Vocab page.
+- `Quiz`: active MCQ + syntax tile-ordering exercises + scoring + attempt logging. Syntax exercises are interleaved based on the Syntax Frequency setting (0-3). Supports temporary "for today" filters set from the Vocab page.
 - `Pinyin`: pronunciation practice with listen-and-pick quiz and speak-and-check self-evaluation.
-- `Syntax`: sentence construction practice.
+- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling.
 - `Profile`: progress charts + settings.
 
 ### High-Value Files
@@ -82,12 +82,13 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/hooks/useStreak.ts`: streak calculation (pure computation from quiz_attempts + cardsPerSession).
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
-- `src/pages/QuizPage.tsx`: question lifecycle, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
+- `src/pages/QuizPage.tsx`: question lifecycle, mixed MCQ + syntax session, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
+- `src/components/SyntaxExerciseCard.tsx`: tile-reordering syntax exercise UI (used inline in Quiz).
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
-- `src/pages/SyntaxPage.tsx`: sentence construction and grammar practice.
+- `src/pages/ChatPage.tsx`: LLM tutor chat UI (useChat hook, tool rendering, vocab context injection).
+- `netlify/functions/chat.mts`: Netlify Function — streamText with Anthropic Claude, 4 vocabulary tools.
 - `src/pages/ProfilePage.tsx`: dashboard/settings entry.
-- `src/pages/SettingsPage.tsx`: user preferences.
 
 ### State and Domain Logic
 
@@ -111,7 +112,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 
 ## Change Velocity Map
 
-High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxPage`/`syntax.ts`, ML scripts, `App.tsx`/`Navbar`.
+High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxExerciseCard`/`syntax.ts`, ML scripts, `App.tsx`/`Navbar`.
 Stable contracts: known/unknown semantics, modality model, sync guarantees, migration safety.
 Experimental behavior → module-level docs first, README at principle level.
 
@@ -121,17 +122,16 @@ Experimental behavior → module-level docs first, README at principle level.
 
 ### Vocabulary Data Flow (READ THIS BEFORE TOUCHING VOCAB)
 
-**The JSON file is the single source of truth for vocabulary, not Supabase.**
+**Supabase `vocabulary` table is the single source of truth.** `src/data/hsk1_vocabulary.json` is kept for reference/scripts but is NOT imported at runtime.
 
-1. `src/data/hsk1_vocabulary.json` is imported at build time by `vocabularyStore.ts`.
-2. On app load, the store **auto-merges** new words: if a user has imported chapter N, any word added to the JSON for that chapter appears automatically (paused by default, so quiz/study pool is unaffected until the user checks it).
-3. The Supabase `vocabulary` table is **secondary** — it exists only so `saveToCloud` can look up a `vocabulary_id` when syncing user progress. Words missing from Supabase skip cloud sync with a console warning.
+1. On login, `loadFromCloud` fetches `user_progress JOIN vocabulary` (including `category` column).
+2. localStorage caches concepts for instant boot; Supabase overwrites stale cache.
+3. Custom words (added via Chat tab) use `source: 'chat'` and are first-class — they work in Quiz, Study, Syntax, and Vocab identically to HSK1 words.
 
 **To add new vocabulary:**
 
-- Add the word to `src/data/hsk1_vocabulary.json` (required fields: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`).
-- Also insert it into the Supabase `vocabulary` table (same fields minus `category`, which is local-only) so cloud sync works.
-- Do NOT treat Supabase insert as the primary step. The app reads from JSON.
+- Insert into Supabase `vocabulary` table (required: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`).
+- Users can also add words via the Chat tab (stored as `source: 'chat'`).
 
 **Concept** (client-side): static vocab fields (including semantic `category`) + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
 
@@ -217,26 +217,9 @@ Any sync strategy changes must update this section and `Known Failures`.
 
 ---
 
-## Authentication Modes
+## Authentication
 
-- Guest: local-only, no cloud sync.
-- Signed in: Supabase sync with RLS user isolation.
-- Do not silently change mode semantics; this affects data expectations.
-
-### User Aliases & Per-User UI
-
-
-| Alias  | Email                                                     | Notes               |
-| ------ | --------------------------------------------------------- | ------------------- |
-| niyati | [niyatibafna13@gmail.com](mailto:niyatibafna13@gmail.com) | Second user account |
-
-Per-user customizations are keyed on `user_id` in `VocabularyPage.tsx` (constants in `vocabularyStore.ts`):
-
-| Customization | Niyati | Avi (default) |
-|---|---|---|
-| Chapter filter dropdown | Hidden | Shown |
-| Chapter quick-toggle strip | Hidden | Shown |
-| Chapter column in vocab table | Hidden | Shown |
+All users must sign in via Supabase. Guest mode has been removed. RLS ensures user isolation.
 | "Restore (111)" baseline button | Shown (111-word curated set) | Hidden |
 
 
@@ -253,6 +236,10 @@ Controls:
 3. Weighted overall knowledge score.
 
 Weight meaning: `0` skip, `1` low, `2` medium, `3` high.
+
+### Syntax Frequency (0-3)
+
+Controls how many quiz questions are syntax tile-ordering exercises vs MCQ. Same scale: `0` skip, `1` low (~20%), `2` medium (~35%), `3` high (~50%). Gracefully degrades to all MCQ if vocab doesn't satisfy any template.
 
 ### Other User Controls
 
@@ -272,7 +259,9 @@ Pronunciation practice using known vocab words. **Listen**: audio quiz with 6 pi
 
 ---
 
-## Syntax Tab Behavior
+## Syntax (Integrated into Quiz)
+
+Syntax exercises are now mixed into each quiz session (no separate tab). Controlled by `syntax.frequency` setting (0-3: Skip/Low/Med/High) — maps to 0%/20%/35%/50% of quiz questions being syntax. Falls back to all MCQ if the user's known vocab doesn't satisfy any template.
 
 Template-driven grammar/word-order practice using known vocabulary (~130 templates). Covers HSK1 chapters 3–15 grammar at three levels (L1: basic SVO/是/有/很/不/请/的; L2: questions, negation, modals, adverbs, progressive, completion; L3: time expressions, past tense, 是...的 emphasis). See `src/utils/syntax.ts` for full grammar catalog.
 
@@ -397,7 +386,7 @@ Layers: README (stable contracts, architecture, safety), module docstrings (vola
 - "Attempt logs missing" -> `src/lib/quizService.ts`, quiz transition logic
 - "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
 - "TTS mispronounces a word" -> `src/services/ttsService.ts` (known polyphonic limitation, no fix yet)
-- "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/pages/SyntaxPage.tsx`
+- "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/components/SyntaxExerciseCard.tsx`
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
 - "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/pages/ProfilePage.tsx`, `src/components/Navbar.tsx`
 - "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path

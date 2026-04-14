@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, GraduationCap, Zap, User, Layers, Mic, Flame, Snowflake, MessageCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, Zap, User, Mic, Flame, Snowflake, MessageCircle } from 'lucide-react';
 
 interface NavbarProps {
   hasUnsyncedSettings?: boolean;
@@ -17,7 +17,6 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
     { path: '/study', icon: GraduationCap, label: 'Study' },
     { path: '/quiz', icon: Zap, label: 'Quiz', quizStatus: quizCompletedToday },
     { path: '/pinyin', icon: Mic, label: 'Pinyin' },
-    { path: '/syntax', icon: Layers, label: 'Syntax' },
     { path: '/chat', icon: MessageCircle, label: 'Chat' },
     { path: '/profile', icon: User, label: 'Profile', showBadge: hasUnsyncedSettings },
   ];

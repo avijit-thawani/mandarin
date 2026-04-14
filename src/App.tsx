@@ -5,7 +5,6 @@ import { HelpModal } from './components/HelpModal';
 import { VocabularyPage } from './pages/VocabularyPage';
 import { StudyPage } from './pages/StudyPage';
 import { QuizPage, hasCompletedQuizToday } from './pages/QuizPage';
-import { SyntaxPage } from './pages/SyntaxPage';
 import { PinyinPage } from './pages/PinyinPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ChatPage } from './pages/ChatPage';
@@ -266,16 +265,8 @@ function AppContent({
             } 
           />
           
-          <Route 
-            path="/syntax" 
-            element={
-              <SyntaxPage 
-                store={store} 
-                settingsStore={settingsStore} 
-                onShowHelp={() => setShowHelpModal(true)}
-              />
-            } 
-          />
+          {/* Legacy: syntax is now integrated into quiz */}
+          <Route path="/syntax" element={<Navigate to="/quiz" replace />} />
           
           <Route 
             path="/chat" 

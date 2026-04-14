@@ -5,14 +5,17 @@ import type { VocabularyStore } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
 import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { QuizSession, QuizQuestion, Modality, Concept } from '../types/vocabulary';
+import type { SentenceExercise } from '../types/syntax';
 import { generateQuizSession, getModalityContent, modalityNeedsAudio } from '../utils/quiz';
+import { generateSentenceExercise, checkSyntaxUnlock } from '../utils/syntax';
 import { predictCorrect, computeModalityAverages } from '../utils/knowledge';
 import { saveQuizAttempt, buildQuizContext } from '../lib/quizService';
 import { clearNotifications } from '../lib/pwaReminderService';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
 import { useAuth } from '../hooks/useAuth';
-import { OPTION_SELECTION_META, QUESTION_SELECTION_META } from '../types/settings';
-import type { QuestionSelection, OptionSelection } from '../types/settings';
+import { OPTION_SELECTION_META, QUESTION_SELECTION_META, SYNTAX_FREQUENCY_META } from '../types/settings';
+import type { QuestionSelection, OptionSelection, FocusLevel } from '../types/settings';
+import { SyntaxExerciseCard } from '../components/SyntaxExerciseCard';
 
 // Daily quiz completion tracking
 const QUIZ_COMPLETION_KEY = 'langseed_quiz_completed';
@@ -44,6 +47,31 @@ async function fireConfetti() {
   }
 }
 
+// Mixed session item: either MCQ or syntax
+type QuizItem =
+  | { type: 'mcq'; questionIndex: number }
+  | { type: 'syntax'; exercise: SentenceExercise };
+
+function buildMixedSession(
+  mcqCount: number,
+  syntaxExercises: SentenceExercise[],
+): QuizItem[] {
+  const items: QuizItem[] = [];
+  for (let i = 0; i < mcqCount; i++) {
+    items.push({ type: 'mcq', questionIndex: i });
+  }
+  for (const ex of syntaxExercises) {
+    items.push({ type: 'syntax', exercise: ex });
+  }
+  // Interleave: shuffle syntax positions among the MCQ items
+  // Fisher-Yates on the full array
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return items;
+}
+
 interface QuizPageProps {
   store: VocabularyStore;
   settingsStore: SettingsStore;
@@ -68,8 +96,14 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     optionSelection: (rawQuiz?.optionSelection ?? rawQuiz?.difficulty ?? 'hard') as OptionSelection,
   };
   
+  // Syntax settings
+  const syntaxFrequency = (settings.syntax?.frequency ?? 1) as FocusLevel;
+  const syntaxDirectionRatio = settings.syntax?.directionRatio ?? 1;
+
   // Quiz state
   const [session, setSession] = useState<QuizSession | null>(null);
+  const [mixedItems, setMixedItems] = useState<QuizItem[]>([]);
+  const [mixedIndex, setMixedIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -81,7 +115,11 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   const [pendingAnswer, setPendingAnswer] = useState<{
     index: number;
     correct: boolean;
+    mcqIndex: number;
   } | null>(null);
+  
+  // Syntax answer tracking (separate from MCQ)
+  const [syntaxAnswers, setSyntaxAnswers] = useState<Array<{ correct: boolean }>>([]);
   
   const ttsSupported = isTTSSupported();
   
@@ -105,34 +143,63 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     return words;
   }, [store.concepts, todayFilter?.active, todayFilter?.filter.pos, todayFilter?.filter.chapter]);
   
-  // Current question
-  const currentQuestion: QuizQuestion | null = session?.questions[session.currentIndex] ?? null;
-  const isSessionComplete = session && session.currentIndex >= session.questions.length;
+  // Current item in mixed session
+  const currentItem: QuizItem | null = mixedItems[mixedIndex] ?? null;
+  const currentMcqIndex = currentItem?.type === 'mcq' ? currentItem.questionIndex : -1;
+  const currentQuestion: QuizQuestion | null = currentMcqIndex >= 0 ? (session?.questions[currentMcqIndex] ?? null) : null;
+  const isSessionComplete = mixedItems.length > 0 && mixedIndex >= mixedItems.length;
   
-  // Session stats
+  // Session stats (MCQ + syntax combined)
   const sessionStats = useMemo(() => {
-    if (!session) return { correct: 0, total: 0 };
+    const mcqCorrect = session?.answers.filter(a => a.correct).length ?? 0;
+    const mcqTotal = session?.answers.length ?? 0;
+    const synCorrect = syntaxAnswers.filter(a => a.correct).length;
+    const synTotal = syntaxAnswers.length;
     return {
-      correct: session.answers.filter(a => a.correct).length,
-      total: session.answers.length,
+      correct: mcqCorrect + synCorrect,
+      total: mcqTotal + synTotal,
     };
-  }, [session?.answers]);
+  }, [session?.answers, syntaxAnswers]);
   
-  // Start a new quiz session
+  // Start a new quiz session (mixed MCQ + syntax)
   const startNewSession = useCallback(() => {
     if (availableWords.length === 0) return;
     
+    // Determine syntax count based on frequency setting
+    const syntaxFrac = SYNTAX_FREQUENCY_META[syntaxFrequency].fraction;
+    const unlockStatus = checkSyntaxUnlock(availableWords);
+    const canDoSyntax = syntaxFrequency > 0 && unlockStatus.unlocked;
+    const syntaxCount = canDoSyntax ? Math.max(0, Math.round(cardsPerSession * syntaxFrac)) : 0;
+    const mcqCount = cardsPerSession - syntaxCount;
+    
+    // Generate MCQ questions
     const newSession = generateQuizSession(
       availableWords,
-      cardsPerSession,
+      mcqCount,
       settings.learningFocus,
       quizSettings.questionSelection,
       quizSettings.optionSelection
     );
+    
+    // Generate syntax exercises
+    const syntaxExercises: SentenceExercise[] = [];
+    if (syntaxCount > 0) {
+      for (let i = 0; i < syntaxCount; i++) {
+        const ex = generateSentenceExercise(availableWords, settings.learningFocus, syntaxDirectionRatio);
+        if (ex) syntaxExercises.push(ex);
+      }
+    }
+    
+    // Build mixed session
+    const items = buildMixedSession(mcqCount, syntaxExercises);
+    
     setSession(newSession);
+    setMixedItems(items);
+    setMixedIndex(0);
+    setSyntaxAnswers([]);
     setSelectedOption(null);
     setShowResult(false);
-  }, [availableWords, cardsPerSession, settings.learningFocus, quizSettings.questionSelection, quizSettings.optionSelection]);
+  }, [availableWords, cardsPerSession, settings.learningFocus, quizSettings.questionSelection, quizSettings.optionSelection, syntaxFrequency, syntaxDirectionRatio]);
   
   // Auto-start session on mount
   useEffect(() => {
@@ -202,8 +269,8 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     setShowResult(true);
     
     // Store pending answer - will be logged when user clicks Next (or skipped if they click "Don't log")
-    setPendingAnswer({ index, correct });
-  }, [showResult, currentQuestion, session]);
+    setPendingAnswer({ index, correct, mcqIndex: currentMcqIndex });
+  }, [showResult, currentQuestion, session, currentMcqIndex]);
   
   // Commit the pending answer to store and Supabase
   const commitPendingAnswer = useCallback(() => {
@@ -212,12 +279,13 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     const { index, correct } = pendingAnswer;
     
     // Update session answers
+    const { mcqIndex } = pendingAnswer;
     setSession(prev => {
       if (!prev) return prev;
       return {
         ...prev,
         answers: [...prev.answers, {
-          questionIndex: prev.currentIndex,
+          questionIndex: mcqIndex,
           selectedIndex: index,
           correct,
           timestamp: new Date().toISOString(),
@@ -267,49 +335,42 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     setPendingAnswer(null);
   }, [pendingAnswer, currentQuestion, session, store, settings.learningFocus, auth.user, userAverages, quizSettings]);
   
-  // Go to next question (commits the pending answer first)
+  // Handle session completion (shared between MCQ and syntax paths)
+  const handleSessionComplete = useCallback((allMcqAnswers: Array<{ correct: boolean }>, allSyntaxAnswers: Array<{ correct: boolean }>) => {
+    const totalCorrect = allMcqAnswers.filter(a => a.correct).length + allSyntaxAnswers.filter(a => a.correct).length;
+    const totalCount = allMcqAnswers.length + allSyntaxAnswers.length;
+    store.recordProgressSnapshot(totalCount, totalCorrect);
+    markQuizCompletedToday();
+    clearNotifications();
+    onStreakRefresh?.();
+    if (totalCorrect > totalCount * 0.6) {
+      fireConfetti();
+    }
+  }, [store, onStreakRefresh]);
+
+  // Go to next question (commits the pending MCQ answer first)
   const goToNext = useCallback(() => {
     if (!session) return;
     
     // Commit the pending answer before moving on
     commitPendingAnswer();
     
-    setSession(prev => {
-      if (!prev) return prev;
-      const newIndex = prev.currentIndex + 1;
-      
-      // Check if session complete
-      if (newIndex >= prev.questions.length) {
-        // Record progress snapshot (add 1 to answers since commitPendingAnswer adds to it)
-        const answersAfterCommit = pendingAnswer 
-          ? [...prev.answers, { correct: pendingAnswer.correct }]
-          : prev.answers;
-        const correct = answersAfterCommit.filter(a => a.correct).length;
-        store.recordProgressSnapshot(answersAfterCommit.length, correct);
-        
-        // Mark quiz completed for today
-        markQuizCompletedToday();
-        clearNotifications();
-        onStreakRefresh?.();
-        
-        // Fire confetti for session completion
-        if (correct > answersAfterCommit.length * 0.6) {
-          fireConfetti();
-        }
-        
-        return {
-          ...prev,
-          currentIndex: newIndex,
-          completedAt: new Date().toISOString(),
-        };
-      }
-      
-      return { ...prev, currentIndex: newIndex };
-    });
+    const nextMixed = mixedIndex + 1;
+    const isLast = nextMixed >= mixedItems.length;
     
+    if (isLast) {
+      // Session complete
+      const answersAfterCommit = pendingAnswer 
+        ? [...session.answers, { correct: pendingAnswer.correct }]
+        : session.answers;
+      handleSessionComplete(answersAfterCommit, syntaxAnswers);
+      setSession(prev => prev ? { ...prev, completedAt: new Date().toISOString() } : prev);
+    }
+    
+    setMixedIndex(nextMixed);
     setSelectedOption(null);
     setShowResult(false);
-  }, [session, store, commitPendingAnswer, pendingAnswer]);
+  }, [session, commitPendingAnswer, pendingAnswer, mixedIndex, mixedItems, syntaxAnswers, handleSessionComplete]);
   
   // Skip logging and go to next question
   const skipAndNext = useCallback(() => {
@@ -318,40 +379,37 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     // Clear pending answer without committing (skip logging)
     setPendingAnswer(null);
     
-    setSession(prev => {
-      if (!prev) return prev;
-      const newIndex = prev.currentIndex + 1;
-      
-      // Check if session complete
-      if (newIndex >= prev.questions.length) {
-        // Record progress snapshot (without this skipped question)
-        const correct = prev.answers.filter(a => a.correct).length;
-        store.recordProgressSnapshot(prev.answers.length, correct);
-        
-        // Mark quiz completed for today
-        markQuizCompletedToday();
-        clearNotifications();
-        onStreakRefresh?.();
-        
-        // Fire confetti for session completion
-        if (correct > prev.answers.length * 0.6) {
-          fireConfetti();
-        }
-        
-        return {
-          ...prev,
-          currentIndex: newIndex,
-          completedAt: new Date().toISOString(),
-        };
-      }
-      
-      return { ...prev, currentIndex: newIndex };
-    });
+    const nextMixed = mixedIndex + 1;
+    const isLast = nextMixed >= mixedItems.length;
     
+    if (isLast) {
+      handleSessionComplete(session.answers, syntaxAnswers);
+      setSession(prev => prev ? { ...prev, completedAt: new Date().toISOString() } : prev);
+    }
+    
+    setMixedIndex(nextMixed);
     setSelectedOption(null);
     setShowResult(false);
-  }, [session, store]);
+  }, [session, mixedIndex, mixedItems, syntaxAnswers, handleSessionComplete]);
   
+  // Handle syntax exercise completion
+  const handleSyntaxComplete = useCallback((correct: boolean) => {
+    const newSyntaxAnswers = [...syntaxAnswers, { correct }];
+    setSyntaxAnswers(newSyntaxAnswers);
+    
+    const nextMixed = mixedIndex + 1;
+    const isLast = nextMixed >= mixedItems.length;
+    
+    if (isLast && session) {
+      handleSessionComplete(session.answers, newSyntaxAnswers);
+      setSession(prev => prev ? { ...prev, completedAt: new Date().toISOString() } : prev);
+    }
+    
+    setMixedIndex(nextMixed);
+    setSelectedOption(null);
+    setShowResult(false);
+  }, [syntaxAnswers, mixedIndex, mixedItems, session, handleSessionComplete]);
+
   // Get display content for an option
   const getOptionDisplay = (option: Concept, modality: Modality): string => {
     return getModalityContent(option, modality);
@@ -469,7 +527,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   }
   
   // Loading state
-  if (!session || !currentQuestion) {
+  if (!session || !currentItem) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -477,7 +535,69 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     );
   }
   
-  // Main quiz view
+  // Syntax exercise item
+  if (currentItem.type === 'syntax') {
+    return (
+      <div className="h-full bg-gradient-to-b from-base-100 to-base-200 flex flex-col overflow-hidden">
+        {/* Today-filter banner */}
+        {todayFilter?.active && (
+          <div className="flex-shrink-0 bg-info/10 border-b border-info/30 px-4 py-1.5">
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <Zap className="w-3.5 h-3.5 text-info" />
+              <span className="font-medium text-info">{todayFilter.label}</span>
+              <span className="text-base-content/50">for today</span>
+              <button
+                className="btn btn-ghost btn-xs btn-circle ml-1"
+                onClick={() => { todayFilter.clear(); startNewSession(); }}
+                title="Reset to full vocab"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-4 py-2">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold">Quiz</h1>
+              <span className="text-sm text-base-content/60">
+                {mixedIndex + 1}/{mixedItems.length}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 text-sm">
+              <Check className="w-4 h-4 text-success" />
+              <span>{sessionStats.correct}</span>
+            </div>
+          </div>
+          <progress 
+            className="progress progress-primary w-full h-1.5" 
+            value={mixedIndex + 1} 
+            max={mixedItems.length}
+          />
+        </header>
+
+        <div className="flex-1 px-3 py-2 max-w-lg mx-auto w-full flex flex-col overflow-auto">
+          <SyntaxExerciseCard
+            exercise={currentItem.exercise}
+            audioSettings={settings.audio}
+            onComplete={handleSyntaxComplete}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // MCQ item — need a valid question
+  if (!currentQuestion) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  // Main quiz view (MCQ)
   return (
     <div className="h-full bg-gradient-to-b from-base-100 to-base-200 flex flex-col overflow-hidden">
       {/* Today-filter banner */}
@@ -504,7 +624,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-bold">Quiz</h1>
             <span className="text-sm text-base-content/60">
-              {session.currentIndex + 1}/{session.questions.length}
+              {mixedIndex + 1}/{mixedItems.length}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -604,8 +724,8 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
         {/* Progress bar */}
         <progress 
           className="progress progress-primary w-full h-1.5" 
-          value={session.currentIndex + 1} 
-          max={session.questions.length}
+          value={mixedIndex + 1} 
+          max={mixedItems.length}
         />
       </header>
 
@@ -810,7 +930,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                       className="btn btn-sm btn-primary flex-1"
                       onClick={goToNext}
                     >
-                      {session.currentIndex + 1 >= session.questions.length ? 'See Results' : 'Next'}
+                      {mixedIndex + 1 >= mixedItems.length ? 'See Results' : 'Next'}
                     </button>
                   </div>
                 </div>
