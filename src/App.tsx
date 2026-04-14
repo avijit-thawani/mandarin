@@ -22,6 +22,17 @@ const AUTO_SYNC_DELAY = 3000;
 
 const ONBOARDING_KEY = 'langseed_onboarding_seen';
 
+const DISPLAY_NAMES: Record<string, string> = {
+  'f547d7a2-1440-4c7a-ab74-130787ba9878': 'Niyati',
+  'c9a42bea-bdff-4ab6-9ba4-f44596537258': 'Avi',
+};
+
+function getDisplayName(userId?: string, email?: string | null): string | undefined {
+  if (userId && DISPLAY_NAMES[userId]) return DISPLAY_NAMES[userId];
+  if (!email) return undefined;
+  return email.split('@')[0];
+}
+
 function App() {
   const store = useVocabularyStore();
   const settingsStore = useSettingsStore();
@@ -273,7 +284,7 @@ function AppContent({
             element={
               <ChatPage 
                 store={store}
-                userName={auth.user?.email?.split('@')[0]}
+                userName={getDisplayName(auth.user?.id, auth.user?.email)}
               />
             } 
           />

@@ -290,11 +290,14 @@ Practice — Ask me to quiz you, explain grammar, or have a conversation in Chin
 
 Manage your vocab:
   Add — teach me a new word and I'll add it to your study set
-  Pause — hide a word from quizzes (reversible)
+  Pause — hide a word from quizzes (you can undo this anytime)
   Unpause — bring a paused word back into quizzes
-  Delete — permanently remove a word I added (chat words only)
+  Delete — permanently remove a word that was added here in chat
 
-I'll always verify changes before confirming. Try "add the word for sunshine" or "show me my chat-added words."`;
+HSK words from the textbook can be paused but not deleted. Words I add for you here can be deleted if you change your mind.
+
+Try "add the word for sunshine" or "which words did you add for me?"`;
+
 
 
   return (
