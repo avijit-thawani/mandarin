@@ -45,24 +45,21 @@ function buildVocabContext(store: VocabularyStore): string {
   return lines.join('\n');
 }
 
-interface Toast {
-  id: number;
-  message: string;
-  type: 'success' | 'error';
+// Tracks the real client-side execution result for each tool call
+interface ToolExecResult {
+  status: 'success' | 'error';
+  summary: string;
 }
 
 export function ChatPage({ store, userName }: ChatPageProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const processedTools = useRef(new Set<string>());
-  const [toasts, setToasts] = useState<Toast[]>([]);
   const [input, setInput] = useState('');
-  const toastIdRef = useRef(0);
+  const [toolResults, setToolResults] = useState<Record<string, ToolExecResult>>({});
 
-  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
-    const id = ++toastIdRef.current;
-    setToasts(prev => [...prev, { id, message, type }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+  const recordToolExec = useCallback((toolCallId: string, result: ToolExecResult) => {
+    setToolResults(prev => ({ ...prev, [toolCallId]: result }));
   }, []);
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
@@ -91,13 +88,14 @@ export function ChatPage({ store, userName }: ChatPageProps) {
           processedTools.current.add(toolKey);
 
           if (toolPart.output?.status !== 'pending_client') continue;
-          handleToolResult(toolPart.output, toolPart.input || {});
+          handleToolResult(toolPart.toolCallId, toolPart.output, toolPart.input || {});
         }
       }
     }
   }, [messages]);
 
   const handleToolResult = useCallback(async (
+    toolCallId: string,
     result: Record<string, unknown>,
     args: Record<string, unknown>,
   ) => {
@@ -110,54 +108,91 @@ export function ChatPage({ store, userName }: ChatPageProps) {
             word: string; pinyin: string; meaning: string; part_of_speech: string; category?: string;
           };
           await store.addCustomWord(word, pinyin, meaning, part_of_speech, category);
-          showToast(`Added ${word} (${pinyin}) to your study set`);
+          recordToolExec(toolCallId, {
+            status: 'success',
+            summary: `Added ${word} (${pinyin}) "${meaning}" — now in your quizzes`,
+          });
           break;
         }
         case 'unpause_words': {
           const { words } = args as { words: string[] };
-          let count = 0;
+          const activated: string[] = [];
+          const problems: string[] = [];
           for (const w of words) {
             const concept = store.getConceptByWord(w);
             if (concept?.paused) {
               store.togglePaused(concept.id);
-              count++;
+              activated.push(`${w} (${concept.pinyin})`);
+            } else if (!concept) {
+              problems.push(`${w} not found in vocab`);
+            } else {
+              problems.push(`${w} was already active`);
             }
           }
-          if (count > 0) showToast(`Activated ${count} word${count > 1 ? 's' : ''}`);
+          const parts: string[] = [];
+          if (activated.length) parts.push(`Activated: ${activated.join(', ')}`);
+          if (problems.length) parts.push(`Skipped: ${problems.join('; ')}`);
+          recordToolExec(toolCallId, {
+            status: problems.length && !activated.length ? 'error' : 'success',
+            summary: parts.join(' | '),
+          });
           break;
         }
         case 'pause_words': {
           const { words } = args as { words: string[] };
-          let count = 0;
+          const paused: string[] = [];
+          const problems: string[] = [];
           for (const w of words) {
             const concept = store.getConceptByWord(w);
             if (concept && !concept.paused) {
               store.togglePaused(concept.id);
-              count++;
+              paused.push(`${w} (${concept.pinyin})`);
+            } else if (!concept) {
+              problems.push(`${w} not found in vocab`);
+            } else {
+              problems.push(`${w} was already paused`);
             }
           }
-          if (count > 0) showToast(`Paused ${count} word${count > 1 ? 's' : ''}`);
+          const parts: string[] = [];
+          if (paused.length) parts.push(`Paused: ${paused.join(', ')}`);
+          if (problems.length) parts.push(`Skipped: ${problems.join('; ')}`);
+          recordToolExec(toolCallId, {
+            status: problems.length && !paused.length ? 'error' : 'success',
+            summary: parts.join(' | '),
+          });
           break;
         }
         case 'delete_words': {
           const { words } = args as { words: string[] };
-          let count = 0;
+          const deleted: string[] = [];
+          const problems: string[] = [];
           for (const w of words) {
             try {
               await store.deleteCustomWord(w);
-              count++;
+              deleted.push(w);
             } catch {
-              showToast(`Failed to delete ${w}`, 'error');
+              problems.push(`${w} — not a custom word`);
             }
           }
-          if (count > 0) showToast(`Deleted ${count} word${count > 1 ? 's' : ''}`);
+          const parts: string[] = [];
+          if (deleted.length) parts.push(`Deleted: ${deleted.join(', ')}`);
+          if (problems.length) parts.push(`Failed: ${problems.join('; ')}`);
+          recordToolExec(toolCallId, {
+            status: problems.length && !deleted.length ? 'error' : 'success',
+            summary: parts.join(' | '),
+          });
           break;
         }
+        default:
+          recordToolExec(toolCallId, { status: 'error', summary: `Unknown action: ${action}` });
       }
     } catch (err) {
-      showToast(`Action failed: ${err instanceof Error ? err.message : 'unknown error'}`, 'error');
+      recordToolExec(toolCallId, {
+        status: 'error',
+        summary: `Failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+      });
     }
-  }, [store, showToast]);
+  }, [store, recordToolExec]);
 
   // Persist messages to localStorage
   useEffect(() => {
@@ -172,11 +207,12 @@ export function ChatPage({ store, userName }: ChatPageProps) {
   // Auto-scroll on new messages
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, status]);
+  }, [messages, status, toolResults]);
 
   const handleClear = () => {
     setMessages([]);
     processedTools.current.clear();
+    setToolResults({});
     localStorage.removeItem(CHAT_STORAGE_KEY);
   };
 
@@ -240,12 +276,14 @@ export function ChatPage({ store, userName }: ChatPageProps) {
                 }
                 if (part.type.startsWith('tool-')) {
                   const toolPart = part as { type: string; toolCallId?: string; state?: string; input?: Record<string, unknown>; output?: Record<string, unknown> };
+                  const execResult = toolPart.toolCallId ? toolResults[toolPart.toolCallId] : undefined;
                   return (
                     <ToolCard
                       key={i}
                       toolName={part.type.replace('tool-', '')}
                       args={toolPart.input || {}}
-                      result={toolPart.state === 'output-available' ? (toolPart.output || null) : null}
+                      serverDone={toolPart.state === 'output-available'}
+                      execResult={execResult}
                     />
                   );
                 }
@@ -272,17 +310,6 @@ export function ChatPage({ store, userName }: ChatPageProps) {
           </div>
         )}
       </div>
-
-      {/* Toasts */}
-      {toasts.length > 0 && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 space-y-2">
-          {toasts.map(t => (
-            <div key={t.id} className={`alert ${t.type === 'success' ? 'alert-success' : 'alert-error'} py-2 px-4 shadow-lg`}>
-              <span className="text-sm">{t.message}</span>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Input */}
       <div className="flex-shrink-0 border-t border-base-300 bg-base-100 p-3 flex gap-2 items-end">
@@ -316,18 +343,12 @@ export function ChatPage({ store, userName }: ChatPageProps) {
   );
 }
 
-function ToolCard({ toolName, args, result }: {
+function ToolCard({ toolName, args, serverDone, execResult }: {
   toolName: string;
   args: Record<string, unknown>;
-  result: Record<string, unknown> | null;
+  serverDone: boolean;
+  execResult?: ToolExecResult;
 }) {
-  const labels: Record<string, string> = {
-    add_custom_word: 'Add Word',
-    unpause_words: 'Activate Words',
-    pause_words: 'Pause Words',
-    delete_words: 'Delete Words',
-  };
-
   const icons: Record<string, string> = {
     add_custom_word: '➕',
     unpause_words: '▶️',
@@ -335,22 +356,38 @@ function ToolCard({ toolName, args, result }: {
     delete_words: '🗑️',
   };
 
+  const wordSummary = toolName === 'add_custom_word'
+    ? `${args.word} (${args.pinyin}) — ${args.meaning}`
+    : (args.words as string[])?.join(', ');
+
+  // Three states: waiting for server, waiting for client exec, client exec done
+  let borderClass = 'bg-base-300/50 border-base-300';
+  let statusLine = 'Waiting for response...';
+
+  if (serverDone && !execResult) {
+    statusLine = 'Applying change...';
+  } else if (execResult?.status === 'success') {
+    borderClass = 'bg-success/10 border-success/30';
+    statusLine = execResult.summary;
+  } else if (execResult?.status === 'error') {
+    borderClass = 'bg-error/10 border-error/30';
+    statusLine = execResult.summary;
+  }
+
   return (
-    <div className="my-2 p-3 bg-base-300/50 rounded-xl border border-base-300">
+    <div className={`my-2 p-3 rounded-xl border ${borderClass}`}>
       <div className="flex items-center gap-2 mb-1">
         <span>{icons[toolName] || '🔧'}</span>
-        <span className="text-xs font-semibold">{labels[toolName] || toolName}</span>
-        {result && (
-          <span className="badge badge-xs badge-success ml-auto">done</span>
+        {wordSummary && (
+          <span className="text-xs font-medium">{wordSummary}</span>
         )}
       </div>
-      <div className="text-xs text-base-content/70">
-        {toolName === 'add_custom_word' && (
-          <span>{(args.word as string)} ({(args.pinyin as string)}) — {(args.meaning as string)}</span>
-        )}
-        {(toolName === 'unpause_words' || toolName === 'pause_words' || toolName === 'delete_words') && (
-          <span>{(args.words as string[])?.join(', ')}</span>
-        )}
+      <div className={`text-xs ml-6 ${
+        execResult?.status === 'error' ? 'text-error' :
+        execResult?.status === 'success' ? 'text-success' :
+        'text-base-content/50'
+      }`}>
+        {statusLine}
       </div>
     </div>
   );
