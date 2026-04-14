@@ -283,9 +283,19 @@ export function ChatPage({ store, userName }: ChatPageProps) {
   const isStreaming = status === 'streaming';
   const isLoading = status === 'submitted';
 
-  const welcomeMessage = userName
-    ? `Hi ${userName}! I'm Saras — ask me anything about Mandarin, practice conversation, or explore new words. I can add them to your study set or remove them, just say the word.`
-    : `Hi! I'm Saras — ask me anything about Mandarin, practice conversation, or explore new words. I can add them to your study set or remove them, just say the word.`;
+  const greeting = userName ? `Hi ${userName}!` : 'Hi!';
+  const welcomeMessage = `${greeting} I'm your Mandarin tutor. Here's what I can do:
+
+Practice — Ask me to quiz you, explain grammar, or have a conversation in Chinese.
+
+Manage your vocab:
+  Add — teach me a new word and I'll add it to your study set
+  Pause — hide a word from quizzes (reversible)
+  Unpause — bring a paused word back into quizzes
+  Delete — permanently remove a word I added (chat words only)
+
+I'll always verify changes before confirming. Try "add the word for sunshine" or "show me my chat-added words."`;
+
 
   return (
     <div className="h-full flex flex-col">
