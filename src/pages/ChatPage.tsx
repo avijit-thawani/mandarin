@@ -114,6 +114,14 @@ export function ChatPage({ store, userName }: ChatPageProps) {
           const { word, pinyin, meaning, part_of_speech, category } = args as {
             word: string; pinyin: string; meaning: string; part_of_speech: string; category?: string;
           };
+          const existing = store.getConceptByWord(word as string);
+          if (existing) {
+            recordToolExec(toolCallId, {
+              status: 'error',
+              summary: `${word} already exists (${existing.paused ? 'paused' : 'active'}) — use ${existing.paused ? 'unpause' : 'pause'} instead`,
+            });
+            break;
+          }
           await store.addCustomWord(word, pinyin, meaning, part_of_speech, category);
           recordToolExec(toolCallId, {
             status: 'success',
