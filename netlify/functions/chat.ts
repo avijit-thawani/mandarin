@@ -114,6 +114,13 @@ export default async (req: Request) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return new Response(
+      JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured on server' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   const { messages, vocabContext } = await req.json() as {
     messages: UIMessage[];
     vocabContext?: string;
@@ -123,12 +130,20 @@ export default async (req: Request) => {
     ? `${SYSTEM_PROMPT}\n\nUSER'S CURRENT VOCABULARY:\n${vocabContext}`
     : SYSTEM_PROMPT;
 
-  const result = streamText({
-    model: anthropic('claude-3-5-sonnet-latest'),
-    system: systemWithContext,
-    messages: await convertToModelMessages(messages),
-    tools,
-  });
+  try {
+    const result = streamText({
+      model: anthropic('claude-sonnet-4-20250514'),
+      system: systemWithContext,
+      messages: await convertToModelMessages(messages),
+      tools,
+    });
 
-  return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return new Response(
+      JSON.stringify({ error: msg }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
 };
