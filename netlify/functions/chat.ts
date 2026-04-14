@@ -90,14 +90,39 @@ const tools = {
 };
 
 export default async (req: Request) => {
-  // GET = health check (no auth required, no secrets exposed)
+  // GET = diagnostic test (no auth required, no secrets exposed)
   if (req.method === 'GET') {
-    return new Response(JSON.stringify({
-      hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
-      keyPrefix: process.env.ANTHROPIC_API_KEY?.slice(0, 10) || 'MISSING',
-      hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
-      hasSupabaseKey: !!process.env.VITE_SUPABASE_ANON_KEY,
-    }), { headers: { 'Content-Type': 'application/json' } });
+    const key = process.env.ANTHROPIC_API_KEY;
+    if (!key) {
+      return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY missing' }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    // Direct Anthropic API call to test key + model
+    try {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: 'Say ok' }],
+        }),
+      });
+      const body = await resp.json();
+      return new Response(JSON.stringify({
+        status: resp.status,
+        body,
+      }), { headers: { 'Content-Type': 'application/json' } });
+    } catch (err) {
+      return new Response(JSON.stringify({
+        error: err instanceof Error ? err.message : String(err),
+      }), { headers: { 'Content-Type': 'application/json' } });
+    }
   }
 
   if (req.method !== 'POST') {
