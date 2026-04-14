@@ -83,14 +83,15 @@ export function ChatPage({ store, userName }: ChatPageProps) {
     for (const msg of messages) {
       if (msg.role !== 'assistant') continue;
       for (const part of msg.parts) {
-        if (part.type.startsWith('tool-') && 'result' in part) {
-          const toolPart = part as { type: string; toolCallId: string; args: Record<string, unknown>; result: Record<string, unknown> };
+        if (part.type.startsWith('tool-') && 'output' in part) {
+          const toolPart = part as { type: string; toolCallId: string; state: string; input?: Record<string, unknown>; output?: Record<string, unknown> };
+          if (toolPart.state !== 'output-available') continue;
           const toolKey = `${msg.id}-${toolPart.toolCallId}`;
           if (processedTools.current.has(toolKey)) continue;
           processedTools.current.add(toolKey);
 
-          if (toolPart.result?.status !== 'pending_client') continue;
-          handleToolResult(toolPart.result, toolPart.args);
+          if (toolPart.output?.status !== 'pending_client') continue;
+          handleToolResult(toolPart.output, toolPart.input || {});
         }
       }
     }
@@ -238,13 +239,13 @@ export function ChatPage({ store, userName }: ChatPageProps) {
                   return <p key={i} className="text-sm whitespace-pre-wrap">{part.text}</p>;
                 }
                 if (part.type.startsWith('tool-')) {
-                  const toolPart = part as { type: string; toolCallId?: string; args?: Record<string, unknown>; result?: Record<string, unknown> };
+                  const toolPart = part as { type: string; toolCallId?: string; state?: string; input?: Record<string, unknown>; output?: Record<string, unknown> };
                   return (
                     <ToolCard
                       key={i}
                       toolName={part.type.replace('tool-', '')}
-                      args={toolPart.args || {}}
-                      result={toolPart.result || null}
+                      args={toolPart.input || {}}
+                      result={toolPart.state === 'output-available' ? (toolPart.output || null) : null}
                     />
                   );
                 }
