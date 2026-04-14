@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Send, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import { Send, Square, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import { supabase } from '../lib/supabase';
 
@@ -74,7 +74,7 @@ export function ChatPage({ store, userName }: ChatPageProps) {
     });
   }, []);
 
-  const { messages, sendMessage, status, error, setMessages } = useChat({
+  const { messages, sendMessage, stop, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: '/.netlify/functions/chat',
       headers: async (): Promise<Record<string, string>> => {
@@ -383,28 +383,39 @@ I'll always verify changes before confirming. Try "add the word for sunshine" or
         <textarea
           ref={inputRef}
           className="textarea textarea-bordered flex-1 min-h-[44px] max-h-32 resize-none text-sm"
-          placeholder="Ask about Mandarin..."
+          placeholder={isStreaming ? 'Type to interrupt...' : 'Ask about Mandarin...'}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              if (input.trim() && !isStreaming && !isLoading) {
+              if (input.trim()) {
+                if (isStreaming) stop();
                 handleSend();
               }
             }
           }}
           rows={1}
-          disabled={isStreaming || isLoading}
         />
-        <button
-          type="button"
-          className="btn btn-primary btn-sm h-[44px]"
-          disabled={!input.trim() || isStreaming || isLoading}
-          onClick={handleSend}
-        >
-          <Send className="w-4 h-4" />
-        </button>
+        {isStreaming || isLoading ? (
+          <button
+            type="button"
+            className="btn btn-error btn-sm h-[44px]"
+            onClick={() => stop()}
+            title="Stop generating"
+          >
+            <Square className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary btn-sm h-[44px]"
+            disabled={!input.trim()}
+            onClick={handleSend}
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        )}
       </div>
     </div>
   );
