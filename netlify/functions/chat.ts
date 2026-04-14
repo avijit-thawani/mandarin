@@ -26,6 +26,12 @@ REMOVING/PAUSING:
 - delete_words permanently removes a custom word (only source:'chat' words)
 - Never delete HSK1 words -- only pause them
 
+VERIFYING:
+- After any add/pause/unpause/delete action, call get_vocab_status to confirm
+  the change actually took effect before telling the user it worked
+- The vocab context you receive may be stale; always use get_vocab_status
+  for current ground truth
+
 IMPORTANT:
 - Be accurate with pinyin tone marks -- they feed the quiz system directly
 - When unsure about a word's accuracy, say so rather than guessing`;
@@ -83,6 +89,18 @@ const tools = {
     }),
     execute: async ({ words }) => ({
       action: 'delete_words',
+      words,
+      status: 'pending_client',
+    }),
+  }),
+
+  get_vocab_status: tool({
+    description: 'Get the current live status of specific words (active/paused/not found). Use after making changes to confirm they worked, or when the user asks about specific words.',
+    inputSchema: z.object({
+      words: z.array(z.string()).describe('Chinese characters of words to look up'),
+    }),
+    execute: async ({ words }) => ({
+      action: 'get_vocab_status',
       words,
       status: 'pending_client',
     }),

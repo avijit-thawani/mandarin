@@ -70,7 +70,7 @@ export function ChatPage({ store, userName }: ChatPageProps) {
         if (!session?.access_token) return {};
         return { Authorization: `Bearer ${session.access_token}` };
       },
-      body: { vocabContext: buildVocabContext(store) },
+      body: () => ({ vocabContext: buildVocabContext(store) }),
     }),
     messages: loadStoredMessages(),
   });
@@ -180,6 +180,25 @@ export function ChatPage({ store, userName }: ChatPageProps) {
           recordToolExec(toolCallId, {
             status: problems.length && !deleted.length ? 'error' : 'success',
             summary: parts.join(' | '),
+          });
+          break;
+        }
+        case 'get_vocab_status': {
+          const { words } = args as { words: string[] };
+          const statuses: string[] = [];
+          for (const w of words) {
+            const concept = store.getConceptByWord(w);
+            if (!concept) {
+              statuses.push(`${w} — not in vocab`);
+            } else if (concept.paused) {
+              statuses.push(`${w} (${concept.pinyin}) — paused`);
+            } else {
+              statuses.push(`${w} (${concept.pinyin}) — active, knowledge ${concept.knowledge}%`);
+            }
+          }
+          recordToolExec(toolCallId, {
+            status: 'success',
+            summary: statuses.join('\n'),
           });
           break;
         }
@@ -354,6 +373,7 @@ function ToolCard({ toolName, args, serverDone, execResult }: {
     unpause_words: '▶️',
     pause_words: '⏸️',
     delete_words: '🗑️',
+    get_vocab_status: '🔍',
   };
 
   const wordSummary = toolName === 'add_custom_word'
