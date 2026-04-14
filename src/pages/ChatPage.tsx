@@ -23,8 +23,10 @@ function buildVocabContext(store: VocabularyStore): string {
   const learning = active.filter(c => c.knowledge >= 50 && c.knowledge <= 80);
   const weak = active.filter(c => c.knowledge < 50);
 
-  const fmt = (c: { word: string; pinyin: string; meaning: string; knowledge: number }) =>
-    `${c.word}|${c.pinyin}|${c.meaning}|${c.knowledge}`;
+  const fmt = (c: { word: string; pinyin: string; meaning: string; knowledge: number; source: string }) =>
+    `${c.word}|${c.pinyin}|${c.meaning}|${c.knowledge}|${c.source}`;
+
+  const chatWords = store.concepts.filter(c => c.source === 'chat');
 
   const lines: string[] = [];
   lines.push(`ACTIVE (${active.length} words):`);
@@ -42,7 +44,11 @@ function buildVocabContext(store: VocabularyStore): string {
   }
   if (paused.length) {
     lines.push(`\nPAUSED (${paused.length} words):`);
-    lines.push(paused.map(c => c.word).join(', '));
+    lines.push(paused.map(fmt).join('\n'));
+  }
+  if (chatWords.length) {
+    lines.push(`\nCHAT-ADDED (${chatWords.length} words — deletable):`);
+    lines.push(chatWords.map(c => `${c.word}|${c.pinyin}|${c.meaning}|${c.paused ? 'paused' : 'active'}`).join('\n'));
   }
   return lines.join('\n');
 }
@@ -196,6 +202,21 @@ export function ChatPage({ store, userName }: ChatPageProps) {
             status: problems.length && !deleted.length ? 'error' : 'success',
             summary: parts.join(' | '),
           });
+          break;
+        }
+        case 'list_chat_words': {
+          const chatWords = store.concepts.filter(c => c.source === 'chat');
+          if (chatWords.length === 0) {
+            recordToolExec(toolCallId, { status: 'success', summary: 'No chat-added words yet' });
+          } else {
+            const lines = chatWords.map(c =>
+              `${c.word} (${c.pinyin}) — ${c.meaning} [${c.paused ? 'paused' : 'active'}]`
+            );
+            recordToolExec(toolCallId, {
+              status: 'success',
+              summary: `${chatWords.length} chat-added word${chatWords.length > 1 ? 's' : ''}:\n${lines.join('\n')}`,
+            });
+          }
           break;
         }
         case 'get_vocab_status': {
@@ -390,6 +411,7 @@ function ToolCard({ toolName, args, serverDone, execResult }: {
     unpause_words: '▶️',
     pause_words: '⏸️',
     delete_words: '🗑️',
+    list_chat_words: '📋',
     get_vocab_status: '🔍',
   };
 

@@ -95,6 +95,15 @@ const tools = {
     }),
   }),
 
+  list_chat_words: tool({
+    description: 'List all words added via chat (source: "chat"). These are the only words that can be deleted. Use when the user asks about custom/chat-added words.',
+    inputSchema: z.object({}),
+    execute: async () => ({
+      action: 'list_chat_words',
+      status: 'pending_client',
+    }),
+  }),
+
   get_vocab_status: tool({
     description: 'Get the current live status of specific words (active/paused/not found). Use after making changes to confirm they worked, or when the user asks about specific words.',
     inputSchema: z.object({
