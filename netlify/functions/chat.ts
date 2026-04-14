@@ -103,7 +103,7 @@ export default async (req: Request) => {
     : SYSTEM_PROMPT;
 
   const result = streamText({
-    model: anthropic('claude-sonnet-4-20250514'),
+    model: anthropic('claude-sonnet-4-latest'),
     system: systemWithContext,
     messages: await convertToModelMessages(messages),
     tools,
