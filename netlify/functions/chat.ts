@@ -1,5 +1,6 @@
 import { streamText, tool, UIMessage, convertToModelMessages } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
+import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
 const SYSTEM_PROMPT = `You are a friendly Mandarin Chinese tutor in the app "Saras."
@@ -93,6 +94,26 @@ export default async (req: Request) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  // Verify Supabase auth
+  const authHeader = req.headers.get('authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return new Response('Server misconfigured', { status: 500 });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
   const { messages, vocabContext } = await req.json() as {
     messages: UIMessage[];
     vocabContext?: string;
@@ -103,7 +124,7 @@ export default async (req: Request) => {
     : SYSTEM_PROMPT;
 
   const result = streamText({
-    model: anthropic('claude-sonnet-4-latest'),
+    model: anthropic('claude-3-5-sonnet-latest'),
     system: systemWithContext,
     messages: await convertToModelMessages(messages),
     tools,

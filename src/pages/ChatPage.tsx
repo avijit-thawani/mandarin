@@ -3,6 +3,7 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Send, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
+import { supabase } from '../lib/supabase';
 
 interface ChatPageProps {
   store: VocabularyStore;
@@ -67,6 +68,11 @@ export function ChatPage({ store, userName }: ChatPageProps) {
   const { messages, sendMessage, status, error, setMessages } = useChat({
     transport: new DefaultChatTransport({
       api: '/.netlify/functions/chat',
+      headers: async (): Promise<Record<string, string>> => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) return {};
+        return { Authorization: `Bearer ${session.access_token}` };
+      },
       body: { vocabContext: buildVocabContext(store) },
     }),
     messages: loadStoredMessages(),
