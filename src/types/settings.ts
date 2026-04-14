@@ -24,6 +24,7 @@ export type SyntaxDirectionRatio = 0 | 1 | 2 | 3 | 4;
 
 export interface SyntaxSettings {
   directionRatio: SyntaxDirectionRatio;  // Reading:Writing ratio slider position
+  frequency: FocusLevel;                 // 0=skip, 1=low, 2=med, 3=high — controls syntax question mix in Quiz
 }
 
 export interface LearningFocus {
@@ -92,6 +93,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   },
   syntax: {
     directionRatio: 1,  // Default to 2:1 reading (English→Chinese more common)
+    frequency: 1,       // Low by default — a few syntax questions mixed into each quiz
   },
   theme: 'dark',
   pinyinDisplay: 'tones',
@@ -165,6 +167,14 @@ export const QUESTION_SELECTION_META: Record<QuestionSelection, { label: string;
   weak: { label: 'Weak Spots', emoji: '🎯', description: 'Focus on low knowledge' },
   leastTested: { label: 'Coverage', emoji: '📊', description: 'Test untested words' },
   dueReview: { label: 'Due Review', emoji: '⏰', description: 'Words not seen recently' },
+};
+
+// Syntax frequency: how many syntax exercises are mixed into each quiz session
+export const SYNTAX_FREQUENCY_META: Record<FocusLevel, { label: string; description: string; fraction: number }> = {
+  0: { label: 'Skip', description: 'No syntax questions', fraction: 0 },
+  1: { label: 'Low', description: '~20% syntax questions', fraction: 0.2 },
+  2: { label: 'Med', description: '~35% syntax questions', fraction: 0.35 },
+  3: { label: 'High', description: '~50% syntax questions', fraction: 0.5 },
 };
 
 // Syntax direction ratio options

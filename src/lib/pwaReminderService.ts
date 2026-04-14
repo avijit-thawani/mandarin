@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 
 const SW_PATH = '/sw.js';
+const REMINDER_TAG = 'mandarin-reminder';
 const DEFAULT_REMINDER_HOUR = 16;
 const DEFAULT_REMINDER_MINUTE = 0;
 
@@ -269,14 +270,18 @@ export function getBrowserTimezone(): string {
 }
 
 /**
- * Tell the service worker to close any visible reminder notifications.
- * Useful after the user completes their daily quiz/streak activity.
+ * Dismiss any visible reminder notifications from the notification tray.
+ * Uses getNotifications() directly from the page context — doesn't require
+ * the service worker to be awake (postMessage fails when SW is suspended on mobile).
  */
 export async function clearNotifications(): Promise<void> {
   if (!isReminderSupported()) return;
-  const registration = await navigator.serviceWorker.ready;
-  if (registration.active) {
-    registration.active.postMessage({ type: 'CLEAR_NOTIFICATIONS' });
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const notifications = await registration.getNotifications({ tag: REMINDER_TAG });
+    notifications.forEach(n => n.close());
+  } catch (err) {
+    console.warn('[PWA] Failed to clear notifications:', err);
   }
 }
 

@@ -161,7 +161,6 @@ function computeRecoveryInfo(
 
 export function useStreak(
   userId: string | null | undefined,
-  isGuest?: boolean,
   cardsPerSession: number = 10
 ) {
   const [byDate, setByDate] = useState<Record<string, DayStats>>({});
@@ -170,7 +169,7 @@ export function useStreak(
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (!userId || isGuest) {
+    if (!userId) {
       setLoading(false);
       return;
     }
@@ -197,7 +196,7 @@ export function useStreak(
       });
 
     return () => { cancelled = true; };
-  }, [userId, isGuest, refreshKey]);
+  }, [userId, refreshKey]);
 
   const dates = useMemo(() => buildDateArray(STREAK_DAYS_TO_FETCH), []);
 

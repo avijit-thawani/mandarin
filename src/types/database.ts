@@ -13,6 +13,7 @@ export interface Database {
           meaning: string;
           chapter: number;
           source: string;
+          category: string;
           created_at: string;
         };
         Insert: {
@@ -23,6 +24,7 @@ export interface Database {
           meaning: string;
           chapter: number;
           source?: string;
+          category?: string;
           created_at?: string;
         };
         Update: {
@@ -33,6 +35,7 @@ export interface Database {
           meaning?: string;
           chapter?: number;
           source?: string;
+          category?: string;
           created_at?: string;
         };
       };

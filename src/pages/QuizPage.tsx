@@ -8,6 +8,7 @@ import type { QuizSession, QuizQuestion, Modality, Concept } from '../types/voca
 import { generateQuizSession, getModalityContent, modalityNeedsAudio } from '../utils/quiz';
 import { predictCorrect, computeModalityAverages } from '../utils/knowledge';
 import { saveQuizAttempt, buildQuizContext } from '../lib/quizService';
+import { clearNotifications } from '../lib/pwaReminderService';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
 import { useAuth } from '../hooks/useAuth';
 import { OPTION_SELECTION_META, QUESTION_SELECTION_META } from '../types/settings';
@@ -288,6 +289,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
         
         // Mark quiz completed for today
         markQuizCompletedToday();
+        clearNotifications();
         onStreakRefresh?.();
         
         // Fire confetti for session completion
@@ -328,6 +330,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
         
         // Mark quiz completed for today
         markQuizCompletedToday();
+        clearNotifications();
         onStreakRefresh?.();
         
         // Fire confetti for session completion

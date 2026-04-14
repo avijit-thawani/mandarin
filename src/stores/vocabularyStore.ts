@@ -1,47 +1,20 @@
 // Vocabulary store with localStorage persistence + Supabase cloud sync
-// Manages concepts with modality-level knowledge tracking
+// Source of truth: Supabase vocabulary table. localStorage is a cache for instant boot.
 //
 // Known limitation: browser TTS mispronounces single-char polyphonic words
 // (多音字) like 了/的/着. No workaround yet — see ttsService.ts for details.
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import type { Concept, VocabWord, Modality, ProgressSnapshot } from '../types/vocabulary';
+import type { Concept, Modality, ProgressSnapshot } from '../types/vocabulary';
 import { createInitialModality, computeConceptKnowledge, updateModalityScore, computeModalityAverages, countByKnowledge } from '../utils/knowledge';
 import { fetchFromCloud, saveToCloud, type SyncResult } from '../lib/syncService';
+import { supabase } from '../lib/supabase';
 import type { LearningFocus } from '../types/settings';
-import hsk1Data from '../data/hsk1_vocabulary.json';
 
 const STORAGE_KEY = 'langseed_progress';
 const LAST_SYNC_KEY = 'langseed_last_sync';
 const PROGRESS_CACHE_KEY = 'langseed_progress_cache';
 const PENDING_SYNC_KEY = 'langseed_pending_sync';
-
-export const NIYATI_USER_ID = 'f547d7a2-1440-4c7a-ab74-130787ba9878';
-
-// Niyati's 111-word study set, established in the original vocab expansion session.
-// 34 non-Ch16 (4 Ch-10 direction + 30 Ch1-15 core) + all 77 Ch16 words.
-export const NIYATI_BASELINE_WORDS = new Set([
-  // Ch-10 direction words
-  '右边', '外', '左边', '旁边',
-  // Ch1-15 core words
-  '叫', '人', '吗', '是', '呢', '国', '的', '了', '口', '家',
-  '有', '做', '说', '去', '看', '买', '吃', '喝', '想', '在',
-  '上', '下', '和', '里', '前', '来', '听', '后', '啊', '开',
-  // Ch16 words (particles, conjunctions, prepositions, verbs, nouns)
-  '中间', '为', '为了', '从', '以', '但是', '体', '依据', '关', '关于',
-  '到', '卖', '厂', '可是', '向', '吧', '呀', '呐', '员', '哇',
-  '啦', '嘛', '因', '因为', '地', '城', '如果', '学', '学家', '学科',
-  '室', '对', '对于', '师', '帮', '店', '形', '往', '得', '或者',
-  '所以', '找', '把', '拿', '按', '放', '教', '教师', '文', '替',
-  '朝', '本着', '机', '村', '根据', '比', '法', '照', '物', '生',
-  '用', '由', '着', '离', '经', '经由', '给', '者', '而且', '自',
-  '至于', '虽然', '被', '跟', '过', '还是', '馆',
-]);
-
-// Generate UUID (compatible with Supabase)
-function generateId(): string {
-  return crypto.randomUUID();
-}
 
 // Load progress from localStorage
 function loadProgress(): { concepts: Concept[] } {
@@ -103,7 +76,6 @@ function saveProgressSnapshot(snapshot: ProgressSnapshot): void {
 export interface VocabularyStore {
   // Data
   concepts: Concept[];
-  hsk1Vocab: VocabWord[];
   
   // Computed
   addedWords: Set<string>;
@@ -121,13 +93,14 @@ export interface VocabularyStore {
   hasPendingSync: boolean;  // True if there are changes waiting to sync
   
   // Actions
-  importHSK1: () => void;
-  importChapters: (fromChapter: number, toChapter: number, startStudying?: boolean) => void;
-  removeChapters: (fromChapter: number, toChapter: number) => void;
   togglePaused: (conceptId: string) => void;
   setChapterPaused: (chapter: number, paused: boolean) => void;
   getConceptById: (id: string) => Concept | undefined;
   getConceptByWord: (word: string) => Concept | undefined;
+  
+  // Custom word management (for Chat tab)
+  addCustomWord: (word: string, pinyin: string, meaning: string, partOfSpeech: string, category?: string) => Promise<void>;
+  deleteCustomWord: (word: string) => Promise<void>;
   
   // Quiz actions
   updateModalityKnowledge: (
@@ -142,17 +115,14 @@ export interface VocabularyStore {
   recordProgressSnapshot: (sessionAttempts: number, sessionCorrect: number) => void;
   getModalityAverages: () => Record<Modality, number>;
   getKnowledgeCounts: () => { above80: number; above50: number; below50: number };
-  
-  // Niyati-specific baseline restore
-  restoreNiyatiBaseline: () => void;
 
   // Cloud sync actions
   syncToCloud: (userId: string) => Promise<SyncResult>;
   loadFromCloud: (userId: string) => Promise<void>;
   clearSyncError: () => void;
   resetProgress: () => void;
-  markPendingSync: () => void;  // Mark that there are changes to sync
-  clearPendingSync: () => void;  // Clear pending sync flag
+  markPendingSync: () => void;
+  clearPendingSync: () => void;
 }
 
 export function useVocabularyStore(): VocabularyStore {
@@ -179,80 +149,10 @@ export function useVocabularyStore(): VocabularyStore {
     }
   });
 
-  // Load data on mount
+  // Load cached data on mount (instant boot from localStorage)
   useEffect(() => {
     const { concepts: loadedConcepts } = loadProgress();
-    
-    // Sync meanings from source JSON (ensures meanings are up-to-date after JSON edits)
-    const vocab = hsk1Data as VocabWord[];
-    const vocabMap = new Map(vocab.map(v => [v.word, v]));
-    const validWords = new Set(vocab.map(v => v.word));
-    const existingWords = new Set(loadedConcepts.map(c => c.word));
-    
-    // Filter out concepts that no longer exist in source JSON (deleted vocabulary)
-    // and update meanings for remaining concepts
-    const filteredConcepts = loadedConcepts.filter(c => {
-      if (!validWords.has(c.word)) {
-        console.log(`[VocabStore] Removing deleted vocabulary: ${c.word}`);
-        return false;
-      }
-      return true;
-    });
-    
-    // Sync mutable fields from source JSON (meaning, category, part_of_speech, chapter)
-    const updatedConcepts = filteredConcepts.map(c => {
-      const sourceWord = vocabMap.get(c.word);
-      if (!sourceWord) return c;
-      const needsUpdate =
-        sourceWord.meaning !== c.meaning ||
-        sourceWord.category !== c.category ||
-        sourceWord.part_of_speech !== c.part_of_speech ||
-        sourceWord.chapter !== c.chapter;
-      return needsUpdate ? { ...c, ...sourceWord } : c;
-    });
-    
-    const removedCount = loadedConcepts.length - filteredConcepts.length;
-    if (removedCount > 0) {
-      console.log(`[VocabStore] Removed ${removedCount} deleted vocabulary items`);
-    }
-    
-    // Auto-merge: Find chapters user has imported and add any new vocabulary from those chapters
-    const importedChapters = new Set(filteredConcepts.map(c => c.chapter).filter(ch => ch > 0));
-    // Repair legacy guest-seeded data: chapter-1-only users should still see full chapter catalog.
-    // Missing words are added as paused, so quiz/study pool behavior remains controlled.
-    const shouldBackfillAllChapters = importedChapters.size === 1 && importedChapters.has(1);
-    const maxImportedChapter = Math.max(...importedChapters, 0);
-    const newVocab: Concept[] = [];
-    
-    vocab.forEach(word => {
-      // Skip if word already exists
-      if (existingWords.has(word.word)) return;
-      
-      // For positive chapters (HSK words): add if chapter is imported
-      // For negative chapters (compound phrases): add if |chapter| <= max imported chapter
-      const shouldAdd = shouldBackfillAllChapters
-        ? true
-        : word.chapter > 0
-          ? importedChapters.has(word.chapter)
-          : Math.abs(word.chapter) <= maxImportedChapter;
-      
-      if (shouldAdd) {
-        console.log(`[VocabStore] Auto-adding new vocabulary: ${word.word} (ch ${word.chapter})`);
-        newVocab.push({
-          ...word,
-          id: generateId(),
-          modality: createInitialModality(Math.abs(word.chapter)),
-          knowledge: 50,
-          paused: true,  // New words start paused
-        });
-      }
-    });
-    
-    if (newVocab.length > 0) {
-      console.log(`[VocabStore] Added ${newVocab.length} new vocabulary items from updated JSON`);
-    }
-    
-    setConcepts([...updatedConcepts, ...newVocab]);
+    setConcepts(loadedConcepts);
     setProgressSnapshots(loadProgressCache());
     setInitialized(true);
   }, []);
@@ -283,68 +183,10 @@ export function useVocabularyStore(): VocabularyStore {
     [concepts]
   );
 
-  // Get all available chapters from HSK1 data
+  // Compute available chapters from loaded concepts
   const availableChapters = useMemo(() => {
-    const vocab = hsk1Data as VocabWord[];
-    return [...new Set(vocab.map(w => w.chapter))].sort((a, b) => a - b);
-  }, []);
-
-  // Actions
-  const importHSK1 = useCallback(() => {
-    const vocab = hsk1Data as VocabWord[];
-    const newConcepts: Concept[] = [];
-    
-    vocab.forEach(word => {
-      if (!addedWords.has(word.word)) {
-        newConcepts.push({
-          ...word,
-          id: generateId(),
-          modality: createInitialModality(word.chapter),
-          knowledge: 50, // Will be computed properly when learningFocus is available
-          paused: true,  // Words start as "unknown" - user checks to make them "studying"
-        });
-      }
-    });
-    
-    setConcepts(prev => [...prev, ...newConcepts]);
-  }, [addedWords]);
-
-  const importChapters = useCallback((fromChapter: number, toChapter: number, startStudying = false) => {
-    const vocab = hsk1Data as VocabWord[];
-    const newConcepts: Concept[] = [];
-    const isInitialChapterOneSeed = concepts.length === 0 && fromChapter === 1 && toChapter === 1;
-    
-    vocab.forEach(word => {
-      if (addedWords.has(word.word)) return;
-
-      // Bootstrap behavior for first-time users:
-      // - Chapter 1 starts as known (checked)
-      // - Other chapters stay unknown (unchecked) but visible in Vocabulary
-      const shouldInclude = isInitialChapterOneSeed
-        ? true
-        : word.chapter >= fromChapter && word.chapter <= toChapter;
-
-      if (shouldInclude) {
-        const shouldStartStudying = isInitialChapterOneSeed
-          ? startStudying && word.chapter === 1
-          : startStudying;
-
-        newConcepts.push({
-          ...word,
-          id: generateId(),
-          modality: createInitialModality(word.chapter),
-          knowledge: 50,
-          paused: !shouldStartStudying,  // If studying, keep checked; otherwise unchecked
-        });
-      }
-    });
-    
-    setConcepts(prev => [...prev, ...newConcepts]);
-  }, [addedWords, concepts.length]);
-
-  const removeChapters = useCallback((fromChapter: number, toChapter: number) => {
-    setConcepts(prev => prev.filter(c => c.chapter < fromChapter || c.chapter > toChapter));
-  }, []);
+    return [...new Set(concepts.map(c => c.chapter))].sort((a, b) => a - b);
+  }, [concepts]);
 
   // Mark that there are changes waiting to sync
   const markPendingSync = useCallback(() => {
@@ -382,15 +224,6 @@ export function useVocabularyStore(): VocabularyStore {
     markPendingSync();
   }, [markPendingSync]);
 
-  const restoreNiyatiBaseline = useCallback(() => {
-    setConcepts(prev => prev.map(c => {
-      const shouldBeActive = NIYATI_BASELINE_WORDS.has(c.word);
-      if (c.paused === !shouldBeActive) return c;
-      return { ...c, paused: !shouldBeActive };
-    }));
-    markPendingSync();
-  }, [markPendingSync]);
-
   const getConceptById = useCallback((id: string) => 
     concepts.find(c => c.id === id),
     [concepts]
@@ -400,6 +233,75 @@ export function useVocabularyStore(): VocabularyStore {
     concepts.find(c => c.word === word),
     [concepts]
   );
+
+  // Add a custom word via Chat (inserts into Supabase vocabulary + user_progress)
+  const addCustomWord = useCallback(async (
+    word: string,
+    pinyin: string,
+    meaning: string,
+    partOfSpeech: string,
+    category: string = 'other'
+  ) => {
+    // Insert into Supabase vocabulary table (source: 'chat')
+    const { data: vocabRow, error: vocabError } = await supabase
+      .from('vocabulary')
+      .insert({ word, pinyin, meaning, part_of_speech: partOfSpeech, chapter: 0, source: 'chat', category })
+      .select('id')
+      .single();
+
+    if (vocabError) {
+      console.error('[VocabStore] Failed to insert custom word:', vocabError.message);
+      throw new Error(vocabError.message);
+    }
+
+    const newConcept: Concept = {
+      id: vocabRow.id,
+      word,
+      pinyin,
+      part_of_speech: partOfSpeech as Concept['part_of_speech'],
+      meaning,
+      chapter: 0,
+      source: 'chat',
+      category: category as Concept['category'],
+      modality: createInitialModality(0),
+      knowledge: 50,
+      paused: false,
+    };
+
+    setConcepts(prev => [...prev, newConcept]);
+    markPendingSync();
+  }, [markPendingSync]);
+
+  // Delete a custom word (only source: 'chat' words)
+  const deleteCustomWord = useCallback(async (word: string) => {
+    const concept = concepts.find(c => c.word === word && c.source === 'chat');
+    if (!concept) {
+      console.warn(`[VocabStore] Cannot delete "${word}" — not a custom word or not found`);
+      return;
+    }
+
+    // Delete user_progress first (FK constraint), then vocabulary
+    const { error: progressError } = await supabase
+      .from('user_progress')
+      .delete()
+      .eq('vocabulary_id', concept.id);
+
+    if (progressError) {
+      console.error('[VocabStore] Failed to delete user_progress:', progressError.message);
+    }
+
+    const { error: vocabError } = await supabase
+      .from('vocabulary')
+      .delete()
+      .eq('id', concept.id);
+
+    if (vocabError) {
+      console.error('[VocabStore] Failed to delete vocabulary:', vocabError.message);
+      throw new Error(vocabError.message);
+    }
+
+    setConcepts(prev => prev.filter(c => c.id !== concept.id));
+  }, [concepts]);
 
   // Update modality knowledge after quiz answer
   // Updates BOTH question and answer modalities with different rates
@@ -517,9 +419,7 @@ export function useVocabularyStore(): VocabularyStore {
     }
   }, [concepts, clearPendingSync]);
 
-  // Cloud sync: Load from Supabase
-  // This function loads cloud data and uses it as the source of truth
-  // Local changes should be synced to cloud before calling this
+  // Cloud sync: Load from Supabase (source of truth)
   const loadFromCloud = useCallback(async (userId: string): Promise<void> => {
     setIsSyncing(true);
     setSyncError(null);
@@ -535,87 +435,25 @@ export function useVocabularyStore(): VocabularyStore {
       if (cloudConcepts.length > 0) {
         // Migrate old concepts to new structure if needed
         const migratedConcepts = cloudConcepts.map(c => {
-          // If concept doesn't have modality field, create it
           if (!c.modality) {
             return {
               ...c,
               modality: createInitialModality(c.chapter),
-              knowledge: (c as unknown as { understanding?: number }).understanding ?? 50, // Use old understanding or default
+              knowledge: (c as unknown as { understanding?: number }).understanding ?? 50,
             };
           }
           return c;
         }) as Concept[];
         
-        // Auto-merge: Add any NEW vocabulary from JSON that doesn't exist in cloud
-        // and remove any vocabulary that no longer exists in JSON
-        const vocab = hsk1Data as VocabWord[];
-        const validWords = new Set(vocab.map(v => v.word));
-        
-        // Filter out concepts that no longer exist in source JSON (deleted vocabulary)
-        const filteredConcepts = migratedConcepts.filter(c => {
-          if (!validWords.has(c.word)) {
-            console.log(`[VocabStore] Removing deleted vocabulary from cloud data: ${c.word}`);
-            return false;
-          }
-          return true;
-        });
-        
-        const removedCount = migratedConcepts.length - filteredConcepts.length;
-        if (removedCount > 0) {
-          console.log(`[VocabStore] Removed ${removedCount} deleted vocabulary items from cloud data`);
-        }
-        
-        const existingWords = new Set(filteredConcepts.map(c => c.word));
-        const importedChapters = new Set(filteredConcepts.map(c => c.chapter).filter(ch => ch > 0));
-        // Repair legacy guest-seeded data that synced chapter 1 only.
-        const shouldBackfillAllChapters = importedChapters.size === 1 && importedChapters.has(1);
-        const maxImportedChapter = Math.max(...importedChapters, 0);
-        const newVocab: Concept[] = [];
-        
-        vocab.forEach(word => {
-          // Skip if word already exists
-          if (existingWords.has(word.word)) return;
-          
-          // For positive chapters (HSK words): add if chapter is imported
-          // For negative chapters (compound phrases): add if |chapter| <= max imported chapter
-          const shouldAdd = shouldBackfillAllChapters
-            ? true
-            : word.chapter > 0
-              ? importedChapters.has(word.chapter)
-              : Math.abs(word.chapter) <= maxImportedChapter;
-          
-          if (shouldAdd) {
-            console.log(`[VocabStore] Auto-adding new vocabulary from JSON: ${word.word} (ch ${word.chapter})`);
-            newVocab.push({
-              ...word,
-              id: generateId(),
-              modality: createInitialModality(Math.abs(word.chapter)),
-              knowledge: 50,
-              paused: true,  // New words start paused
-            });
-          }
-        });
-        
-        const mergedConcepts = [...filteredConcepts, ...newVocab];
-        
-        if (newVocab.length > 0) {
-          console.log(`[VocabStore] Added ${newVocab.length} new vocabulary items from updated JSON`);
-        }
-        
-        // Set the merged data
-        setConcepts(mergedConcepts);
-        
-        // Save to localStorage so it persists
-        saveProgress(mergedConcepts);
+        setConcepts(migratedConcepts);
+        saveProgress(migratedConcepts);
         
         const now = new Date().toISOString();
         setLastSyncTime(now);
         localStorage.setItem(LAST_SYNC_KEY, now);
-        
-        // Clear pending sync since we just loaded fresh data
         clearPendingSync();
         
-        console.log(`[VocabStore] Loaded ${filteredConcepts.length} from cloud + ${newVocab.length} new = ${mergedConcepts.length} total`);
+        console.log(`[VocabStore] Loaded ${migratedConcepts.length} concepts from cloud`);
       } else {
         console.log('[VocabStore] No cloud data found, keeping local data');
       }
@@ -632,7 +470,6 @@ export function useVocabularyStore(): VocabularyStore {
 
   return {
     concepts,
-    hsk1Vocab: hsk1Data as VocabWord[],
     addedWords,
     availableChapters,
     studyingCount,
@@ -644,14 +481,13 @@ export function useVocabularyStore(): VocabularyStore {
     hasUnsyncedChanges,
     hasPendingSync,
     // Actions
-    importHSK1,
-    importChapters,
-    removeChapters,
     togglePaused,
     setChapterPaused,
-    restoreNiyatiBaseline,
     getConceptById,
     getConceptByWord,
+    // Custom word management
+    addCustomWord,
+    deleteCustomWord,
     // Quiz actions
     updateModalityKnowledge,
     // Progress

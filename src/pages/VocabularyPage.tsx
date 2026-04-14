@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Download, CheckSquare, Square, Filter, HelpCircle, Check, Loader2, AlertTriangle, Cloud, RefreshCw, BookOpen, Zap, RotateCcw } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, CheckSquare, Square, Filter, HelpCircle, Check, Loader2, AlertTriangle, Cloud, RefreshCw, BookOpen, Zap } from 'lucide-react';
 import type { VocabularyStore } from '../stores/vocabularyStore';
-import { NIYATI_USER_ID, NIYATI_BASELINE_WORDS } from '../stores/vocabularyStore';
 import type { SettingsStore } from '../stores/settingsStore';
 import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { Concept } from '../types/vocabulary';
@@ -15,8 +14,6 @@ interface VocabularyPageProps {
   onSync?: () => void;
   onShowHelp?: () => void;
   onRefresh?: () => Promise<void>;
-  isGuest?: boolean;
-  userId?: string;
 }
 
 type SortField = 'pinyin' | 'word' | 'meaning' | 'part_of_speech' | 'chapter' | 'knowledge';
@@ -76,7 +73,7 @@ function saveVocabPreferences(prefs: Partial<VocabPreferences>): void {
   }
 }
 
-export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onShowHelp, onRefresh, isGuest, userId }: VocabularyPageProps) {
+export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onShowHelp, onRefresh }: VocabularyPageProps) {
   const navigate = useNavigate();
   const initialPrefs = loadVocabPreferences();
   const [sortField, setSortField] = useState<SortField>(initialPrefs.sortField);
@@ -89,13 +86,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
   
   // Refresh state
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
-  // Auto-import HSK1 if no vocab exists (guest only — authenticated users get data from cloud)
-  useEffect(() => {
-    if (isGuest && store.concepts.length === 0 && store.hsk1Vocab.length > 0) {
-      store.importChapters(1, 1, true);
-    }
-  }, [isGuest, store.concepts.length, store.hsk1Vocab.length, store.importChapters]);
   
   // Async refresh on mount (shows cached data immediately, syncs in background)
   // Only refresh if there are no local unsaved changes to avoid overwriting quiz results
@@ -285,23 +275,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
     });
   };
 
-  const isNiyati = userId === NIYATI_USER_ID;
-  const niyatiBaselineMatches = useMemo(() => {
-    if (!isNiyati) return true;
-    const activeWords = new Set(store.concepts.filter(c => !c.paused).map(c => c.word));
-    if (activeWords.size !== NIYATI_BASELINE_WORDS.size) return false;
-    for (const w of NIYATI_BASELINE_WORDS) {
-      if (!activeWords.has(w)) return false;
-    }
-    return true;
-  }, [isNiyati, store.concepts]);
-
-  const handleRestoreBaseline = () => {
-    if (window.confirm(`Reset to your ${NIYATI_BASELINE_WORDS.size} words? Everything else will be paused.`)) {
-      store.restoreNiyatiBaseline();
-    }
-  };
-
   // Format last sync time
   const formatTime = (isoString: string | null) => {
     if (!isoString) return 'Never';
@@ -352,7 +325,7 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                 <HelpCircle className="w-5 h-5" />
               </button>
             )}
-            {onSync && !isGuest && (
+            {onSync && (
               <button
                 className={`btn btn-sm gap-1 ${getSyncButtonClass()}`}
                 onClick={store.syncError ? store.clearSyncError : onSync}
@@ -382,20 +355,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                 )}
               </button>
             )}
-            {isGuest && (
-              <span className="badge badge-warning badge-outline gap-1">
-                <span>Guest Mode</span>
-              </span>
-            )}
-            {store.concepts.length === 0 && (
-              <button 
-                className="btn btn-sm btn-primary"
-                onClick={store.importHSK1}
-              >
-                <Download className="w-4 h-4" />
-                Import All
-              </button>
-            )}
           </div>
         </div>
         
@@ -403,9 +362,7 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
         <div className="flex items-center gap-1.5 flex-wrap">
           <Filter className="w-3.5 h-3.5 text-base-content/40 shrink-0" />
           
-          {/* Chapter filter (hidden for Niyati — she uses PoS-based workflow) */}
-          {!isNiyati && (
-            <select
+          <select
               className="select select-xs select-bordered bg-base-200 w-auto"
               value={filterChapter}
               onChange={e => handleFilterChapter(e.target.value)}
@@ -415,7 +372,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                 <option key={ch} value={ch}>Ch {ch}</option>
               ))}
             </select>
-          )}
           
           {/* PoS filter */}
           <select
@@ -481,16 +437,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
             </>
           )}
 
-          {isNiyati && !niyatiBaselineMatches && (
-            <button
-              className="btn btn-xs btn-outline btn-accent gap-0.5"
-              onClick={handleRestoreBaseline}
-              title={`Restore your original ${NIYATI_BASELINE_WORDS.size} words`}
-            >
-              <RotateCcw className="w-3 h-3" />
-              Restore ({NIYATI_BASELINE_WORDS.size})
-            </button>
-          )}
           
           {/* "For today" session filter actions — only when PoS or chapter filter is active */}
           {hasActiveFilters && filteredConcepts.filter(c => !c.paused).length > 0 && (
@@ -523,8 +469,8 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
           </span>
         </div>
 
-        {/* Chapter Quick Toggle Strip (hidden for Niyati) */}
-        {chapters.length > 0 && !isNiyati && (
+        {/* Chapter Quick Toggle Strip */}
+        {chapters.length > 0 && (
           <div className="flex items-center gap-1 flex-wrap mt-2">
             <span className="text-[10px] uppercase tracking-wider text-base-content/30 font-semibold mr-0.5 shrink-0">Ch</span>
             {chapters.map(ch => {
@@ -607,7 +553,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                       Type <SortIcon field="part_of_speech" />
                     </div>
                   </th>
-                  {!isNiyati && (
                     <th 
                       className="cursor-pointer hover:bg-base-300 text-center whitespace-nowrap hidden sm:table-cell"
                       onClick={() => handleSort('chapter')}
@@ -616,7 +561,6 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                         Ch <SortIcon field="chapter" />
                       </div>
                     </th>
-                  )}
                   <th 
                     className="cursor-pointer hover:bg-base-300 text-center whitespace-nowrap"
                     onClick={() => handleSort('knowledge')}
@@ -651,13 +595,11 @@ export function VocabularyPage({ store, settingsStore, todayFilter, onSync, onSh
                       {concept.meaning}
                     </td>
                     <td className="text-xs opacity-70 hidden sm:table-cell">{formatPOS(concept.part_of_speech)}</td>
-                    {!isNiyati && (
                       <td className="text-center text-sm hidden sm:table-cell">
                         <span className={concept.chapter < 0 ? 'text-secondary' : ''} title={concept.chapter < 0 ? 'Compound phrase' : `HSK Chapter ${concept.chapter}`}>
                           {Math.abs(concept.chapter)}
                         </span>
                       </td>
-                    )}
                     <td className="text-center text-sm">
                       <span className={`font-mono ${
                         concept.knowledge >= 80 ? 'text-success' :

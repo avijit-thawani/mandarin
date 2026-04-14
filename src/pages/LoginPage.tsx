@@ -1,8 +1,7 @@
 // Login page for Supabase authentication
 import { useState } from 'react';
-import { LogIn, AlertCircle, Loader2, User, Zap } from 'lucide-react';
+import { LogIn, AlertCircle, Loader2, Zap } from 'lucide-react';
 
-// Dev user credentials for quick login
 const DEV_USER_EMAIL = import.meta.env.VITE_DEV_USER_EMAIL || '';
 const DEV_USER_PASSWORD = import.meta.env.VITE_DEV_USER_PASSWORD || '';
 const IS_DEV = import.meta.env.MODE === 'development';
@@ -11,13 +10,12 @@ const IS_LOCALHOST = typeof window !== 'undefined' &&
 
 interface LoginPageProps {
   onLogin: (email: string, password: string) => Promise<{ success: boolean; error: string | null }>;
-  onGuestLogin: () => { success: boolean; error: string | null };
   loading: boolean;
   error: string | null;
   onClearError: () => void;
 }
 
-export function LoginPage({ onLogin, onGuestLogin, loading, error, onClearError }: LoginPageProps) {
+export function LoginPage({ onLogin, loading, error, onClearError }: LoginPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -102,21 +100,8 @@ export function LoginPage({ onLogin, onGuestLogin, loading, error, onClearError 
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="divider text-base-content/40 my-4">or</div>
-
-          {/* Guest Mode Button */}
-          <button 
-            onClick={onGuestLogin}
-            className="btn btn-outline btn-secondary w-full"
-            disabled={loading}
-          >
-            <User className="w-5 h-5" />
-            Try Guest Mode
-          </button>
-
           {/* Invite-only notice */}
-          <div className="text-center mt-6 space-y-2">
+          <div className="text-center mt-6">
             <div className="alert alert-info py-3">
               <div className="text-left">
                 <p className="font-medium text-sm">🔒 Access is invite-only</p>
@@ -133,9 +118,6 @@ export function LoginPage({ onLogin, onGuestLogin, loading, error, onClearError 
                 </p>
               </div>
             </div>
-            <p className="text-xs text-base-content/50">
-              Guest mode stores progress locally on your device
-            </p>
           </div>
 
           {/* Dev Mode Quick Login (localhost only) */}
@@ -145,25 +127,13 @@ export function LoginPage({ onLogin, onGuestLogin, loading, error, onClearError 
                 <Zap className="w-4 h-4 text-warning" />
                 <span className="text-xs font-bold text-warning">DEV MODE</span>
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onLogin(DEV_USER_EMAIL, DEV_USER_PASSWORD)}
-                  className="btn btn-xs btn-warning flex-1"
-                  disabled={loading}
-                >
-                  Dev User Login
-                </button>
-                <button
-                  onClick={onGuestLogin}
-                  className="btn btn-xs btn-outline btn-warning flex-1"
-                  disabled={loading}
-                >
-                  Guest Mode
-                </button>
-              </div>
-              <p className="text-xs text-warning/70 mt-2">
-                Quick switch for testing (localhost only)
-              </p>
+              <button
+                onClick={() => onLogin(DEV_USER_EMAIL, DEV_USER_PASSWORD)}
+                className="btn btn-xs btn-warning w-full"
+                disabled={loading}
+              >
+                Dev User Login
+              </button>
             </div>
           )}
         </div>

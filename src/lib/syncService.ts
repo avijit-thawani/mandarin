@@ -38,6 +38,7 @@ interface JoinedProgressRow {
     meaning: string;
     chapter: number;
     source: string;
+    category: string;
   } | null;
 }
 
@@ -56,7 +57,7 @@ function rowToConcept(row: JoinedProgressRow): Concept | null {
     meaning: vocab.meaning,
     chapter: vocab.chapter,
     source: vocab.source,
-    category: 'other' as const, // Enriched from local JSON by store sync
+    category: (vocab.category || 'other') as Concept['category'],
     modality,
     knowledge: row.knowledge,
     paused: row.paused,
@@ -89,7 +90,8 @@ export async function fetchFromCloud(userId: string): Promise<{
           part_of_speech,
           meaning,
           chapter,
-          source
+          source,
+          category
         )
       `)
       .eq('user_id', userId);
