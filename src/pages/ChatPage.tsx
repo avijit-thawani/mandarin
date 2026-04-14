@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Send, Square, Trash2, Loader2, AlertTriangle } from 'lucide-react';
+import Markdown from 'react-markdown';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import { supabase } from '../lib/supabase';
 
@@ -328,7 +329,7 @@ Try "add the word for sunshine" or "which words did you add for me?"`;
         {messages.length === 0 && (
           <div className="flex justify-start">
             <div className="bg-base-200 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
-              <p className="text-sm whitespace-pre-wrap">{welcomeMessage}</p>
+              <div className="text-sm prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0"><Markdown>{welcomeMessage}</Markdown></div>
             </div>
           </div>
         )}
@@ -342,7 +343,10 @@ Try "add the word for sunshine" or "which words did you add for me?"`;
             }`}>
               {msg.parts.map((part, i) => {
                 if (part.type === 'text') {
-                  return <p key={i} className="text-sm whitespace-pre-wrap">{part.text}</p>;
+                  if (msg.role === 'user') {
+                    return <p key={i} className="text-sm whitespace-pre-wrap">{part.text}</p>;
+                  }
+                  return <div key={i} className="text-sm prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0"><Markdown>{part.text}</Markdown></div>;
                 }
                 if (part.type.startsWith('tool-')) {
                   const toolPart = part as { type: string; toolCallId?: string; state?: string; input?: Record<string, unknown>; output?: Record<string, unknown> };

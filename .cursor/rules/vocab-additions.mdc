@@ -1,0 +1,63 @@
+---
+description: Checklist for adding new vocabulary words or phrases to the app
+globs: src/data/hsk1_vocabulary.json,src/utils/syntax.ts,src/types/syntax.ts
+alwaysApply: false
+---
+
+# Adding Vocabulary — Dual-Write + Syntax-Ready Checklist
+
+Every new word/phrase must be added in TWO places and have complete metadata so it works across Quiz, Study, and Syntax features out of the box.
+
+## 1. Add to JSON (primary source)
+
+File: `src/data/hsk1_vocabulary.json`
+
+Every entry MUST have ALL of these fields:
+
+```json
+{
+  "word": "桌子",
+  "pinyin": "zhuōzi",
+  "part_of_speech": "noun",
+  "meaning": "table, desk",
+  "chapter": 7,
+  "source": "hsk1",
+  "category": "object"
+}
+```
+
+### Field rules
+
+- **`part_of_speech`**: must be one of the `PartOfSpeech` values in `src/types/vocabulary.ts` — `noun`, `verb`, `adjective`, `adverb`, `pronoun`, `preposition`, `conjunction`, `particle`, `numeral`, `measure_word`, `interjection`, `other`.
+- **`category`**: must be one of the `SemanticCategory` values in `src/types/vocabulary.ts` — `number`, `family`, `person`, `pronoun`, `animal`, `body`, `country`, `food`, `time`, `direction`, `place`, `object`, `weather`, `size`, `nature`, `communication`, `movement`, `emotion`, `greeting`, `action`, `grammar`, `other`. Pick the most specific match; `other` is last resort.
+- **`meaning`**: if synonyms exist in the vocab (e.g., 但是/可是 both meaning "but"), add a parenthetical hint so quiz distractors don't collide (e.g., "but (however, formal)").
+
+## 2. Insert into Supabase `vocabulary` table
+
+Same fields minus `category` (which is local-only). Use the Supabase MCP or SQL:
+
+```sql
+INSERT INTO vocabulary (word, pinyin, part_of_speech, meaning, chapter, source)
+VALUES ('桌子', 'zhuōzi', 'noun', 'table, desk', 7, 'hsk1');
+```
+
+Without this, cloud sync will skip the word with a console warning.
+
+## 3. Make the word work in Syntax slot filling
+
+The `category` field in JSON auto-maps to syntax slot categories via `VOCAB_CATEGORY_TO_SYNTAX` in `src/utils/syntax.ts`. Check this map to confirm your chosen category has non-empty slot tags. Categories with empty arrays (`communication`, `action`, `movement`, `greeting`, `number`, `direction`, `other`) produce zero syntax matches — the word will never appear in sentence exercises.
+
+If the word needs specific slot placement beyond what `VOCAB_CATEGORY_TO_SYNTAX` provides:
+
+- Add it to `SEMANTIC_CATEGORIES` in `src/utils/syntax.ts` (hand-curated per-word map).
+- Add it to the relevant list(s) in `SEMANTIC_TAGS` in `src/types/syntax.ts` (e.g., `time`, `place`, `food`, `person`, `readable`, `watchable`, `locatable`, `drink`, `furniture`, `location_word`).
+
+If the word's English meaning doesn't work grammatically in sentences (e.g., "(plural) you", "dish, cuisine"), also add it to `SENTENCE_ENGLISH` in `src/utils/syntax.ts` with clean subject/object forms.
+
+## 4. Verification (quick mental checklist)
+
+- [ ] JSON entry has all 7 fields, `part_of_speech` and `category` match the type unions
+- [ ] Supabase row inserted (or flagged for user to insert manually)
+- [ ] `category` maps to non-empty slot tags in `VOCAB_CATEGORY_TO_SYNTAX` — OR word is added to `SEMANTIC_CATEGORIES` / `SEMANTIC_TAGS`
+- [ ] Synonym meanings are disambiguated with parenthetical hints
+- [ ] If a noun/pronoun/adjective: `SENTENCE_ENGLISH` entry exists if the raw `meaning` string is not sentence-safe
