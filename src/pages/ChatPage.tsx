@@ -11,6 +11,8 @@ interface ChatPageProps {
 }
 
 const CHAT_STORAGE_KEY = 'langseed_chat_history';
+const TOOL_RESULTS_KEY = 'langseed_tool_results';
+const PROCESSED_TOOLS_KEY = 'langseed_processed_tools';
 const MAX_STORED_MESSAGES = 50;
 
 function buildVocabContext(store: VocabularyStore): string {
@@ -54,12 +56,16 @@ interface ToolExecResult {
 export function ChatPage({ store, userName }: ChatPageProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const processedTools = useRef(new Set<string>());
+  const processedTools = useRef(loadProcessedTools());
   const [input, setInput] = useState('');
-  const [toolResults, setToolResults] = useState<Record<string, ToolExecResult>>({});
+  const [toolResults, setToolResults] = useState<Record<string, ToolExecResult>>(loadToolResults);
 
   const recordToolExec = useCallback((toolCallId: string, result: ToolExecResult) => {
-    setToolResults(prev => ({ ...prev, [toolCallId]: result }));
+    setToolResults(prev => {
+      const next = { ...prev, [toolCallId]: result };
+      try { localStorage.setItem(TOOL_RESULTS_KEY, JSON.stringify(next)); } catch { /* quota */ }
+      return next;
+    });
   }, []);
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
@@ -86,6 +92,7 @@ export function ChatPage({ store, userName }: ChatPageProps) {
           const toolKey = `${msg.id}-${toolPart.toolCallId}`;
           if (processedTools.current.has(toolKey)) continue;
           processedTools.current.add(toolKey);
+          try { localStorage.setItem(PROCESSED_TOOLS_KEY, JSON.stringify([...processedTools.current])); } catch { /* quota */ }
 
           if (toolPart.output?.status !== 'pending_client') continue;
           handleToolResult(toolPart.toolCallId, toolPart.output, toolPart.input || {});
@@ -233,6 +240,8 @@ export function ChatPage({ store, userName }: ChatPageProps) {
     processedTools.current.clear();
     setToolResults({});
     localStorage.removeItem(CHAT_STORAGE_KEY);
+    localStorage.removeItem(TOOL_RESULTS_KEY);
+    localStorage.removeItem(PROCESSED_TOOLS_KEY);
   };
 
   const handleSend = () => {
@@ -419,4 +428,20 @@ function loadStoredMessages() {
     if (stored) return JSON.parse(stored);
   } catch { /* ignore */ }
   return [];
+}
+
+function loadToolResults(): Record<string, ToolExecResult> {
+  try {
+    const stored = localStorage.getItem(TOOL_RESULTS_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch { /* ignore */ }
+  return {};
+}
+
+function loadProcessedTools(): Set<string> {
+  try {
+    const stored = localStorage.getItem(PROCESSED_TOOLS_KEY);
+    if (stored) return new Set(JSON.parse(stored));
+  } catch { /* ignore */ }
+  return new Set();
 }
