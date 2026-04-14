@@ -32,7 +32,7 @@ IMPORTANT:
 const tools = {
   add_custom_word: tool({
     description: 'Add a brand new word to the user\'s study set. Only use for words not already in their vocabulary.',
-    parameters: z.object({
+    inputSchema: z.object({
       word: z.string().describe('Chinese characters'),
       pinyin: z.string().describe('Pinyin with tone marks (e.g. māo, not mao)'),
       meaning: z.string().describe('English meaning'),
@@ -53,7 +53,7 @@ const tools = {
 
   unpause_words: tool({
     description: 'Mark existing paused words as known (active in quiz/study). Use when the user wants to start studying words already in their vocabulary.',
-    parameters: z.object({
+    inputSchema: z.object({
       words: z.array(z.string()).describe('Chinese characters of words to unpause'),
     }),
     execute: async ({ words }) => ({
@@ -65,7 +65,7 @@ const tools = {
 
   pause_words: tool({
     description: 'Mark words as unknown (hide from quiz/study). Reversible.',
-    parameters: z.object({
+    inputSchema: z.object({
       words: z.array(z.string()).describe('Chinese characters of words to pause'),
     }),
     execute: async ({ words }) => ({
@@ -77,7 +77,7 @@ const tools = {
 
   delete_words: tool({
     description: 'Permanently remove custom words (source: "chat" only). HSK1 words cannot be deleted, only paused.',
-    parameters: z.object({
+    inputSchema: z.object({
       words: z.array(z.string()).describe('Chinese characters of words to delete'),
     }),
     execute: async ({ words }) => ({
