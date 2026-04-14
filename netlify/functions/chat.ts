@@ -90,6 +90,16 @@ const tools = {
 };
 
 export default async (req: Request) => {
+  // GET = health check (no auth required, no secrets exposed)
+  if (req.method === 'GET') {
+    return new Response(JSON.stringify({
+      hasAnthropicKey: !!process.env.ANTHROPIC_API_KEY,
+      keyPrefix: process.env.ANTHROPIC_API_KEY?.slice(0, 10) || 'MISSING',
+      hasSupabaseUrl: !!process.env.VITE_SUPABASE_URL,
+      hasSupabaseKey: !!process.env.VITE_SUPABASE_ANON_KEY,
+    }), { headers: { 'Content-Type': 'application/json' } });
+  }
+
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
