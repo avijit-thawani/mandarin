@@ -181,7 +181,7 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 - **Character structure**: words with matching repetition patterns (AA like 爸爸/妈妈/谢谢) are preferred as distractors for each other, preventing the "spot the doubled character" shortcut.
 - POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert).
 - Easy mode inverts most signals to make wrong answers obviously different.
-- **Synonym disambiguation**: words that share similar English meanings (e.g., 但是/可是 "but", 会/能 "can", 按/照 "according to") have differentiated glosses with parenthetical context hints (formal/casual, learned skill/permission, etc.) so each meaning is unique and quiz collisions are avoided.
+- **Synonym disambiguation**: words that share similar English meanings (e.g., 但是/可是 "but", 会/能 "can", 按/照 "according to", 儿/儿子 "son", 小/些/一点儿/少 "small/some/a little/few") have differentiated glosses with parenthetical context hints (formal/casual, size vs quantity, diminutive suffix vs standalone noun, etc.) so each meaning is unique and quiz collisions are avoided. Collision detection in `hasCollision` is exact-string match on the answer-modality value, so disambiguation must happen in the content/gloss, not the code.
 
 ---
 

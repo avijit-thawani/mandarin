@@ -372,7 +372,7 @@
     "word": "儿",
     "pinyin": "ér",
     "part_of_speech": "noun",
-    "meaning": "son, child (suffix)",
+    "meaning": "child; diminutive suffix (e.g., 一点儿, 那儿)",
     "chapter": 4,
     "source": "hsk1",
     "category": "family"
@@ -1164,7 +1164,7 @@
     "word": "儿子",
     "pinyin": "érzi",
     "part_of_speech": "noun",
-    "meaning": "son",
+    "meaning": "son (one's male child)",
     "chapter": 9,
     "source": "hsk1",
     "category": "family"
@@ -1209,7 +1209,7 @@
     "word": "小",
     "pinyin": "xiǎo",
     "part_of_speech": "adjective",
-    "meaning": "small, little",
+    "meaning": "small (in size)",
     "chapter": 9,
     "source": "hsk1",
     "category": "size"
@@ -1524,7 +1524,7 @@
     "word": "些",
     "pinyin": "xiē",
     "part_of_speech": "measure_word",
-    "meaning": "some, a few",
+    "meaning": "several; some (plural marker, used with 一/这/那)",
     "chapter": 12,
     "source": "hsk1",
     "category": "size"
@@ -1740,7 +1740,7 @@
     "word": "一点儿",
     "pinyin": "yīdiǎnr",
     "part_of_speech": "adverb",
-    "meaning": "a few, a little",
+    "meaning": "a bit; a small amount or degree",
     "chapter": 14,
     "source": "hsk1",
     "category": "size"
@@ -1803,7 +1803,7 @@
     "word": "少",
     "pinyin": "shǎo",
     "part_of_speech": "adjective",
-    "meaning": "little, few",
+    "meaning": "few; not many (in quantity)",
     "chapter": 14,
     "source": "hsk1",
     "category": "size"
