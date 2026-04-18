@@ -30,7 +30,7 @@ function getRandomItem<T>(array: T[]): T | undefined {
 // SEMANTIC WORD CATEGORIES - Which words make sense together
 // ============================================================================
 
-const SEMANTIC_CATEGORIES: Record<string, string[]> = {
+export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   // People (subjects of sentences)
   '我': ['person', 'subject'],
   '你': ['person', 'subject'],
@@ -127,6 +127,11 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '工作': [],
   '住': [],
   '睡觉': [],
+  // HSK1 verb-object compounds: tagged pos=verb but their `category` (food /
+  // family) makes the derived map pull them into noun-position slots, e.g.
+  // "你吃吃饭" / "下午先生吃吃饭". Block explicitly.
+  '吃饭': [],
+  '看见': [],
 
   // Question/demonstrative pronouns — suppress auto-derivation from "pronoun" category
   '什么': [],
@@ -186,12 +191,37 @@ const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   
   // Languages
   '汉语': ['language'],
+
+  // ──────────────────────────────────────────────────────────────────────
+  // Suppression list — single-character "morpheme roots" and bare locations
+  // ──────────────────────────────────────────────────────────────────────
+  // These HSK1 single-character entries (mostly chapter-16 roots) ARE real
+  // characters but ungrammatical as bare sentence subjects/objects in modern
+  // Mandarin. They produce things like "Scholar eats fish", "Specialist
+  // doesn't go to village", "Body was bought at hall". Suppress with [] so
+  // they participate in vocab quizzes but never in syntax sentences.
+  '人': [],     // bare "person" — too generic as subject
+  '儿': [],     // child/-er suffix root (in 儿子, 女儿)
+  '生': [],     // student/life root (suffix in 学生/医生)
+  '师': [],     // specialist root (suffix in 老师/医师)
+  '员': [],     // member root (suffix in 服务员/演员)
+  '者': [],     // -er suffix
+  '学家': [],   // "scholar" — needs qualifier in real usage
+  '教师': [],   // "teacher" — fine word but blocks until SENTENCE_ENGLISH entry exists
+  // Place morphemes
+  '室': [], '馆': [], '厂': [], '村': [], '城': [], '国': [], '店': [],
+  // Body/object morphemes
+  '体': [], '口': [], '机': [], '物': [],
+  // Bare directional/relative position nouns — used as 上/下/里 attached to a
+  // place (e.g. 桌子上), not as standalone destinations (去上 is wrong).
+  '里': [], '外': [], '上': [], '下': [], '前': [], '后': [],
+  '中间': [], '旁边': [], '左边': [], '右边': [],
 };
 
 // Auto-derive syntax slot categories from the vocabulary JSON's SemanticCategory field.
 // This ensures words NOT in the hand-curated SEMANTIC_CATEGORIES map can still
 // participate in sentence templates (e.g. any pronoun → person/subject slot).
-const VOCAB_CATEGORY_TO_SYNTAX: Record<string, string[]> = {
+export const VOCAB_CATEGORY_TO_SYNTAX: Record<string, string[]> = {
   pronoun:       ['person', 'subject'],
   person:        ['person', 'subject'],
   family:        ['person', 'subject', 'family'],
@@ -217,13 +247,17 @@ const VOCAB_CATEGORY_TO_SYNTAX: Record<string, string[]> = {
 };
 
 function getCategories(word: string, vocabCategory?: string): string[] {
-  const curated = SEMANTIC_CATEGORIES[word] || [];
-  if (!vocabCategory) return curated;
-  const derived = VOCAB_CATEGORY_TO_SYNTAX[vocabCategory] || [];
-  if (curated.length === 0) return derived;
-  // Merge both, deduplicated
-  const merged = new Set([...curated, ...derived]);
-  return [...merged];
+  // Curated entries in SEMANTIC_CATEGORIES are AUTHORITATIVE: an explicit
+  // override (including the empty array `[]` to BLOCK a word entirely)
+  // wins over the vocab-category-derived tags. This is how we suppress
+  // verbs (吃/喝/想…), interrogatives (什么/哪儿/几…), morpheme roots
+  // (师/员/者…), and disambiguate polysemous words (家 = place only,
+  // never person, even though its DB category is "family").
+  if (Object.prototype.hasOwnProperty.call(SEMANTIC_CATEGORIES, word)) {
+    return SEMANTIC_CATEGORIES[word];
+  }
+  if (!vocabCategory) return [];
+  return VOCAB_CATEGORY_TO_SYNTAX[vocabCategory] ?? [];
 }
 
 // ============================================================================
@@ -232,7 +266,7 @@ function getCategories(word: string, vocabCategory?: string): string[] {
 // Dictionary meanings like "(plural) you" or "dish, cuisine" don't work in sentences.
 // This provides clean, single-word English that works grammatically.
 
-const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
+export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   // Pronouns - need different forms for subject vs object position
   '我': { subject: 'I', object: 'me' },
   '你': { subject: 'you', object: 'you' },
@@ -251,8 +285,11 @@ const SENTENCE_ENGLISH: Record<string, { subject: string; object: string }> = {
   '朋友': { subject: 'my friend', object: 'my friend' },
   '同学': { subject: 'my classmate', object: 'my classmate' },
   '儿子': { subject: 'the son', object: 'the son' },
-  '先生': { subject: 'Mr.', object: 'Mr.' },
-  '小姐': { subject: 'Miss', object: 'Miss' },
+  // 先生/小姐 are titles (Mr./Miss) that need a name in real usage. When
+  // they're slotted as a bare subject we render them as "the gentleman" /
+  // "the young lady" so the English isn't "Mr. eats fish".
+  '先生': { subject: 'the gentleman', object: 'the gentleman' },
+  '小姐': { subject: 'the young lady', object: 'the young lady' },
   
   // Food - clean single words
   '米饭': { subject: 'rice', object: 'rice' },
@@ -385,13 +422,13 @@ function getSentenceEnglish(word: string, position: 'subject' | 'object' = 'subj
 // CURATED SENTENCE TEMPLATES - Meaningful sentences only!
 // ============================================================================
 
-interface TemplateSlot {
+export interface TemplateSlot {
   role: string;
   categories: string[];
   posFilter?: string[];
 }
 
-interface CuratedTemplate {
+export interface CuratedTemplate {
   id: string;
   name: string;
   description: string;
@@ -408,7 +445,7 @@ interface CuratedTemplate {
   difficulty: 1 | 2 | 3;
 }
 
-const CURATED_TEMPLATES: CuratedTemplate[] = [
+export const CURATED_TEMPLATES: CuratedTemplate[] = [
   // ========== Level 1: Basic patterns ==========
   {
     id: 'person_eat_food',
@@ -1991,7 +2028,10 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: '多少钱 (duōshao qián) asks about price. Put the item first, then 多少钱. No verb needed.',
     example: { zh: '苹果多少钱', en: 'How much are apples?' },
     slots: [
-      { role: 'item', categories: ['edible', 'drinkable', 'thing', 'readable', 'locatable'] },
+      // Only purchasable goods belong in a price question — "How much is
+      // the dog?" / "How much is mouth?" are nonsense. Drop `locatable`
+      // (animals/clothes/computers) and require a noun.
+      { role: 'item', categories: ['edible', 'drinkable', 'thing', 'readable', 'vehicle'], posFilter: ['noun'] },
     ],
     fixedWords: [
       { word: '多少钱', pinyin: 'duōshao qián', meaning: 'how much (money)' },
@@ -2406,8 +2446,9 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: '的 (de) marks possession: 我的书 = my book. Like English "\'s".',
     example: { zh: '我的书', en: "my books" },
     slots: [
-      { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['readable', 'watchable'] },
+      // Pronoun-only subject so we never get "Mr.'s books" / "Scholar's TV".
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
+      { role: 'object', categories: ['readable', 'watchable'], posFilter: ['noun'] },
     ],
     fixedWords: [
       { word: '的', pinyin: 'de', meaning: "'s" },
@@ -2423,8 +2464,10 @@ const CURATED_TEMPLATES: CuratedTemplate[] = [
     explanation: '的 (de) marks possession: 他的苹果 = his apples.',
     example: { zh: '他的苹果', en: "his apples" },
     slots: [
-      { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible'] },
+      // Pronoun-only subject + noun-only object so we never get
+      // "Mr.'s eat" or "his drink water".
+      { role: 'subject', categories: ['person'], posFilter: ['pronoun'] },
+      { role: 'object', categories: ['edible'], posFilter: ['noun'] },
     ],
     fixedWords: [
       { word: '的', pinyin: 'de', meaning: "'s" },
@@ -2836,6 +2879,25 @@ export function getTemplateById(id: string): GrammarTemplate | null {
 // SENTENCE GENERATION
 // ============================================================================
 
+/**
+ * Returns true when a vocabulary entry is structurally ineligible to fill
+ * any sentence slot, regardless of its category tags.
+ *
+ * Today this rejects:
+ *  - paused words
+ *  - `source === 'compound'` (user-added V-O / phrasal study items like
+ *    喝水, 吃饭, 回家, 几点回家, 你是学生吗 — these are not nouns and
+ *    produce gibberish like "Mom eats drink water")
+ *  - `part_of_speech === 'phrase'` (defensive duplicate of the above —
+ *    some phrase rows use a different source string)
+ */
+function isSlotEligible(word: Concept): boolean {
+  if (word.paused) return false;
+  if (word.source === 'compound') return false;
+  if ((word.part_of_speech as string) === 'phrase') return false;
+  return true;
+}
+
 function findMatchingWords(
   knownVocab: Concept[],
   slot: TemplateSlot,
@@ -2843,7 +2905,7 @@ function findMatchingWords(
 ): Concept[] {
   return knownVocab.filter(word => {
     if (usedWords.has(word.word)) return false;
-    if (word.paused) return false;
+    if (!isSlotEligible(word)) return false;
     
     const wordCategories = getCategories(word.word, word.category);
     const hasMatch = slot.categories.some(cat => wordCategories.includes(cat));
@@ -2952,6 +3014,248 @@ function pickDirection(directionRatio: SyntaxDirectionRatio): SyntaxDirection {
 }
 
 // ============================================================================
+// SENTENCE BUILDERS (shared by generator + enumerator)
+// ============================================================================
+
+export function buildChineseSentence(
+  template: CuratedTemplate,
+  filledSlots: Map<string, Concept>
+): { chineseWords: string[]; pinyinWords: string[]; vocabularyIds: string[] } {
+  const chineseWords: string[] = [];
+  const pinyinWords: string[] = [];
+  const vocabularyIds: string[] = [];
+
+  for (const item of template.chineseOrder) {
+    const slotWord = filledSlots.get(item);
+    if (slotWord) {
+      chineseWords.push(slotWord.word);
+      pinyinWords.push(slotWord.pinyin);
+      vocabularyIds.push(slotWord.id);
+    } else {
+      const fixedWord = template.fixedWords.find(fw => fw.word === item);
+      if (fixedWord) {
+        chineseWords.push(fixedWord.word);
+        pinyinWords.push(fixedWord.pinyin);
+      }
+    }
+  }
+
+  return { chineseWords, pinyinWords, vocabularyIds };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// English verb conjugation table
+// ────────────────────────────────────────────────────────────────────────────
+// Maps 3rd-person singular present verb forms (as they appear in
+// `englishPattern`) to their base forms. Used when the subject is I / you /
+// we / they / you-all to convert "He eats X" → "I eat X".
+//
+// ⚠ Every 3rd-person verb form used in any template's englishPattern MUST
+// appear here. The startup validator below scans all templates and warns
+// about any unknown -s form (in dev/non-prod runs). Add new entries when
+// adding new templates.
+const THIRD_PERSON_TO_BASE: Record<string, string> = {
+  eats: 'eat',
+  drinks: 'drink',
+  goes: 'go',
+  likes: 'like',
+  reads: 'read',
+  wants: 'want',
+  has: 'have',
+  takes: 'take',
+  studies: 'study',
+  buys: 'buy',
+  returns: 'return',
+  comes: 'come',
+  works: 'work',
+  lives: 'live',
+  loves: 'love',
+  listens: 'listen',
+  watches: 'watch',
+  speaks: 'speak',
+  writes: 'write',
+  cooks: 'cook',
+  sleeps: 'sleep',
+  makes: 'make',
+  plays: 'play',
+};
+
+// Words ending in 's' that show up in englishPatterns but are NOT verbs that
+// need conjugating (or are handled by separate is/am/are logic). The
+// validator allows these; everything else must be in THIRD_PERSON_TO_BASE.
+const NON_CONJUGATED_S_WORDS = new Set<string>([
+  'is', 'was', 'his', 'this', 'us', 'as', 'does', 'apples', 'books',
+  'characters', 'classes', 'chopsticks',
+]);
+
+/**
+ * Dev-time sanity check: every 3rd-person `-s` token used in a template's
+ * `englishPattern` (excluding NON_CONJUGATED_S_WORDS, slot placeholders, and
+ * proper-noun positions) is registered in THIRD_PERSON_TO_BASE. Otherwise
+ * non-3rd-person subjects (I / you / we / they) silently produce
+ * ungrammatical output like "I speaks Chinese".
+ *
+ * Runs once on module load; emits a console.warn on failure but does not
+ * throw — the app still works for he/she/it subjects.
+ */
+function validateEnglishPatterns(): string[] {
+  const missing = new Set<string>();
+  for (const tpl of CURATED_TEMPLATES) {
+    const tokens = tpl.englishPattern.match(/\b[a-z]+s\b/g) ?? [];
+    for (const tok of tokens) {
+      if (NON_CONJUGATED_S_WORDS.has(tok)) continue;
+      if (tok in THIRD_PERSON_TO_BASE) continue;
+      missing.add(`${tok}  (in ${tpl.id})`);
+    }
+  }
+  if (missing.size > 0 && typeof console !== 'undefined') {
+    console.warn(
+      `[syntax] ${missing.size} unknown 3rd-person verb form(s) in englishPatterns; non-3rd-person subjects will produce ungrammatical English.\n` +
+      [...missing].sort().map(s => '  - ' + s).join('\n'),
+    );
+  }
+  return [...missing];
+}
+validateEnglishPatterns();
+
+export function buildEnglishSentence(
+  template: CuratedTemplate,
+  filledSlots: Map<string, Concept>
+): string {
+  const subjectWord = filledSlots.get('subject')?.word;
+  const isFirstPerson = subjectWord === '我';
+  // 你 (informal) and 您 (formal) both map to English "you" → require base verb.
+  const isSecondPerson = subjectWord === '你' || subjectWord === '您';
+  const isPlural = subjectWord === '我们' || subjectWord === '你们' || subjectWord === '他们';
+  const needsBaseVerb = isFirstPerson || isSecondPerson || isPlural;
+
+  let english = template.englishPattern;
+
+  filledSlots.forEach((concept, role) => {
+    const position = (role === 'subject' || role === 'time') ? 'subject' : 'object';
+    const cleanEnglish = getSentenceEnglish(concept.word, position, concept.meaning);
+    english = english.replace(`{${role}}`, cleanEnglish);
+  });
+
+  if (needsBaseVerb) {
+    // 1. Conjugate every 3rd-person verb form via the table.
+    english = english.replace(/\b([a-z]+s)\b/g, (match, word: string) => {
+      if (NON_CONJUGATED_S_WORDS.has(word)) return match;
+      const base = THIRD_PERSON_TO_BASE[word];
+      return base ?? match;
+    });
+
+    // 2. Negation auxiliary: "doesn't" → "don't", "Does I/you/we/they" → "Do …".
+    english = english.replace(" doesn't ", " don't ");
+    english = english.replace(/^Does (I|you|we|you all|they) /, 'Do $1 ');
+
+    // 3. Copula: "is" → "am" everywhere; "are" gets fixed in step 4 if plural.
+    english = english.replace(/^Is /, 'Am ');
+    english = english.replace(/ is /g, ' am ');
+    english = english.replace(/ is\?/g, ' am?');
+    english = english.replace(/ does /g, ' do ');
+  }
+
+  if (isPlural || isSecondPerson) {
+    // 4. Re-conjugate: I → am, you/we/they → are.
+    english = english.replace(/^Am /, 'Are ');
+    english = english.replace(/ am /g, ' are ');
+    english = english.replace(/ am\?/g, ' are?');
+  }
+
+  english = english.charAt(0).toUpperCase() + english.slice(1);
+  return english;
+}
+
+// ============================================================================
+// FULL ENUMERATION — every valid slot-fill combination for every template
+// ============================================================================
+
+export interface EnumeratedSentence {
+  templateId: string;
+  templateName: string;
+  difficulty: 1 | 2 | 3;
+  zh: string;
+  pinyin: string;
+  en: string;
+  slotFill: Record<string, string>;
+}
+
+export function enumerateAllSentences(knownVocab: Concept[]): EnumeratedSentence[] {
+  const results: EnumeratedSentence[] = [];
+
+  for (const template of CURATED_TEMPLATES) {
+    const slotOptions: Concept[][] = template.slots.map(slot =>
+      knownVocab.filter(word => {
+        if (!isSlotEligible(word)) return false;
+        const wordCategories = getCategories(word.word, word.category);
+        const hasMatch = slot.categories.some(c => wordCategories.includes(c));
+        if (!hasMatch) return false;
+        if (slot.posFilter && slot.posFilter.length > 0) {
+          if (!slot.posFilter.includes(word.part_of_speech)) return false;
+        }
+        return true;
+      })
+    );
+
+    // Skip if any slot has no candidates
+    if (slotOptions.some(opts => opts.length === 0) && template.slots.length > 0) continue;
+
+    // Zero-slot templates (e.g. how_to_write)
+    if (template.slots.length === 0) {
+      const filledSlots = new Map<string, Concept>();
+      const { chineseWords, pinyinWords } = buildChineseSentence(template, filledSlots);
+      const en = buildEnglishSentence(template, filledSlots);
+      results.push({
+        templateId: template.id,
+        templateName: template.name,
+        difficulty: template.difficulty,
+        zh: chineseWords.join(''),
+        pinyin: pinyinWords.join(' '),
+        en,
+        slotFill: {},
+      });
+      continue;
+    }
+
+    const chosen: Concept[] = [];
+    const used = new Set<string>();
+
+    const rec = (i: number) => {
+      if (i === template.slots.length) {
+        const filledSlots = new Map<string, Concept>();
+        template.slots.forEach((s, idx) => filledSlots.set(s.role, chosen[idx]));
+        const { chineseWords, pinyinWords } = buildChineseSentence(template, filledSlots);
+        const en = buildEnglishSentence(template, filledSlots);
+        const slotFill: Record<string, string> = {};
+        filledSlots.forEach((c, role) => { slotFill[role] = c.word; });
+        results.push({
+          templateId: template.id,
+          templateName: template.name,
+          difficulty: template.difficulty,
+          zh: chineseWords.join(''),
+          pinyin: pinyinWords.join(' '),
+          en,
+          slotFill,
+        });
+        return;
+      }
+      for (const cand of slotOptions[i]) {
+        if (used.has(cand.word)) continue;
+        used.add(cand.word);
+        chosen.push(cand);
+        rec(i + 1);
+        chosen.pop();
+        used.delete(cand.word);
+      }
+    };
+    rec(0);
+  }
+
+  return results;
+}
+
+// ============================================================================
 // MAIN EXERCISE GENERATOR
 // ============================================================================
 
@@ -2966,11 +3270,9 @@ export function generateSentenceExercise(
     return null;
   }
   
-  // Pick a random template
   const template = getRandomItem(availableTemplates);
   if (!template) return null;
   
-  // Fill the slots
   const filledSlots: Map<string, Concept> = new Map();
   const usedWords = new Set<string>();
   
@@ -2985,108 +3287,9 @@ export function generateSentenceExercise(
     usedWords.add(selected.word);
   }
   
-  // Build Chinese sentence
-  const chineseWords: string[] = [];
-  const pinyinWords: string[] = [];
-  const vocabularyIds: string[] = [];
-  
-  for (const item of template.chineseOrder) {
-    const slotWord = filledSlots.get(item);
-    if (slotWord) {
-      chineseWords.push(slotWord.word);
-      pinyinWords.push(slotWord.pinyin);
-      vocabularyIds.push(slotWord.id);
-    } else {
-      // Fixed word
-      const fixedWord = template.fixedWords.find(fw => fw.word === item);
-      if (fixedWord) {
-        chineseWords.push(fixedWord.word);
-        pinyinWords.push(fixedWord.pinyin);
-      }
-    }
-  }
-  
-  // Build English sentence
-  // First, get the subject to determine verb conjugation
-  const subjectWord = filledSlots.get('subject')?.word;
-  const isFirstPerson = subjectWord === '我';
-  const isSecondPerson = subjectWord === '你';
-  const isPlural = subjectWord === '我们' || subjectWord === '你们' || subjectWord === '他们';
-  const needsBaseVerb = isFirstPerson || isSecondPerson || isPlural;
-  
-  let english = template.englishPattern;
-  
-  // Replace slot placeholders with clean English
-  filledSlots.forEach((concept, role) => {
-    const position = (role === 'subject' || role === 'time') ? 'subject' : 'object';
-    const cleanEnglish = getSentenceEnglish(concept.word, position, concept.meaning);
-    english = english.replace(`{${role}}`, cleanEnglish);
-  });
-  
-  // Fix verb conjugation based on subject
-  if (needsBaseVerb) {
-    // Convert 3rd person verbs to base form for I/you/we/they
-    english = english.replace(' eats ', ' eat ');
-    english = english.replace(' drinks ', ' drink ');
-    english = english.replace(' goes to ', ' go to ');
-    english = english.replace(' likes ', ' like ');
-    english = english.replace(' reads ', ' read ');
-    english = english.replace(' wants ', ' want ');
-    english = english.replace(' has ', ' have ');
-    english = english.replace(' takes ', ' take ');
-    english = english.replace(' studies ', ' study ');
-    english = english.replace(' also eats ', ' also eat ');
-    english = english.replace(' buys ', ' buy ');
-    english = english.replace(' returns ', ' return ');
-    english = english.replace(' comes ', ' come ');
-    english = english.replace(' works ', ' work ');
-    english = english.replace(' lives ', ' live ');
-    english = english.replace(' loves ', ' love ');
-    english = english.replace(' listens ', ' listen ');
-    english = english.replace(' watches ', ' watch ');
-    english = english.replace(' is at ', ' am at ');
-    english = english.replace(' is very ', ' am very ');
-    english = english.replace(' is on ', ' am on ');
-    english = english.replace(' is under ', ' am under ');
-    english = english.replace(' is in front of ', ' am in front of ');
-    english = english.replace(' is behind ', ' am behind ');
-    english = english.replace(' is inside ', ' am inside ');
-    english = english.replace(' is beside ', ' am beside ');
-    
-    // Fix negation: "doesn't" → "don't"
-    english = english.replace(" doesn't ", " don't ");
-    
-    // Fix "Does I" → "Do I", "Does we" → "Do we", etc.
-    english = english.replace(/^Does (I|you|we|you all|they) /, 'Do $1 ');
+  const { chineseWords, pinyinWords, vocabularyIds } = buildChineseSentence(template, filledSlots);
+  const english = buildEnglishSentence(template, filledSlots);
 
-    // Generic is→am catch-all for 是/progressive/太/question patterns
-    english = english.replace(/^Is /, 'Am ');
-    english = english.replace(/ is /g, ' am ');
-    english = english.replace(/ is\?/g, ' am?');
-    // Generic does→do for 什么 questions ("What does I eat?" → "What do I eat?")
-    english = english.replace(/ does /g, ' do ');
-  }
-  
-  // Fix "we am" → "we are", "they am" → "they are"
-  if (isPlural || isSecondPerson) {
-    english = english.replace(' am at ', ' are at ');
-    english = english.replace(' am very ', ' are very ');
-    english = english.replace(' am on ', ' are on ');
-    english = english.replace(' am under ', ' are under ');
-    english = english.replace(' am in front of ', ' are in front of ');
-    english = english.replace(' am behind ', ' are behind ');
-    english = english.replace(' am inside ', ' are inside ');
-    english = english.replace(' am beside ', ' are beside ');
-
-    // Generic am→are catch-all for all new patterns
-    english = english.replace(/^Am /, 'Are ');
-    english = english.replace(/ am /g, ' are ');
-    english = english.replace(/ am\?/g, ' are?');
-  }
-  
-  english = english.charAt(0).toUpperCase() + english.slice(1);
-  
-  // Pick direction and modality
   const direction = pickDirection(directionRatio);
   const chineseModality = pickChineseModality(learningFocus);
   

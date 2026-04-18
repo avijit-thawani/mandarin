@@ -269,6 +269,16 @@ Template-driven grammar/word-order practice using known vocabulary (~130 templat
 
 **Slot filling**: words fill template slots via `SEMANTIC_CATEGORIES` + `VOCAB_CATEGORY_TO_SYNTAX`. Only known/unpaused words participate. Verbs, particles, numbers appear only as `fixedWords`. See `src/types/syntax.ts` for details.
 
+**Slot-filter rules (`src/utils/syntax.ts`)**
+
+- `SEMANTIC_CATEGORIES[word]` is **authoritative**. An explicit entry (including `[]`) wins over `VOCAB_CATEGORY_TO_SYNTAX[word.category]`. Use `[]` to block a word from all slots (verbs, interrogatives, single-character morpheme roots like `师/员/者/口/体/儿/室/馆/国/店`, bare directionals `里/外/上/下/前/后`, and HSK1 V-O compounds `吃饭/睡觉/看见` — they remain in vocab quizzes but never appear as sentence subjects/objects).
+- `isSlotEligible(word)` rejects `paused`, `source==='compound'`, and `part_of_speech==='phrase'` words so user-added compound study items (`喝水`, `回家`, `几点回家`) never slot in.
+- English conjugation is data-driven via `THIRD_PERSON_TO_BASE`. Module load runs `validateEnglishPatterns()`; any new template using an unregistered `-s` verb form prints a `console.warn` (e.g. adding "speaks" or "writes" without registering it).
+- `您` (formal you) is treated as second-person for English conjugation, alongside `你`.
+- Possessive templates (`possessive_book`, `possessive_food`) require `posFilter: ['pronoun']` on the subject, so we never produce "Mr.'s books".
+
+**Local syntax review tooling (gitignored, in `.local-review/`)**: `enumerate-sentences.ts` pulls each user's known vocab from Supabase and writes every possible sentence per template; `classify-findings.ts` buckets the output by issue pattern. Used to drive grammar-rule fixes.
+
 ---
 
 ## Script Behavior (Update When Scripts Change)

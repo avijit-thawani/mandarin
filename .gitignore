@@ -39,3 +39,6 @@ content/hsk1/hsk1_structure_analysis.txt
 
 # Analysis data (may contain user quiz attempts)
 analysis/*.json
+
+# Local, ad-hoc review/enumeration output (may contain user data; never commit)
+.local-review/
