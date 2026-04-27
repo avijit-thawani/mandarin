@@ -50,7 +50,9 @@ function buildDateArray(days: number): string[] {
 
 function quizzesForDay(attempts: number, cardsPerSession: number): number {
   if (!cardsPerSession || cardsPerSession <= 0) return attempts > 0 ? 1 : 0;
-  return Math.round(attempts / cardsPerSession);
+  const q = Math.round(attempts / cardsPerSession);
+  if (q === 0 && attempts > 0) return 0.5;
+  return q;
 }
 
 function computeCurrentStreak(
@@ -69,6 +71,8 @@ function computeCurrentStreak(
     if (q >= 1) {
       streak++;
       extras += q - 1;
+    } else if (q > 0) {
+      streak++;
     } else if (date === today) {
       // Grace period
     } else if (extras > 0) {
@@ -97,6 +101,8 @@ function computeBestStreak(
     if (q >= 1) {
       current++;
       extras += q - 1;
+    } else if (q > 0) {
+      current++;
     } else if (extras > 0) {
       current++;
       extras--;
@@ -132,6 +138,8 @@ function computeRecoveryInfo(
 
     if (q >= 1) {
       extras += q - 1;
+    } else if (q > 0) {
+      // Partial day — doesn't break streak, doesn't generate extras
     } else if (date === today) {
       // grace
     } else if (extras > 0) {
@@ -158,6 +166,8 @@ function computeRecoveryInfo(
 
     if (q >= 1) {
       extras += q - 1;
+    } else if (q > 0) {
+      // Partial day — showed up, not a miss
     } else if (date !== today) {
       missed.push(date);
     }
