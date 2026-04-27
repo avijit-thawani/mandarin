@@ -261,7 +261,8 @@ export async function getQuizStats(
     let totalCorrect = 0;
 
     for (const attempt of allAttempts) {
-      const date = String(attempt.created_at).substring(0, 10);
+      const local = new Date(attempt.created_at);
+      const date = `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
       if (!byDate[date]) {
         byDate[date] = { attempts: 0, correct: 0 };
       }

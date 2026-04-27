@@ -25,17 +25,25 @@ export interface StreakData {
 }
 
 /**
- * Build an array of YYYY-MM-DD strings from N days ago to today (inclusive), in UTC.
- * Uses noon UTC as anchor to avoid any DST/timezone edge cases.
+ * Format a Date as YYYY-MM-DD in the browser's local timezone.
+ */
+function toLocalDateString(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Build an array of YYYY-MM-DD strings from N days ago to today (inclusive),
+ * in the browser's local timezone so streaks reset at local midnight.
  */
 function buildDateArray(days: number): string[] {
-  const todayStr = new Date().toISOString().split('T')[0];
-  const anchor = new Date(todayStr + 'T12:00:00Z');
+  const now = new Date();
   const dates: string[] = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(anchor.getTime());
-    d.setUTCDate(d.getUTCDate() - i);
-    dates.push(d.toISOString().split('T')[0]);
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    dates.push(toLocalDateString(d));
   }
   return dates;
 }
