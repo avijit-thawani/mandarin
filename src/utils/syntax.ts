@@ -149,6 +149,7 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '您': ['person', 'subject'],
   '这个': [],
   '那个': [],
+  '多少': [],   // "how many/much" interrogative; not a person-describing adj
 
   // Nouns that should fill slots
   '身体': ['describable'],
@@ -184,10 +185,14 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '星期六': ['time', 'time_unit'],
   '星期天': ['time', 'time_unit'],
 
-  // Time units (can follow 上个/这个/下个)
-  '星期': ['time', 'time_unit'],
-  '月': ['time', 'time_unit'],
-  '年': ['time', 'time_unit'],
+  // Bare time-UNIT nouns: only valid with a determiner (上个/这个/下个).
+  // Tagged ONLY `time_unit`, not `time`, so they don't slot into templates
+  // expecting a full time expression (else: "didn't come week").
+  '星期': ['time_unit'],
+  '月': ['time_unit'],
+  // 年 (year) does NOT take 上个/这个/下个 in real Mandarin — those slots
+  // require 去年/今年/明年 (already separate vocab entries). Block entirely.
+  '年': [],
   
   // Languages
   '汉语': ['language'],
@@ -201,6 +206,7 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   // doesn't go to village", "Body was bought at hall". Suppress with [] so
   // they participate in vocab quizzes but never in syntax sentences.
   '人': [],     // bare "person" — too generic as subject
+  '女': [],     // "woman/female" — used as morpheme (女儿, 女人), not bare
   '儿': [],     // child/-er suffix root (in 儿子, 女儿)
   '生': [],     // student/life root (suffix in 学生/医生)
   '师': [],     // specialist root (suffix in 老师/医师)
@@ -212,6 +218,27 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '室': [], '馆': [], '厂': [], '村': [], '城': [], '国': [], '店': [],
   // Body/object morphemes
   '体': [], '口': [], '机': [], '物': [],
+  // Time/day morphemes (used as compound roots, not bare): 天=sky/day-counter,
+  // 日=sun/date suffix, 午=noon-classical (lives in 上午/中午/下午),
+  // 气=air/atmosphere (lives in 天气, 客气), 时候=time/moment (only in
+  // compounds like 什么时候=when), 分=minute (counter, used after numbers).
+  '天': [], '日': [], '午': [], '气': [], '时候': [], '分': [],
+  // V-phrase compounds tagged as nouns: 下雨 ("to rain") was sliding into
+  // describable subject slots ("Rain is not very few").
+  '下雨': [],
+  // Adjective 少 ("few/little") doesn't predicate of singular animate
+  // subjects ("You are very few"). Strip its tags so it stays vocab-only.
+  '少': [],
+  // Measure words 点 (o'clock counter — used after numbers like 三点) and 些
+  // (some/several — used after 一/这/那) only work with a determiner. Block
+  // them so they don't slot bare as time / size_adj.
+  '点': [], '些': [],
+  // 喜欢 is a verb ("to like") but its DB cat=emotion derives `emotion_adj`
+  // — that put it into too_adj templates ("teacher is too like").
+  '喜欢': [],
+  // 杯子 (cup) is a vessel, not food — DB row mis-tagged cat=food which
+  // gave it ['food','edible']. Override to plain object/locatable.
+  '杯子': ['thing', 'locatable'],
   // Bare directional/relative position nouns — used as 上/下/里 attached to a
   // place (e.g. 桌子上), not as standalone destinations (去上 is wrong).
   '里': [], '外': [], '上': [], '下': [], '前': [], '后': [],
@@ -285,6 +312,12 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '朋友': { subject: 'my friend', object: 'my friend' },
   '同学': { subject: 'my classmate', object: 'my classmate' },
   '儿子': { subject: 'the son', object: 'the son' },
+  // Generic "things/stuff" — was falling back to dictionary meaning "thing"
+  // (no article) and producing "want to buy thing".
+  '东西': { subject: 'things', object: 'things' },
+  // 杯子 rendered singular ("the cup") so it agrees with templates like
+  // "{item} was bought …" — "Cups was bought" → "The cup was bought".
+  '杯子': { subject: 'the cup', object: 'the cup' },
   // 先生/小姐 are titles (Mr./Miss) that need a name in real usage. When
   // they're slotted as a bare subject we render them as "the gentleman" /
   // "the young lady" so the English isn't "Mr. eats fish".
@@ -306,7 +339,11 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   
   // Places
   '学校': { subject: 'school', object: 'school' },
-  '家': { subject: 'home', object: 'their home' },
+  // 家 = "home" both as subject and object. The article-less form reads
+  // naturally with our copula/preposition templates ("is at home", "is not
+  // at home"). For motion verbs ("go to home" / "return to home") we strip
+  // the "to" in buildEnglishSentence so it reads as "go home" / "return home".
+  '家': { subject: 'home', object: 'home' },
   '医院': { subject: 'the hospital', object: 'the hospital' },
   '商店': { subject: 'the store', object: 'the store' },
   '银行': { subject: 'the bank', object: 'the bank' },
@@ -396,7 +433,9 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '身体': { subject: 'health', object: 'health' },
   '钱': { subject: 'money', object: 'money' },
   '名字': { subject: 'a name', object: 'a name' },
-  '衣服': { subject: 'clothes', object: 'clothes' },
+  // 衣服 rendered as the uncountable mass noun "clothing" so it agrees
+  // with singular "is" everywhere ("How much is clothes?" was wrong).
+  '衣服': { subject: 'clothing', object: 'clothing' },
   '好吃': { subject: 'delicious', object: 'delicious' },
 };
 
@@ -2050,7 +2089,9 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我是昨天来的', en: 'I came yesterday' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'time', categories: ['time'] },
+      // 是...来的 is a past-focus construction; the time MUST be past or
+      // present (not future, else "You came tomorrow").
+      { role: 'time', categories: ['past_time', 'present_time'] },
     ],
     fixedWords: [
       { word: '是', pinyin: 'shì', meaning: '(emphasis)' },
@@ -2109,7 +2150,8 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我不是昨天来的', en: "I didn't come yesterday" },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'time', categories: ['time'] },
+      // Same past-focus constraint as emphasis_time.
+      { role: 'time', categories: ['past_time', 'present_time'] },
     ],
     fixedWords: [
       { word: '不是', pinyin: 'bú shì', meaning: "wasn't" },
@@ -2920,7 +2962,28 @@ function findMatchingWords(
   });
 }
 
+/**
+ * Vocab-led check: every `fixedWord` rendered into the sentence must also be
+ * in the user's known (non-paused) vocab. Without this, zero-slot templates
+ * like `how_to_write` ("这个字怎么写" — fixedWords 这个/字/怎么/写) — and
+ * any slot template whose verb/particle/negator the user hasn't accepted —
+ * "unlock" with surprise vocabulary the user never saw in the Vocab tab.
+ *
+ * For Niyati's case (Feb 2026) this was the entire syntax bug: she had no
+ * person nouns, so every other template failed slot-matching, and
+ * `how_to_write` was the lone survivor — same mystery sentence every time.
+ */
+function allFixedWordsKnown(knownVocab: Concept[], template: CuratedTemplate): boolean {
+  if (template.fixedWords.length === 0) return true;
+  const known = new Set(
+    knownVocab.filter(w => !w.paused).map(w => w.word),
+  );
+  return template.fixedWords.every(fw => known.has(fw.word));
+}
+
 function canFillTemplate(knownVocab: Concept[], template: CuratedTemplate): boolean {
+  if (!allFixedWordsKnown(knownVocab, template)) return false;
+
   const usedWords = new Set<string>();
   
   for (const slot of template.slots) {
@@ -3118,6 +3181,21 @@ function validateEnglishPatterns(): string[] {
 }
 validateEnglishPatterns();
 
+// Possessive forms for the 7 sentence pronouns. Used by templates whose
+// englishPattern contains "{subject}'s" — we substitute the possessive form
+// directly (e.g. "他's books" → "his books") so we never produce
+// contractions like "She's TV" that English re-parses as "She is TV".
+const PRONOUN_POSSESSIVE: Record<string, string> = {
+  '我': 'my',
+  '你': 'your',
+  '您': 'your',
+  '他': 'his',
+  '她': 'her',
+  '我们': 'our',
+  '你们': 'your',
+  '他们': 'their',
+};
+
 export function buildEnglishSentence(
   template: CuratedTemplate,
   filledSlots: Map<string, Concept>
@@ -3131,11 +3209,36 @@ export function buildEnglishSentence(
 
   let english = template.englishPattern;
 
+  // Possessive substitution: any pattern with "{subject}'s" + a pronoun
+  // subject becomes the proper possessive form. Capitalize at sentence
+  // start; capitalisation is later normalised by the final char-0 upper.
+  if (english.includes("{subject}'s") && subjectWord && subjectWord in PRONOUN_POSSESSIVE) {
+    const poss = PRONOUN_POSSESSIVE[subjectWord];
+    english = english.replace("{subject}'s", poss);
+  }
+
   filledSlots.forEach((concept, role) => {
     const position = (role === 'subject' || role === 'time') ? 'subject' : 'object';
     const cleanEnglish = getSentenceEnglish(concept.word, position, concept.meaning);
     english = english.replace(`{${role}}`, cleanEnglish);
   });
+
+  // Preposition fix: 在 + country renders as "in X" in English, not "at X"
+  // ("I eat at China" → "I eat in China"). Same for the destination slot
+  // when it's a country.
+  for (const role of ['location', 'destination']) {
+    const concept = filledSlots.get(role);
+    if (!concept) continue;
+    const cats = getCategories(concept.word, concept.category);
+    if (!cats.includes('country')) continue;
+    const enWord = getSentenceEnglish(concept.word, 'object', concept.meaning);
+    english = english.replace(` at ${enWord}`, ` in ${enWord}`);
+  }
+
+  // Idiomatic motion-verb fix: "go to home" / "return to home" / "come to
+  // home" → drop the "to" so it reads "go home" / "return home" / "come
+  // home". (Only applies when the destination word renders as plain "home".)
+  english = english.replace(/\b(go|goes|return|returns|come|comes) to home\b/g, '$1 home');
 
   if (needsBaseVerb) {
     // 1. Conjugate every 3rd-person verb form via the table.
@@ -3146,11 +3249,13 @@ export function buildEnglishSentence(
     });
 
     // 2. Negation auxiliary: "doesn't" → "don't", "Does I/you/we/they" → "Do …".
+    //    Some templates start with lowercase "does …" (capitalisation is
+    //    applied later in this function) so the regex must be case-insensitive.
     english = english.replace(" doesn't ", " don't ");
-    english = english.replace(/^Does (I|you|we|you all|they) /, 'Do $1 ');
+    english = english.replace(/^Does (I|you|we|you all|they) /i, (_match, who: string) => `Do ${who} `);
 
     // 3. Copula: "is" → "am" everywhere; "are" gets fixed in step 4 if plural.
-    english = english.replace(/^Is /, 'Am ');
+    english = english.replace(/^Is /i, 'Am ');
     english = english.replace(/ is /g, ' am ');
     english = english.replace(/ is\?/g, ' am?');
     english = english.replace(/ does /g, ' do ');
@@ -3185,6 +3290,10 @@ export function enumerateAllSentences(knownVocab: Concept[]): EnumeratedSentence
   const results: EnumeratedSentence[] = [];
 
   for (const template of CURATED_TEMPLATES) {
+    // Same vocab-led check as canFillTemplate: skip any template with a
+    // fixedWord the user hasn't accepted into their vocab.
+    if (!allFixedWordsKnown(knownVocab, template)) continue;
+
     const slotOptions: Concept[][] = template.slots.map(slot =>
       knownVocab.filter(word => {
         if (!isSlotEligible(word)) return false;
