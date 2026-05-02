@@ -410,6 +410,22 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     setShowResult(false);
   }, [syntaxAnswers, mixedIndex, mixedItems, session, handleSessionComplete]);
 
+  // Skip a syntax exercise — advance without recording (no impact on stats or knowledge).
+  // Syntax exercises require thoughtful tile arrangement; quick guessing isn't an option like MCQ.
+  const handleSyntaxSkip = useCallback(() => {
+    const nextMixed = mixedIndex + 1;
+    const isLast = nextMixed >= mixedItems.length;
+
+    if (isLast && session) {
+      handleSessionComplete(session.answers, syntaxAnswers);
+      setSession(prev => prev ? { ...prev, completedAt: new Date().toISOString() } : prev);
+    }
+
+    setMixedIndex(nextMixed);
+    setSelectedOption(null);
+    setShowResult(false);
+  }, [mixedIndex, mixedItems, session, syntaxAnswers, handleSessionComplete]);
+
   // Get display content for an option
   const getOptionDisplay = (option: Concept, modality: Modality): string => {
     return getModalityContent(option, modality);
@@ -582,6 +598,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
             exercise={currentItem.exercise}
             audioSettings={settings.audio}
             onComplete={handleSyntaxComplete}
+            onSkip={handleSyntaxSkip}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Volume2, Loader2, Check, X, Info } from 'lucide-react';
+import { Volume2, Loader2, Check, X, Info, SkipForward } from 'lucide-react';
 import type { SentenceExercise } from '../types/syntax';
 import type { AudioSettings } from '../types/settings';
 import { getTemplateById, shuffleArray } from '../utils/syntax';
@@ -17,10 +17,13 @@ interface SyntaxExerciseCardProps {
   exercise: SentenceExercise;
   audioSettings?: AudioSettings;
   onComplete: (correct: boolean) => void;
+  /** Optional skip handler. When provided, a Skip button appears pre-submit so users can pass on
+   *  syntax exercises (which take longer to attempt than MCQ). Skipping does not record the attempt. */
+  onSkip?: () => void;
   /** Label like "3/10" shown in parent header — card doesn't render its own header */
 }
 
-export function SyntaxExerciseCard({ exercise, audioSettings, onComplete }: SyntaxExerciseCardProps) {
+export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip }: SyntaxExerciseCardProps) {
   const [userOrder, setUserOrder] = useState<string[]>([]);
   const [availableTiles, setAvailableTiles] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
@@ -275,13 +278,25 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete }: Synt
 
         {/* Actions */}
         {!submitted ? (
-          <button
-            onClick={handleSubmit}
-            disabled={userOrder.length === 0}
-            className="btn btn-primary w-full mt-1"
-          >
-            Check Answer
-          </button>
+          <div className="flex gap-1.5 mt-1">
+            {onSkip && (
+              <button
+                onClick={onSkip}
+                className="btn btn-ghost btn-sm gap-1 text-base-content/60"
+                title="Skip this question — it won't be recorded"
+              >
+                <SkipForward className="w-4 h-4" />
+                <span className="hidden sm:inline">Skip</span>
+              </button>
+            )}
+            <button
+              onClick={handleSubmit}
+              disabled={userOrder.length === 0}
+              className="btn btn-primary flex-1"
+            >
+              Check Answer
+            </button>
+          </div>
         ) : (
           <button
             onClick={() => onComplete(isCorrect ?? false)}
