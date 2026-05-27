@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getQuizStats } from '../lib/quizService';
 
-const STREAK_DAYS_TO_FETCH = 90;
+// Must cover the user's full active streak; 90 days incorrectly capped long streaks.
+const STREAK_DAYS_TO_FETCH = 365 * 5;
 const MAX_RECOVERY_WINDOW = 7;
 
 interface DayStats {
