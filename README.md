@@ -169,6 +169,8 @@ If changing this flow, update analytics expectations and user-facing copy.
 
 ### Difficulty and Prediction Guidance
 
+- A single **Difficulty** control (easy/hard/expert, set in Profile → Quiz Settings) drives both distractor trickiness AND word selection. All levels use 4 options. `easy` quizzes a random mix; `hard`/`expert` target weak & stale words (`selectionForDifficulty` in `quiz.ts`) to keep accuracy in the ~70-80% band even with few cards/day. There is no separate manual "question selection" control.
+- **Selection-time knowledge decay**: `effectiveKnowledge` in `knowledge.ts` virtually fades stale "mastered" words toward a floor (default ~1.5 pts/idle day, floor 40) so they resurface in hard/expert selection. This decay is NOT persisted — it never writes to `user_progress`, only influences which words are picked.
 - Difficulty/strategy behavior changes often; treat `src/utils/quiz.ts` as source-of-truth for selection logic.
 - Keep README language stable (intent and invariants), and put exact heuristics or scoring formulas in code docstrings.
 - If ML predictions affect runtime behavior, document decision boundaries next to implementation and link from README.
@@ -179,7 +181,7 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 
 - **Semantic category** (`category` field in vocabulary JSON): same-category words are strongly preferred in hard/expert mode (e.g., 爸爸 draws 妈妈/儿子, not 桌子/学校).
 - **Character structure**: words with matching repetition patterns (AA like 爸爸/妈妈/谢谢) are preferred as distractors for each other, preventing the "spot the doubled character" shortcut.
-- POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert).
+- POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert). Expert no longer adds extra options — all difficulties use 4 options.
 - Easy mode inverts most signals to make wrong answers obviously different.
 - **Synonym disambiguation**: words that share similar English meanings (e.g., 但是/可是 "but", 会/能 "can", 按/照 "according to", 儿/儿子 "son", 小/些/一点儿/少 "small/some/a little/few") have differentiated glosses with parenthetical context hints (formal/casual, size vs quantity, diminutive suffix vs standalone noun, etc.) so each meaning is unique and quiz collisions are avoided. Collision detection in `hasCollision` is exact-string match on the answer-modality value, so disambiguation must happen in the content/gloss, not the code.
 
@@ -248,7 +250,7 @@ Controls how many quiz questions are syntax tile-ordering exercises vs MCQ. Same
 - character size
 - pinyin style
 - TTS voice/rate/auto-play
-- quiz difficulty/selection strategy controls
+- quiz difficulty (easy/hard/expert) — also drives weak/stale word selection + decay
 - PWA reminders (per-device local time + timezone, default 4:00 PM)
 
 ---

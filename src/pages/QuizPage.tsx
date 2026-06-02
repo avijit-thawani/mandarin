@@ -6,15 +6,15 @@ import type { SettingsStore } from '../stores/settingsStore';
 import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { QuizSession, QuizQuestion, Modality, Concept } from '../types/vocabulary';
 import type { SentenceExercise } from '../types/syntax';
-import { generateQuizSession, getModalityContent, modalityNeedsAudio } from '../utils/quiz';
+import { generateQuizSession, getModalityContent, modalityNeedsAudio, selectionForDifficulty } from '../utils/quiz';
 import { generateSentenceExercise, checkSyntaxUnlock } from '../utils/syntax';
 import { predictCorrect, computeModalityAverages } from '../utils/knowledge';
 import { saveQuizAttempt, buildQuizContext } from '../lib/quizService';
 import { clearNotifications } from '../lib/pwaReminderService';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
 import { useAuth } from '../hooks/useAuth';
-import { OPTION_SELECTION_META, QUESTION_SELECTION_META, SYNTAX_FREQUENCY_META } from '../types/settings';
-import type { QuestionSelection, OptionSelection, FocusLevel } from '../types/settings';
+import { OPTION_SELECTION_META, SYNTAX_FREQUENCY_META } from '../types/settings';
+import type { OptionSelection, FocusLevel } from '../types/settings';
 import { SyntaxExerciseCard } from '../components/SyntaxExerciseCard';
 
 // Daily quiz completion tracking
@@ -91,9 +91,12 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     difficulty?: string;       // Legacy
     selectionStrategy?: string; // Legacy
   } | undefined;
+  const optionSelection = (rawQuiz?.optionSelection ?? rawQuiz?.difficulty ?? 'hard') as OptionSelection;
   const quizSettings = {
-    questionSelection: (rawQuiz?.questionSelection ?? rawQuiz?.selectionStrategy ?? 'random') as QuestionSelection,
-    optionSelection: (rawQuiz?.optionSelection ?? rawQuiz?.difficulty ?? 'hard') as OptionSelection,
+    // Question selection is now driven by difficulty (see selectionForDifficulty),
+    // so harder difficulty automatically targets weak/stale words instead of random.
+    questionSelection: selectionForDifficulty(optionSelection),
+    optionSelection,
   };
   
   // Syntax settings
@@ -667,33 +670,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                 <div className="card-body gap-3">
                   <h3 className="font-semibold text-sm">Quiz Settings</h3>
                   
-                  {/* Question selection */}
-                  <div>
-                    <label className="text-xs text-base-content/60 mb-1 block">Question Selection</label>
-                    <select
-                      className="select select-sm select-bordered w-full"
-                      value={quizSettings.questionSelection}
-                      onChange={(e) => {
-                        settingsStore.setQuizSettings({ 
-                          questionSelection: e.target.value as QuestionSelection 
-                        });
-                      }}
-                    >
-                      {(['random', 'weak', 'leastTested', 'dueReview'] as const).map(strat => {
-                        const meta = QUESTION_SELECTION_META[strat];
-                        return (
-                          <option key={strat} value={strat}>
-                            {meta.emoji} {meta.label}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <p className="text-xs text-base-content/50 mt-1">
-                      {QUESTION_SELECTION_META[quizSettings.questionSelection].description}
-                    </p>
-                  </div>
-                  
-                  {/* Option selection (distractor difficulty) */}
+                  {/* Difficulty (drives distractor trickiness + word selection) */}
                   <div>
                     <label className="text-xs text-base-content/60 mb-1 block">Difficulty</label>
                     <div className="flex gap-1">

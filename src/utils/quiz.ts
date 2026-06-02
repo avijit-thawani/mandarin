@@ -9,6 +9,24 @@ import type {
 } from '../types/vocabulary';
 import type { LearningFocus, OptionSelection, QuestionSelection } from '../types/settings';
 import { parseTaskType, QUIZ_TASK_TYPES } from '../types/vocabulary';
+import { effectiveKnowledge } from './knowledge';
+
+// ═══════════════════════════════════════════════════════════
+// DIFFICULTY → QUESTION SELECTION
+// ═══════════════════════════════════════════════════════════
+
+/**
+ * Difficulty drives which words get quizzed (not just how tricky the options are).
+ * - easy:   random mix (comfortable practice)
+ * - hard:   weak/stale words (decay-aware) so you're challenged
+ * - expert: same weak/stale targeting + character-biased, knowledge-matched distractors
+ *
+ * This is why higher difficulty pushes accuracy down toward the ~70-80% target band
+ * even with fewer cards per day: it stops re-quizzing already-mastered words at random.
+ */
+export function selectionForDifficulty(optionSelection: OptionSelection): QuestionSelection {
+  return optionSelection === 'easy' ? 'random' : 'weak';
+}
 
 // ═══════════════════════════════════════════════════════════
 // TASK TYPE SELECTION
@@ -335,12 +353,12 @@ export function selectDistractors(
 // ═══════════════════════════════════════════════════════════
 
 /**
- * Get number of distractors based on option selection
- * Easy/Hard: 3 distractors (4 total options)
- * Expert: 5 distractors (6 total options)
+ * Get number of distractors based on option selection.
+ * All difficulties use 4 total options (3 distractors) — higher difficulty makes
+ * the distractors trickier and targets harder words, not more options.
  */
-function getDistractorCount(optionSelection: OptionSelection): number {
-  return optionSelection === 'expert' ? 5 : 3;
+function getDistractorCount(_optionSelection: OptionSelection): number {
+  return 3;
 }
 
 /**
@@ -488,7 +506,9 @@ function selectWeakConcepts(
   count: number,
   learningFocus: LearningFocus
 ): Concept[] {
-  // Score each concept by weakness (lower knowledge = higher score)
+  const now = Date.now();
+  // Score each concept by weakness (lower effective knowledge = higher score).
+  // Uses decay-aware effectiveKnowledge so stale "mastered" words resurface.
   const scored = concepts.map(c => {
     // Weighted average of modality knowledge, inverted
     let weightedKnowledge = 0;
@@ -498,7 +518,7 @@ function selectWeakConcepts(
     for (const mod of modalities) {
       const weight = learningFocus[mod];
       if (weight > 0) {
-        weightedKnowledge += c.modality[mod].knowledge * weight;
+        weightedKnowledge += effectiveKnowledge(c.modality[mod], now) * weight;
         totalWeight += weight;
       }
     }

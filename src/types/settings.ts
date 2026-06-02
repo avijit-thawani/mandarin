@@ -4,10 +4,12 @@ export type ThemeType = 'light' | 'dark' | 'wooden' | 'ocean' | 'forest' | 'suns
 
 export type FocusLevel = 0 | 1 | 2 | 3; // 0 = ignore, 1 = low, 2 = medium, 3 = high
 
-// Option selection - controls how confusing distractors/options are
-// easy: 4 options, obvious wrong answers
-// hard: 4 options, tricky distractors (same POS, similar pinyin)
-// expert: 6 options, tricky distractors + knowledge-matched + character bias
+// Option selection - the single "Difficulty" control. Drives both distractor
+// trickiness AND which words get quizzed (see selectionForDifficulty in quiz.ts).
+// All levels use 4 options.
+// easy:   obvious wrong answers, random word mix
+// hard:   tricky distractors (same POS, similar pinyin), targets weak/stale words
+// expert: hard + knowledge-matched + character bias, targets weak/stale words
 export type OptionSelection = 'easy' | 'hard' | 'expert';
 
 // Question selection - controls which concepts get quizzed
@@ -156,9 +158,9 @@ export const SPEECH_RATE_PRESETS = [
 
 // Option selection labels (how tricky distractors are)
 export const OPTION_SELECTION_META: Record<OptionSelection, { label: string; emoji: string; description: string }> = {
-  easy: { label: 'Easy', emoji: '🌱', description: '4 options, obvious answers' },
-  hard: { label: 'Hard', emoji: '🔥', description: '4 options, tricky distractors' },
-  expert: { label: 'Expert', emoji: '💀', description: '6 options, character focus' },
+  easy: { label: 'Easy', emoji: '🌱', description: 'Obvious answers, random word mix' },
+  hard: { label: 'Hard', emoji: '🔥', description: 'Tricky distractors, targets weak & stale words' },
+  expert: { label: 'Expert', emoji: '💀', description: 'Toughest distractors + character focus, targets weak & stale words' },
 };
 
 // Question selection labels (which concepts to quiz)

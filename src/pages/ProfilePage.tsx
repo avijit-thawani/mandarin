@@ -35,8 +35,9 @@ import type {
   FocusLevel, 
   LearningFocus, 
   PinyinDisplay,
+  OptionSelection,
 } from '../types/settings';
-import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, SYNTAX_DIRECTION_OPTIONS, SYNTAX_FREQUENCY_META } from '../types/settings';
+import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, SYNTAX_DIRECTION_OPTIONS, SYNTAX_FREQUENCY_META, OPTION_SELECTION_META } from '../types/settings';
 import type { SyntaxDirectionRatio } from '../types/settings';
 import { MODALITY_INFO, type Modality } from '../types/vocabulary';
 import { 
@@ -625,6 +626,37 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
               onChange={(e) => settingsStore.setCardsPerSession(Number(e.target.value))}
               className="range range-primary range-sm w-full"
             />
+          </div>
+
+          {/* Difficulty */}
+          <div className="bg-base-200 rounded-xl p-4">
+            <div className="mb-2">
+              <h3 className="font-medium">Difficulty</h3>
+              <p className="text-sm text-base-content/60">
+                Controls how tricky the options are and which words get quizzed.
+                Higher difficulty targets your weak and stale words so scores stay
+                in a challenging range — even with fewer cards per day.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {(['easy', 'hard', 'expert'] as const).map((opt) => {
+                const meta = OPTION_SELECTION_META[opt];
+                const isActive = (settings.quiz?.optionSelection ?? 'hard') === opt;
+                return (
+                  <button
+                    key={opt}
+                    className={`btn btn-sm flex-1 gap-1 ${isActive ? 'btn-primary' : 'btn-ghost border border-base-300'}`}
+                    onClick={() => settingsStore.setQuizSettings({ optionSelection: opt as OptionSelection })}
+                  >
+                    <span>{meta.emoji}</span>
+                    <span>{meta.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-base-content/50 mt-2">
+              {OPTION_SELECTION_META[(settings.quiz?.optionSelection ?? 'hard') as OptionSelection].description}
+            </p>
           </div>
         </section>
 

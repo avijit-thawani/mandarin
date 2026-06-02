@@ -106,6 +106,32 @@ export function updateModalityScore(
 }
 
 // ═══════════════════════════════════════════════════════════
+// KNOWLEDGE DECAY (selection-time only, not persisted)
+// ═══════════════════════════════════════════════════════════
+
+// Mastered words that aren't revisited slowly "fade" so they resurface in
+// harder quiz selection. This decay is applied virtually during question
+// selection only — it is never written back to stored knowledge, so it cannot
+// corrupt user_progress or trigger destructive sync writes.
+export const KNOWLEDGE_DECAY_PER_DAY = 1.5; // points lost per idle day
+export const KNOWLEDGE_DECAY_FLOOR = 40;    // decay never pushes below this
+
+/**
+ * Effective knowledge for a modality at selection time.
+ * High scores that haven't been tested recently fade toward KNOWLEDGE_DECAY_FLOOR,
+ * making stale "mastered" words eligible for harder quizzes again.
+ * Words already at/below the floor are unaffected.
+ */
+export function effectiveKnowledge(score: ModalityScore, now: number = Date.now()): number {
+  if (!score.lastAttempt) return score.knowledge;
+  const days = (now - new Date(score.lastAttempt).getTime()) / (1000 * 60 * 60 * 24);
+  if (days <= 0) return score.knowledge;
+  const decayed = score.knowledge - days * KNOWLEDGE_DECAY_PER_DAY;
+  const floor = Math.min(score.knowledge, KNOWLEDGE_DECAY_FLOOR);
+  return Math.round(Math.max(floor, decayed));
+}
+
+// ═══════════════════════════════════════════════════════════
 // OVERALL KNOWLEDGE COMPUTATION
 // ═══════════════════════════════════════════════════════════
 
