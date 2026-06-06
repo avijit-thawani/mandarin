@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { Calendar, Target } from 'lucide-react';
 import type { StreakData } from '../hooks/useStreak';
+import { quizzesForDay } from '../lib/streakGoal';
 
 interface ProgressTimelineProps {
   streakData: StreakData;
-  cardsPerSession: number;
   daysToShow?: number;
 }
 
@@ -17,11 +17,6 @@ interface DayCell {
   recovered: boolean;  // gap day covered by extras
 }
 
-function quizzesForDay(attempts: number, cps: number): number {
-  if (!cps || cps <= 0) return attempts > 0 ? 1 : 0;
-  return Math.round(attempts / cps);
-}
-
 /**
  * Build display data: real activity + extras distributed to gap days.
  * Walks backward from today, same logic as useStreak, but marks recovered
@@ -29,7 +24,7 @@ function quizzesForDay(attempts: number, cps: number): number {
  */
 function buildDisplayDays(
   byDate: Record<string, { attempts: number; correct: number }>,
-  cardsPerSession: number,
+  goals: Record<string, number>,
   daysToShow: number
 ): DayCell[] {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -47,7 +42,7 @@ function buildDisplayDays(
   let extras = 0;
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
-    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, goals[date]);
 
     if (q >= 1) {
       extras += q - 1;
@@ -80,10 +75,10 @@ function buildDisplayDays(
   });
 }
 
-export function ProgressTimeline({ streakData, cardsPerSession, daysToShow = 14 }: ProgressTimelineProps) {
+export function ProgressTimeline({ streakData, daysToShow = 14 }: ProgressTimelineProps) {
   const data = useMemo(
-    () => buildDisplayDays(streakData.byDate, cardsPerSession, daysToShow),
-    [streakData.byDate, cardsPerSession, daysToShow]
+    () => buildDisplayDays(streakData.byDate, streakData.goals, daysToShow),
+    [streakData.byDate, streakData.goals, daysToShow]
   );
 
   const summary = useMemo(() => {

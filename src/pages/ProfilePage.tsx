@@ -575,7 +575,7 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
 
               {/* Activity Timeline */}
               {streakData && (
-                <ProgressTimeline streakData={streakData} cardsPerSession={settingsStore.settings.cardsPerSession} />
+                <ProgressTimeline streakData={streakData} />
               )}
             </>
           )}

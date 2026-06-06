@@ -79,7 +79,8 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/App.tsx`: app composition and top-level routing, streak wiring.
 - `src/components/Navbar.tsx`: tab navigation + global streak badge.
 - `src/pages/ProfilePage.tsx`: progress dashboard, streak recovery, and all settings.
-- `src/hooks/useStreak.ts`: streak calculation (pure computation from quiz_attempts + cardsPerSession).
+- `src/hooks/useStreak.ts`: streak calculation (from quiz_attempts + per-day goal via `src/lib/streakGoal.ts`).
+- `src/lib/streakGoal.ts`: per-day streak goal logic. Uses the goal stored in `daily_goals` for a day if present, otherwise infers it with the "always pick the larger candidate goal {50,30,20}" rule so lowering the daily setting can never retroactively inflate a streak.
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
 - `src/pages/QuizPage.tsx`: question lifecycle, mixed MCQ + syntax session, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
@@ -381,7 +382,9 @@ npm run dev
 
 ## Supabase Schema Overview (Conceptual)
 
-Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`.
+Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`.
+
+`daily_goals` (`user_id`, `date`, `goal`, `updated_at`; PK `(user_id, date)`) stores the per-day streak goal recorded going forward on session completion. RLS restricts rows to the owning user. Days without a stored goal fall back to inference (see `src/lib/streakGoal.ts`).
 RLS expectation: user tables are private; vocabulary is shared reference data.
 If schema contracts change, update `src/types/database.ts`, sync services, and README together.
 

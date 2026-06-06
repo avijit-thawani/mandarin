@@ -185,8 +185,8 @@ function AppContent({
   // Quiz completion state - re-check when route changes
   const [quizCompletedToday, setQuizCompletedToday] = useState(hasCompletedQuizToday());
   
-  // Streak data (purely computed from quiz_attempts + cardsPerSession)
-  const streakHook = useStreak(auth.user?.id, settingsStore.settings.cardsPerSession);
+  // Streak data (computed from quiz_attempts + per-day goal, stored or inferred)
+  const streakHook = useStreak(auth.user?.id);
   
   useEffect(() => {
     // Re-check quiz completion when navigating away from quiz

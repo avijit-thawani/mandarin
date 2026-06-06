@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getQuizStats } from '../lib/quizService';
+import { getQuizStats, getDailyGoals } from '../lib/quizService';
+import { quizzesForDay } from '../lib/streakGoal';
 
 // Must cover the user's full active streak; 90 days incorrectly capped long streaks.
 const STREAK_DAYS_TO_FETCH = 365 * 5;
@@ -23,6 +24,7 @@ export interface StreakData {
   loading: boolean;
   error: string | null;
   byDate: Record<string, DayStats>;
+  goals: Record<string, number>;
 }
 
 /**
@@ -49,17 +51,10 @@ function buildDateArray(days: number): string[] {
   return dates;
 }
 
-function quizzesForDay(attempts: number, cardsPerSession: number): number {
-  if (!cardsPerSession || cardsPerSession <= 0) return attempts > 0 ? 1 : 0;
-  const q = Math.round(attempts / cardsPerSession);
-  if (q === 0 && attempts > 0) return 0.5;
-  return q;
-}
-
 function computeCurrentStreak(
   byDate: Record<string, DayStats>,
   dates: string[],
-  cardsPerSession: number
+  goals: Record<string, number>
 ): { streak: number; extras: number } {
   const today = dates[dates.length - 1];
   let streak = 0;
@@ -67,7 +62,7 @@ function computeCurrentStreak(
 
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
-    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, goals[date]);
 
     if (q >= 1) {
       streak++;
@@ -90,14 +85,14 @@ function computeCurrentStreak(
 function computeBestStreak(
   byDate: Record<string, DayStats>,
   dates: string[],
-  cardsPerSession: number
+  goals: Record<string, number>
 ): number {
   let best = 0;
   let current = 0;
   let extras = 0;
 
   for (const date of dates) {
-    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, goals[date]);
 
     if (q >= 1) {
       current++;
@@ -126,7 +121,7 @@ function computeBestStreak(
 function computeRecoveryInfo(
   byDate: Record<string, DayStats>,
   dates: string[],
-  cardsPerSession: number
+  goals: Record<string, number>
 ): { missedDays: string[]; availableExtras: number; quizzesNeeded: number } {
   const today = dates[dates.length - 1];
 
@@ -135,7 +130,7 @@ function computeRecoveryInfo(
   let streakBroken = false;
   for (let i = dates.length - 1; i >= 0; i--) {
     const date = dates[i];
-    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, goals[date]);
 
     if (q >= 1) {
       extras += q - 1;
@@ -163,7 +158,7 @@ function computeRecoveryInfo(
     if (daysFromToday > MAX_RECOVERY_WINDOW) break;
 
     const date = dates[i];
-    const q = quizzesForDay(byDate[date]?.attempts ?? 0, cardsPerSession);
+    const q = quizzesForDay(byDate[date]?.attempts ?? 0, goals[date]);
 
     if (q >= 1) {
       extras += q - 1;
@@ -178,11 +173,9 @@ function computeRecoveryInfo(
   return { missedDays: missed, availableExtras: extras, quizzesNeeded };
 }
 
-export function useStreak(
-  userId: string | null | undefined,
-  cardsPerSession: number = 10
-) {
+export function useStreak(userId: string | null | undefined) {
   const [byDate, setByDate] = useState<Record<string, DayStats>>({});
+  const [goals, setGoals] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -201,11 +194,12 @@ export function useStreak(
     startDate.setDate(startDate.getDate() - STREAK_DAYS_TO_FETCH);
     startDate.setHours(0, 0, 0, 0);
 
-    getQuizStats(userId, startDate)
-      .then(({ byDate: data, error }) => {
+    Promise.all([getQuizStats(userId, startDate), getDailyGoals(userId, startDate)])
+      .then(([stats, goalRes]) => {
         if (cancelled) return;
-        if (error) setFetchError(error);
-        setByDate(data);
+        if (stats.error) setFetchError(stats.error);
+        setByDate(stats.byDate);
+        setGoals(goalRes.goals);
         setLoading(false);
       })
       .catch((err) => {
@@ -223,9 +217,9 @@ export function useStreak(
     const today = dates[dates.length - 1];
     const todayStats = byDate[today] || { attempts: 0, correct: 0 };
 
-    const { streak, extras } = computeCurrentStreak(byDate, dates, cardsPerSession);
-    const bestStreak = computeBestStreak(byDate, dates, cardsPerSession);
-    const recovery = computeRecoveryInfo(byDate, dates, cardsPerSession);
+    const { streak, extras } = computeCurrentStreak(byDate, dates, goals);
+    const bestStreak = computeBestStreak(byDate, dates, goals);
+    const recovery = computeRecoveryInfo(byDate, dates, goals);
 
     return {
       streak,
@@ -242,8 +236,9 @@ export function useStreak(
       loading,
       error: fetchError,
       byDate,
+      goals,
     };
-  }, [byDate, loading, cardsPerSession, fetchError]);
+  }, [byDate, goals, dates, loading, fetchError]);
 
   const refresh = useCallback(() => {
     setRefreshKey(k => k + 1);

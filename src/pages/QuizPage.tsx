@@ -9,7 +9,7 @@ import type { SentenceExercise } from '../types/syntax';
 import { generateQuizSession, getModalityContent, modalityNeedsAudio, selectionForDifficulty } from '../utils/quiz';
 import { generateSentenceExercise, checkSyntaxUnlock } from '../utils/syntax';
 import { predictCorrect, computeModalityAverages } from '../utils/knowledge';
-import { saveQuizAttempt, buildQuizContext } from '../lib/quizService';
+import { saveQuizAttempt, buildQuizContext, recordDailyGoal } from '../lib/quizService';
 import { clearNotifications } from '../lib/pwaReminderService';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
 import { useAuth } from '../hooks/useAuth';
@@ -345,11 +345,14 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     store.recordProgressSnapshot(totalCount, totalCorrect);
     markQuizCompletedToday();
     clearNotifications();
+    if (auth.user) {
+      recordDailyGoal(auth.user.id, cardsPerSession);
+    }
     onStreakRefresh?.();
     if (totalCorrect > totalCount * 0.6) {
       fireConfetti();
     }
-  }, [store, onStreakRefresh]);
+  }, [store, onStreakRefresh, auth.user, cardsPerSession]);
 
   // Go to next question (commits the pending MCQ answer first)
   const goToNext = useCallback(() => {

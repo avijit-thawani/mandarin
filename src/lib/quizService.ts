@@ -203,6 +203,62 @@ export async function fetchQuizAttempts(
 }
 
 /**
+ * Record the user's daily streak goal (one session's cardsPerSession) for today.
+ * Upserts on (user_id, date) so the latest setting of the day wins. Fire-and-forget.
+ */
+export function recordDailyGoal(userId: string, goal: number): void {
+  if (!isSupabaseConfigured()) return;
+  if (!goal || goal <= 0) return;
+
+  const now = new Date();
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  supabase
+    .from('daily_goals')
+    .upsert(
+      { user_id: userId, date, goal, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,date' }
+    )
+    .then(({ error }) => {
+      if (error) console.error('[QuizService] Failed to record daily goal:', error);
+    });
+}
+
+/**
+ * Fetch stored daily goals for a user from startDate onward.
+ * Returns a map of YYYY-MM-DD (local) -> goal. Missing days fall back to inference.
+ */
+export async function getDailyGoals(
+  userId: string,
+  startDate: Date
+): Promise<{ goals: Record<string, number>; error: string | null }> {
+  if (!isSupabaseConfigured()) {
+    return { goals: {}, error: 'Supabase not configured' };
+  }
+
+  try {
+    const startStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+    const { data, error } = await supabase
+      .from('daily_goals')
+      .select('date, goal')
+      .eq('user_id', userId)
+      .gte('date', startStr);
+
+    if (error) {
+      return { goals: {}, error: error.message };
+    }
+
+    const goals: Record<string, number> = {};
+    for (const row of (data || []) as { date: string; goal: number }[]) {
+      goals[row.date] = row.goal;
+    }
+    return { goals, error: null };
+  } catch (err) {
+    return { goals: {}, error: err instanceof Error ? err.message : 'Unknown error' };
+  }
+}
+
+/**
  * Get quiz stats for a date range
  */
 export async function getQuizStats(
