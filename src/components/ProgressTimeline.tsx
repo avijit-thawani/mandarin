@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Calendar, Target } from 'lucide-react';
 import type { StreakData } from '../hooks/useStreak';
-import { quizzesForDay } from '../lib/streakGoal';
 
 interface ProgressTimelineProps {
   streakData: StreakData;
@@ -18,13 +17,12 @@ interface DayCell {
 }
 
 /**
- * Build display data: real activity + extras distributed to gap days.
- * Walks backward from today, same logic as useStreak, but marks recovered
- * gap days so they render as filled blocks.
+ * Build display data for the recent window. Gap days that the streak engine
+ * marked as covered (frozen by banked extras or recovered) render as filled.
  */
 function buildDisplayDays(
   byDate: Record<string, { attempts: number; correct: number }>,
-  goals: Record<string, number>,
+  coveredDates: string[],
   daysToShow: number
 ): DayCell[] {
   const todayStr = new Date().toISOString().split('T')[0];
@@ -37,24 +35,7 @@ function buildDisplayDays(
     dates.push(d.toISOString().split('T')[0]);
   }
 
-  // Walk backward to find which gap days are covered by extras (mirroring useStreak)
-  const recoveredSet = new Set<string>();
-  let extras = 0;
-  for (let i = dates.length - 1; i >= 0; i--) {
-    const date = dates[i];
-    const q = quizzesForDay(byDate[date]?.attempts ?? 0, goals[date]);
-
-    if (q >= 1) {
-      extras += q - 1;
-    } else if (date === todayStr) {
-      // grace period
-    } else if (extras > 0) {
-      recoveredSet.add(date);
-      extras--;
-    } else {
-      break;
-    }
-  }
+  const recoveredSet = new Set(coveredDates);
 
   return dates.map((dateStr, i) => {
     const stats = byDate[dateStr] || { attempts: 0, correct: 0 };
@@ -77,8 +58,8 @@ function buildDisplayDays(
 
 export function ProgressTimeline({ streakData, daysToShow = 14 }: ProgressTimelineProps) {
   const data = useMemo(
-    () => buildDisplayDays(streakData.byDate, streakData.goals, daysToShow),
-    [streakData.byDate, streakData.goals, daysToShow]
+    () => buildDisplayDays(streakData.byDate, streakData.coveredDates, daysToShow),
+    [streakData.byDate, streakData.coveredDates, daysToShow]
   );
 
   const summary = useMemo(() => {

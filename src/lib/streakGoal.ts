@@ -43,3 +43,141 @@ export function quizzesForDay(attempts: number, storedGoal?: number | null): num
   const q = Math.round(attempts / goal);
   return q === 0 ? 0.5 : q;
 }
+
+// How many days a missed day can wait before its streak is permanently broken.
+// Within this window the gap can still be "recovered" by banking extra quizzes.
+export const RECOVERY_WINDOW = 7;
+
+export interface StreakResult {
+  streak: number;
+  bestStreak: number;
+  isStreakBroken: boolean;
+  missedDays: string[];
+  availableExtras: number;
+  quizzesNeeded: number;
+  /** Gap days that count toward the streak because a banked extra covered them. */
+  coveredDates: string[];
+}
+
+type DayKind = 'active' | 'partial' | 'frozen' | 'recovered' | 'broken' | 'pending' | 'today' | 'gap';
+
+function counts(kind: DayKind): boolean {
+  return kind === 'active' || kind === 'partial' || kind === 'frozen' || kind === 'recovered';
+}
+
+/**
+ * Compute streak with carry-forward banking and recent-miss recovery.
+ *
+ * Banking is chronological: doing more than one goal on a day banks extra
+ * "freezes" that carry forward and automatically cover later missed days. A miss
+ * that occurs while the bank is empty breaks the streak, but if it happened
+ * within RECOVERY_WINDOW days it stays "recoverable" — banking extra quizzes now
+ * pays it off and reconnects the streak to the run before it.
+ *
+ * `dates` must be the ascending list of local YYYY-MM-DD strings ending today.
+ */
+export function computeStreak(
+  byDate: Record<string, { attempts: number }>,
+  dates: string[],
+  goals: Record<string, number>
+): StreakResult {
+  const n = dates.length;
+  if (n === 0) {
+    return { streak: 0, bestStreak: 0, isStreakBroken: false, missedDays: [], availableExtras: 0, quizzesNeeded: 0, coveredDates: [] };
+  }
+  const todayIdx = n - 1;
+
+  const qty: number[] = new Array(n);
+  const kind: DayKind[] = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const q = quizzesForDay(byDate[dates[i]]?.attempts ?? 0, goals[dates[i]]);
+    qty[i] = q;
+    kind[i] = q >= 1 ? 'active' : q > 0 ? 'partial' : 'gap';
+  }
+
+  // Forward pass: classify each gap as frozen (covered by prior bank), recovered
+  // (covered by a later extra within the window), or broken/pending.
+  let bank = 0;
+  const pending: number[] = [];
+  for (let i = 0; i < n; i++) {
+    if (kind[i] === 'active') {
+      let extras = qty[i] - 1;
+      while (extras > 0 && pending.length && i - pending[0] <= RECOVERY_WINDOW) {
+        const g = pending.shift() as number;
+        kind[g] = 'recovered';
+        extras--;
+      }
+      bank += extras;
+    } else if (kind[i] === 'partial') {
+      // counts as a day, banks nothing
+    } else if (i === todayIdx) {
+      kind[i] = 'today'; // grace: today not done yet, doesn't break the streak
+    } else if (bank > 0) {
+      bank--;
+      kind[i] = 'frozen';
+    } else {
+      pending.push(i);
+    }
+
+    // Expire pending gaps that can no longer be recovered.
+    while (pending.length && i - pending[0] > RECOVERY_WINDOW) {
+      const g = pending.shift() as number;
+      kind[g] = 'broken';
+    }
+  }
+  for (const g of pending) kind[g] = 'pending';
+
+  // Current streak: walk backward from today over counting days.
+  let i = todayIdx;
+  if (kind[i] === 'today') i--;
+  let streak = 0;
+  while (i >= 0 && counts(kind[i])) {
+    streak++;
+    i--;
+  }
+
+  // Recovery: are the gaps right behind the current run still recoverable, i.e.
+  // is there a real prior streak to reconnect to within the window?
+  const missed: string[] = [];
+  let recoverable = false;
+  let k = i;
+  while (k >= 0 && todayIdx - k <= RECOVERY_WINDOW) {
+    if (kind[k] === 'pending') {
+      missed.push(dates[k]);
+      k--;
+    } else if (counts(kind[k])) {
+      recoverable = missed.length > 0;
+      break;
+    } else {
+      break;
+    }
+  }
+  if (!recoverable) missed.length = 0;
+
+  // Best streak: longest consecutive run of counting days.
+  let best = 0;
+  let run = 0;
+  for (let j = 0; j < n; j++) {
+    if (counts(kind[j])) {
+      run++;
+      if (run > best) best = run;
+    } else if (kind[j] !== 'today') {
+      run = 0;
+    }
+  }
+
+  const coveredDates: string[] = [];
+  for (let j = 0; j < n; j++) {
+    if (kind[j] === 'frozen' || kind[j] === 'recovered') coveredDates.push(dates[j]);
+  }
+
+  return {
+    streak,
+    bestStreak: Math.max(best, streak),
+    isStreakBroken: missed.length > 0,
+    missedDays: missed,
+    availableExtras: bank,
+    quizzesNeeded: missed.length,
+    coveredDates,
+  };
+}
