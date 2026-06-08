@@ -102,8 +102,13 @@ export function computeStreak(
   for (let i = 0; i < n; i++) {
     if (kind[i] === 'active') {
       let extras = qty[i] - 1;
-      while (extras > 0 && pending.length && i - pending[0] <= RECOVERY_WINDOW) {
-        const g = pending.shift() as number;
+      // Recovery spends extras on the MOST RECENT pending gap first, protecting
+      // the chain ending today. Spending on the oldest gap instead would starve
+      // the recent streak and make the result non-monotonic in RECOVERY_WINDOW.
+      while (extras > 0 && pending.length) {
+        const g = pending[pending.length - 1];
+        if (i - g > RECOVERY_WINDOW) break; // most recent pending is out of window
+        pending.pop();
         kind[g] = 'recovered';
         extras--;
       }
