@@ -46,7 +46,7 @@ export function quizzesForDay(attempts: number, storedGoal?: number | null): num
 
 // How many days a missed day can wait before its streak is permanently broken.
 // Within this window the gap can still be "recovered" by banking extra quizzes.
-export const RECOVERY_WINDOW = 7;
+export const RECOVERY_WINDOW = 14;
 
 export interface StreakResult {
   streak: number;

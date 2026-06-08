@@ -83,7 +83,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/lib/streakGoal.ts`: per-day streak goal + the streak engine (`computeStreak`).
   - **Per-day goal**: uses the goal stored in `daily_goals` for a day if present, otherwise infers it with the "always pick the larger candidate goal {50,30,20}" rule so lowering the daily setting can never retroactively inflate a streak.
   - **Carry-forward banking**: doing more than one goal in a day banks extra "freezes" that carry forward chronologically and automatically cover later missed days (unlimited).
-  - **Recovery**: a miss that breaks the streak (empty bank) stays recoverable for `RECOVERY_WINDOW` (7) days — banking extra quizzes within that window pays off the gap and reconnects to the prior run. Recovery is only offered when there is a real prior streak to reconnect to.
+  - **Recovery**: a miss that breaks the streak (empty bank) stays recoverable for `RECOVERY_WINDOW` (14) days — banking extra quizzes within that window pays off the gap and reconnects to the prior run. Recovery is only offered when there is a real prior streak to reconnect to.
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
 - `src/pages/QuizPage.tsx`: question lifecycle, mixed MCQ + syntax session, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
