@@ -539,14 +539,20 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
                         <Zap className="w-4 h-4 text-warning" />
                         <span className="font-medium text-sm">Resume Your Streak</span>
                       </div>
-                      <p className="text-xs text-base-content/60">
-                        You missed {streakData.missedDays.length} day{streakData.missedDays.length !== 1 ? 's' : ''}.
-                        {streakData.availableExtras > 0
-                          ? ` You have ${streakData.availableExtras} bonus quiz${streakData.availableExtras !== 1 ? 'zes' : ''} banked.`
-                          : ''
-                        }
-                        {' '}Do {streakData.quizzesNeeded} more quiz{streakData.quizzesNeeded !== 1 ? 'zes' : ''} to recover.
-                      </p>
+                      {(() => {
+                        const dailyGoal = settingsStore.settings.cardsPerSession;
+                        const todayGoalMet = streakData.todayAttempts >= dailyGoal;
+                        const sessionsToday = streakData.quizzesNeeded + (todayGoalMet ? 0 : 1);
+                        return (
+                          <p className="text-xs text-base-content/60">
+                            You missed {streakData.missedDays.length} day{streakData.missedDays.length !== 1 ? 's' : ''}.
+                            {' '}Do {sessionsToday} quiz{sessionsToday !== 1 ? 'zes' : ''} today to restore your{' '}
+                            <span className="font-semibold">{streakData.recoverableStreak}-day</span> streak
+                            {' '}({streakData.quizzesNeeded} extra beyond your daily goal
+                            {todayGoalMet ? ', already done today' : ''}).
+                          </p>
+                        );
+                      })()}
                       {streakData.availableExtras > 0 && (
                         <div className="space-y-1.5">
                           <div className="flex justify-between text-xs text-base-content/60">

@@ -17,6 +17,7 @@ export interface StreakData {
   missedDays: string[];
   availableExtras: number;
   quizzesNeeded: number;
+  recoverableStreak: number;
   todayAttempts: number;
   todayCorrect: number;
   todayAccuracy: number;
@@ -104,6 +105,7 @@ export function useStreak(userId: string | null | undefined) {
       missedDays: result.missedDays,
       availableExtras: result.availableExtras,
       quizzesNeeded: result.quizzesNeeded,
+      recoverableStreak: result.recoverableStreak,
       coveredDates: result.coveredDates,
       todayAttempts: todayStats.attempts,
       todayCorrect: todayStats.correct,

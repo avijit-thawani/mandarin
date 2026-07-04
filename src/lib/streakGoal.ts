@@ -55,6 +55,8 @@ export interface StreakResult {
   missedDays: string[];
   availableExtras: number;
   quizzesNeeded: number;
+  /** Streak the user would have after doing quizzesNeeded extra quizzes to fill the recoverable gaps. */
+  recoverableStreak: number;
   /** Gap days that count toward the streak because a banked extra covered them. */
   coveredDates: string[];
 }
@@ -141,23 +143,35 @@ export function computeStreak(
     i--;
   }
 
-  // Recovery: are the gaps right behind the current run still recoverable, i.e.
-  // is there a real prior streak to reconnect to within the window?
+  // Recovery plan: continue backward through fillable (pending) gaps and the
+  // counting days beyond them, until a permanently-broken day. This yields both
+  // the streak that could be restored and the number of extra quizzes it takes.
+  // A gap is only "recoverable" if there is real activity (an anchor) behind it
+  // to reconnect to — otherwise a fully-lapsed user would be told to revive a
+  // streak that no longer exists.
   const missed: string[] = [];
-  let recoverable = false;
+  let recoverableStreak = streak;
+  let anchor = false;
   let k = i;
-  while (k >= 0 && todayIdx - k <= RECOVERY_WINDOW) {
-    if (kind[k] === 'pending') {
+  while (k >= 0) {
+    const kk = kind[k];
+    if (kk === 'pending') {
       missed.push(dates[k]);
+      recoverableStreak++;
       k--;
-    } else if (counts(kind[k])) {
-      recoverable = missed.length > 0;
-      break;
+    } else if (counts(kk)) {
+      anchor = true;
+      recoverableStreak++;
+      k--;
     } else {
-      break;
+      break; // broken / uncoverable gap ends the recoverable run
     }
   }
-  if (!recoverable) missed.length = 0;
+  const isBroken = missed.length > 0 && anchor;
+  if (!isBroken) {
+    missed.length = 0;
+    recoverableStreak = streak;
+  }
 
   // Best streak: longest consecutive run of counting days.
   let best = 0;
@@ -178,11 +192,12 @@ export function computeStreak(
 
   return {
     streak,
-    bestStreak: Math.max(best, streak),
-    isStreakBroken: missed.length > 0,
+    bestStreak: Math.max(best, recoverableStreak),
+    isStreakBroken: isBroken,
     missedDays: missed,
     availableExtras: bank,
     quizzesNeeded: missed.length,
+    recoverableStreak,
     coveredDates,
   };
 }
