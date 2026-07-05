@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getQuizStats, getDailyGoals } from '../lib/quizService';
+import { getQuizStats, getDailyGoals, getDailySessions } from '../lib/quizService';
 import { computeStreak } from '../lib/streakGoal';
 
 // Must cover the user's full active streak; 90 days incorrectly capped long streaks.
@@ -55,6 +55,7 @@ function buildDateArray(days: number): string[] {
 export function useStreak(userId: string | null | undefined) {
   const [byDate, setByDate] = useState<Record<string, DayStats>>({});
   const [goals, setGoals] = useState<Record<string, number>>({});
+  const [sessions, setSessions] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -73,12 +74,17 @@ export function useStreak(userId: string | null | undefined) {
     startDate.setDate(startDate.getDate() - STREAK_DAYS_TO_FETCH);
     startDate.setHours(0, 0, 0, 0);
 
-    Promise.all([getQuizStats(userId, startDate), getDailyGoals(userId, startDate)])
-      .then(([stats, goalRes]) => {
+    Promise.all([
+      getQuizStats(userId, startDate),
+      getDailyGoals(userId, startDate),
+      getDailySessions(userId, startDate),
+    ])
+      .then(([stats, goalRes, sessionRes]) => {
         if (cancelled) return;
         if (stats.error) setFetchError(stats.error);
         setByDate(stats.byDate);
         setGoals(goalRes.goals);
+        setSessions(sessionRes.sessions);
         setLoading(false);
       })
       .catch((err) => {
@@ -96,7 +102,7 @@ export function useStreak(userId: string | null | undefined) {
     const today = dates[dates.length - 1];
     const todayStats = byDate[today] || { attempts: 0, correct: 0 };
 
-    const result = computeStreak(byDate, dates, goals);
+    const result = computeStreak(byDate, dates, goals, sessions);
 
     return {
       streak: result.streak,
@@ -117,7 +123,7 @@ export function useStreak(userId: string | null | undefined) {
       byDate,
       goals,
     };
-  }, [byDate, goals, dates, loading, fetchError]);
+  }, [byDate, goals, sessions, dates, loading, fetchError]);
 
   const refresh = useCallback(() => {
     setRefreshKey(k => k + 1);

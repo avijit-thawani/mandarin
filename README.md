@@ -385,9 +385,11 @@ npm run dev
 
 ## Supabase Schema Overview (Conceptual)
 
-Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`.
+Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`.
 
 `daily_goals` (`user_id`, `date`, `goal`, `updated_at`; PK `(user_id, date)`) stores the per-day streak goal recorded going forward on session completion. RLS restricts rows to the owning user. Days without a stored goal fall back to inference (see `src/lib/streakGoal.ts`).
+
+`quiz_sessions` (`id`, `user_id`, `created_at`, `goal`) is an append-only log with one row per completed quiz session. Streaks count these directly (skip-proof), instead of inferring quizzes via `round(attempts/goal)` — which undercounts when questions are skipped (skips aren't recorded as attempts, so several real sessions can round down to fewer "quizzes"). Days without session rows fall back to the attempts-based estimate.
 RLS expectation: user tables are private; vocabulary is shared reference data.
 If schema contracts change, update `src/types/database.ts`, sync services, and README together.
 

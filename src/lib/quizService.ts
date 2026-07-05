@@ -225,6 +225,56 @@ export function recordDailyGoal(userId: string, goal: number): void {
 }
 
 /**
+ * Record one completed quiz session (append-only). Fire-and-forget.
+ * Streaks count these directly, which is skip-proof (unlike round(attempts/goal)).
+ */
+export function recordQuizSession(userId: string, goal: number): void {
+  if (!isSupabaseConfigured()) return;
+
+  supabase
+    .from('quiz_sessions')
+    .insert({ user_id: userId, goal: goal > 0 ? goal : null })
+    .then(({ error }) => {
+      if (error) console.error('[QuizService] Failed to record quiz session:', error);
+    });
+}
+
+/**
+ * Count completed quiz sessions per local day for a user from startDate onward.
+ * Returns a map of YYYY-MM-DD (local) -> session count.
+ */
+export async function getDailySessions(
+  userId: string,
+  startDate: Date
+): Promise<{ sessions: Record<string, number>; error: string | null }> {
+  if (!isSupabaseConfigured()) {
+    return { sessions: {}, error: 'Supabase not configured' };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('quiz_sessions')
+      .select('created_at')
+      .eq('user_id', userId)
+      .gte('created_at', startDate.toISOString());
+
+    if (error) {
+      return { sessions: {}, error: error.message };
+    }
+
+    const sessions: Record<string, number> = {};
+    for (const row of (data || []) as { created_at: string }[]) {
+      const local = new Date(row.created_at);
+      const date = `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
+      sessions[date] = (sessions[date] || 0) + 1;
+    }
+    return { sessions, error: null };
+  } catch (err) {
+    return { sessions: {}, error: err instanceof Error ? err.message : 'Unknown error' };
+  }
+}
+
+/**
  * Fetch stored daily goals for a user from startDate onward.
  * Returns a map of YYYY-MM-DD (local) -> goal. Missing days fall back to inference.
  */

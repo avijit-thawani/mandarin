@@ -81,18 +81,24 @@ function counts(kind: DayKind): boolean {
 export function computeStreak(
   byDate: Record<string, { attempts: number }>,
   dates: string[],
-  goals: Record<string, number>
+  goals: Record<string, number>,
+  sessions: Record<string, number> = {}
 ): StreakResult {
   const n = dates.length;
   if (n === 0) {
-    return { streak: 0, bestStreak: 0, isStreakBroken: false, missedDays: [], availableExtras: 0, quizzesNeeded: 0, coveredDates: [] };
+    return { streak: 0, bestStreak: 0, isStreakBroken: false, missedDays: [], availableExtras: 0, quizzesNeeded: 0, recoverableStreak: 0, coveredDates: [] };
   }
   const todayIdx = n - 1;
 
   const qty: number[] = new Array(n);
   const kind: DayKind[] = new Array(n);
   for (let i = 0; i < n; i++) {
-    const q = quizzesForDay(byDate[dates[i]]?.attempts ?? 0, goals[dates[i]]);
+    // Prefer the exact recorded session count for the day; fall back to inferring
+    // quizzes from attempts for historical days without session records.
+    const recorded = sessions[dates[i]];
+    const q = recorded !== undefined && recorded > 0
+      ? recorded
+      : quizzesForDay(byDate[dates[i]]?.attempts ?? 0, goals[dates[i]]);
     qty[i] = q;
     kind[i] = q >= 1 ? 'active' : q > 0 ? 'partial' : 'gap';
   }
