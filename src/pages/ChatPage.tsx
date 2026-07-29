@@ -3,6 +3,7 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { Send, Square, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import { supabase } from '../lib/supabase';
 
@@ -52,6 +53,29 @@ function buildVocabContext(store: VocabularyStore): string {
     lines.push(chatWords.map(c => `${c.word}|${c.pinyin}|${c.meaning}|${c.paused ? 'paused' : 'active'}`).join('\n'));
   }
   return lines.join('\n');
+}
+
+// Assistant markdown: GFM enables pipe tables, which the tutor uses for pinyin lists.
+// Tables get their own scroll container so wide ones don't blow out the chat bubble on mobile.
+function MessageMarkdown({ text }: { text: string }) {
+  return (
+    <div className="text-sm prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0">
+      <Markdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          // daisyUI table classes — the Tailwind typography plugin isn't installed,
+          // so `prose` alone leaves tables unstyled.
+          table: ({ children }) => (
+            <div className="my-2 overflow-x-auto">
+              <table className="table table-xs w-auto">{children}</table>
+            </div>
+          ),
+        }}
+      >
+        {text}
+      </Markdown>
+    </div>
+  );
 }
 
 // Tracks the real client-side execution result for each tool call
@@ -329,7 +353,7 @@ Try "add the word for sunshine" or "which words did you add for me?"`;
         {messages.length === 0 && (
           <div className="flex justify-start">
             <div className="bg-base-200 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
-              <div className="text-sm prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0"><Markdown>{welcomeMessage}</Markdown></div>
+              <MessageMarkdown text={welcomeMessage} />
             </div>
           </div>
         )}
@@ -346,7 +370,7 @@ Try "add the word for sunshine" or "which words did you add for me?"`;
                   if (msg.role === 'user') {
                     return <p key={i} className="text-sm whitespace-pre-wrap">{part.text}</p>;
                   }
-                  return <div key={i} className="text-sm prose prose-sm max-w-none [&_p]:my-1 [&_ul]:my-1 [&_li]:my-0"><Markdown>{part.text}</Markdown></div>;
+                  return <MessageMarkdown key={i} text={part.text} />;
                 }
                 if (part.type.startsWith('tool-')) {
                   const toolPart = part as { type: string; toolCallId?: string; state?: string; input?: Record<string, unknown>; output?: Record<string, unknown> };

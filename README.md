@@ -71,7 +71,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
 - `Quiz`: active MCQ + syntax tile-ordering exercises + scoring + attempt logging. Syntax exercises are interleaved based on the Syntax Frequency setting (0-3). Supports temporary "for today" filters set from the Vocab page.
 - `Pinyin`: pronunciation practice with listen-and-pick quiz and speak-and-check self-evaluation.
-- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling.
+- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling. Assistant replies render GitHub-flavored markdown, including tables (useful for pinyin/meaning lists) — wide tables scroll horizontally.
 - `Profile`: progress charts + settings.
 
 ### High-Value Files
@@ -90,7 +90,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/components/SyntaxExerciseCard.tsx`: tile-reordering syntax exercise UI (used inline in Quiz).
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
-- `src/pages/ChatPage.tsx`: LLM tutor chat UI (useChat hook, tool rendering, vocab context injection).
+- `src/pages/ChatPage.tsx`: LLM tutor chat UI (useChat hook, tool rendering, vocab context injection, `MessageMarkdown` renderer with `remark-gfm` tables).
 - `netlify/functions/chat.mts`: Netlify Function — streamText with Anthropic Claude, 4 vocabulary tools.
 - `src/pages/ProfilePage.tsx`: dashboard/settings entry.
 
