@@ -1,6 +1,6 @@
 // User settings types
 
-export type ThemeType = 'light' | 'dark' | 'wooden' | 'ocean' | 'forest' | 'sunset' | 'sakura' | 'ink';
+export type ThemeType = 'light' | 'dark' | 'duo' | 'wooden' | 'ocean' | 'forest' | 'sakura' | 'ink';
 
 export type FocusLevel = 0 | 1 | 2 | 3; // 0 = ignore, 1 = low, 2 = medium, 3 = high
 
@@ -138,10 +138,10 @@ export const FOCUS_DESCRIPTIONS: Record<keyof LearningFocus, string> = {
 export const THEME_META: Record<ThemeType, { name: string; emoji: string; description: string }> = {
   light: { name: 'Light', emoji: '☀️', description: 'Clean & bright' },
   dark: { name: 'Dark', emoji: '🌙', description: 'Easy on the eyes' },
+  duo: { name: 'Duo', emoji: '🦉', description: 'Bright & playful' },
   wooden: { name: 'Wooden', emoji: '📜', description: 'Warm parchment' },
   ocean: { name: 'Ocean', emoji: '🌊', description: 'Deep blue waters' },
   forest: { name: 'Terminal', emoji: '💻', description: 'Hacker green' },
-  sunset: { name: 'Sunset', emoji: '🌅', description: 'Golden warmth' },
   sakura: { name: 'Sakura', emoji: '🌸', description: 'Soft pink' },
   ink: { name: 'Ink', emoji: '🖋️', description: 'High contrast B&W' },
 };

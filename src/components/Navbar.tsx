@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { BookOpen, GraduationCap, Zap, User, Mic, Flame, Snowflake, MessageCircle } from 'lucide-react';
+import { haptic } from '../services/hapticService';
 
 interface NavbarProps {
   hasUnsyncedSettings?: boolean;
@@ -35,7 +36,8 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
             isStreakBroken
               ? 'bg-base-300 border-base-content/20 text-base-content/50'
               : streak! > 0
-                ? 'bg-gradient-to-r from-orange-500 to-amber-400 border-orange-600/30 text-white'
+                // Duolingo streak flame: Fox -> Bee (design.duolingo.com/identity/color)
+                ? 'bg-gradient-to-r from-[#FF9600] to-[#FFC800] border-[#FF9600]/40 text-white'
                 : 'bg-base-300 border-base-content/20 text-base-content/60'
           }`}>
             {isStreakBroken ? (
@@ -56,14 +58,16 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
             <Link
               key={path}
               to={path}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+              data-active={isActive}
+              onClick={() => haptic('tap')}
+              className={`nav-tab flex flex-col items-center justify-center flex-1 h-full transition-colors ${
                 isActive 
                   ? 'text-primary bg-base-300/50' 
                   : 'text-base-content/60 hover:text-base-content'
               }`}
             >
               <div className="relative">
-                <Icon className="w-6 h-6" />
+                <Icon className="nav-tab-icon w-6 h-6" />
                 {showBadge && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-warning rounded-full" />
                 )}
@@ -73,7 +77,7 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
                   }`} />
                 )}
               </div>
-              <span className="text-xs mt-1">{label}</span>
+              <span className={`text-xs mt-1 transition-all ${isActive ? 'font-bold' : ''}`}>{label}</span>
             </Link>
           );
         })}

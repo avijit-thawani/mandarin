@@ -343,7 +343,7 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
     return date.toLocaleDateString();
   };
 
-  const themes: ThemeType[] = ['light', 'dark', 'wooden', 'ocean', 'forest', 'sunset', 'sakura', 'ink'];
+  const themes: ThemeType[] = ['light', 'dark', 'duo', 'wooden', 'ocean', 'forest', 'sakura', 'ink'];
   const focusLevels: FocusLevel[] = [0, 1, 2, 3];
   const focusFields: (keyof LearningFocus)[] = ['character', 'pinyin', 'meaning', 'audio'];
   const modalities: Modality[] = ['character', 'pinyin', 'meaning', 'audio'];

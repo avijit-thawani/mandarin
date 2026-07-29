@@ -11,31 +11,22 @@ Future agents: this file is intentionally operational. It is the first map for w
 1. Always read `.cursorrules` and `README.md` before making changes.
 2. Keep this README at or below **400 lines**. If an edit would exceed 400, rephrase or trim other sections judiciously — never just append.
 3. **Only update README for major changes** (new features, new failure modes, architecture shifts, schema changes). Do not update it for minor bug fixes, style tweaks, or tuning knob adjustments.
-4. If any section feels outdated or uncertain, suggest updates to the user before large changes.
-5. Keep README focused on stable contracts and architecture, not fast-changing tuning details.
+4. If a section feels outdated, or a request introduces uncertainty, propose doc updates in the same task — before large changes.
+5. Keep README on stable contracts and architecture, not fast-changing tuning details. For volatile logic, update module docstrings first, then README pointers.
 6. Document known failures/incidents and any mitigation steps.
 7. When scripts change (build, data extraction, sync tooling, ML analysis), update the "Script Behavior" section.
 8. Never run risky DB migrations without explicit user confirmation and backup strategy.
-9. For volatile logic, update nearby module docs/docstrings first, then update README pointers.
-10. If a user request introduces uncertainty, propose doc updates in the same PR/task.
 
 ### MCP Supabase Access Policy
 
 Two Supabase MCP servers are configured (in `~/.cursor/mcp.json`):
 
-- **`supabase-read`** (`?read_only=true`): Server-side read-only mode. Safe for autonomous use — mutations are rejected by the Supabase MCP server itself. **Allowlist this server's `execute_sql` tool** in Cursor's tool approval settings so agents can run SELECT queries without manual confirmation. Use this for data exploration, ML data exports, debugging, and schema inspection.
-- **`supabase-admin`**: Full read/write access. **Always require explicit user approval.** Never allowlist write-capable tools (`execute_sql`, `apply_migration`, `deploy_edge_function`, etc.) from this server.
-
-Future agents: prefer `supabase-read` for all read operations. Only escalate to `supabase-admin` when you need to write data, and always get user approval first (see "Database and Migration Safety" below).
+- **`supabase-read`** (`?read_only=true`): mutations are rejected server-side, so it is safe for autonomous use. Prefer it for all reads — exploration, ML exports, debugging, schema inspection. Its `execute_sql` is safe to allowlist in Cursor.
+- **`supabase-admin`**: full read/write. **Always require explicit user approval** and never allowlist its write tools (`execute_sql`, `apply_migration`, `deploy_edge_function`). Escalate here only to write data (see "Database and Migration Safety").
 
 ### Communicating with the User
 
-When discussing vocabulary, corrections, or changes with the user:
-
-- Use **pinyin** as the default way to reference Chinese words (e.g. "nǚ'ér" not "daughter").
-- Use **hanzi** only when characters are needed to disambiguate (e.g. 的/地/得 all read "de").
-- Use **English** for everything else (explanations, technical discussion, UI labels).
-- Do not default to hanzi-heavy output — the user is a learner, not a native speaker.
+Reference Chinese words by **pinyin** by default (e.g. "nǚ'ér" not "daughter"), using **hanzi** only to disambiguate (的/地/得 all read "de"). Everything else in **English**. The user is a learner — do not default to hanzi-heavy output.
 
 ---
 
@@ -52,12 +43,10 @@ When discussing vocabulary, corrections, or changes with the user:
 
 Binary categories only:
 
-
 | Status  | Checkbox  | In Revise/Quiz Pool |
 | ------- | --------- | ------------------- |
 | Known   | Checked   | Yes                 |
 | Unknown | Unchecked | No                  |
-
 
 This is the primary anti-overwhelm mechanism. Do not silently alter this behavior.
 
@@ -81,9 +70,9 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/pages/ProfilePage.tsx`: progress dashboard, streak recovery, and all settings.
 - `src/hooks/useStreak.ts`: streak calculation (from quiz_attempts + per-day goal via `src/lib/streakGoal.ts`).
 - `src/lib/streakGoal.ts`: per-day streak goal + the streak engine (`computeStreak`).
-  - **Per-day goal**: uses the goal stored in `daily_goals` for a day if present, otherwise infers it with the "always pick the larger candidate goal {50,30,20}" rule so lowering the daily setting can never retroactively inflate a streak.
-  - **Carry-forward banking**: doing more than one goal in a day banks extra "freezes" that carry forward chronologically and automatically cover later missed days (unlimited).
-  - **Recovery**: a miss that breaks the streak (empty bank) stays recoverable for `RECOVERY_WINDOW` (20) days — banking **extra** quizzes (sessions beyond the daily goal) within that window pays off the gap and reconnects to the prior run. Recovery is only offered when there is a real prior streak to reconnect to. `computeStreak` reports `recoverableStreak` (the streak you'd get back) and `quizzesNeeded` (extra quizzes required); the Profile UI turns this into "do N quizzes today" accounting for whether today's goal is already met.
+  - **Per-day goal**: the goal stored in `daily_goals` if present, else inferred by "always pick the larger candidate goal {50,30,20}" so lowering the daily setting can never retroactively inflate a streak.
+  - **Carry-forward banking**: extra goals completed in a day bank "freezes" that carry forward chronologically and cover later missed days (unlimited).
+  - **Recovery**: a streak-breaking miss (empty bank) stays recoverable for `RECOVERY_WINDOW` (20) days — extra quizzes beyond the daily goal pay off the gap and reconnect the prior run. Only offered when a real prior streak exists. `computeStreak` reports `recoverableStreak` and `quizzesNeeded`; Profile renders this as "do N quizzes today".
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
 - `src/pages/QuizPage.tsx`: question lifecycle, mixed MCQ + syntax session, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
@@ -92,7 +81,6 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/ChatPage.tsx`: LLM tutor chat UI (useChat hook, tool rendering, vocab context injection, `MessageMarkdown` renderer with `remark-gfm` tables).
 - `netlify/functions/chat.mts`: Netlify Function — streamText with Anthropic Claude, 4 vocabulary tools.
-- `src/pages/ProfilePage.tsx`: dashboard/settings entry.
 
 ### State and Domain Logic
 
@@ -103,6 +91,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/utils/quiz.ts`: question selection and option generation.
 - `src/utils/syntax.ts`: template-driven sentence generation.
 - `src/services/ttsService.ts`: speech playback.
+- `src/services/hapticService.ts`: vibration feedback patterns (see "UI and Interaction Design").
 
 ### Cloud/Sync Layer
 
@@ -175,9 +164,7 @@ If changing this flow, update analytics expectations and user-facing copy.
 
 - A single **Difficulty** control (easy/hard/expert, set in Profile → Quiz Settings) drives both distractor trickiness AND word selection. All levels use 4 options. `easy` quizzes a random mix; `hard`/`expert` target weak & stale words (`selectionForDifficulty` in `quiz.ts`) to keep accuracy in the ~70-80% band even with few cards/day. There is no separate manual "question selection" control.
 - **Selection-time knowledge decay**: `effectiveKnowledge` in `knowledge.ts` virtually fades stale "mastered" words toward a floor (default ~1.5 pts/idle day, floor 40) so they resurface in hard/expert selection. This decay is NOT persisted — it never writes to `user_progress`, only influences which words are picked.
-- Difficulty/strategy behavior changes often; treat `src/utils/quiz.ts` as source-of-truth for selection logic.
-- Keep README language stable (intent and invariants), and put exact heuristics or scoring formulas in code docstrings.
-- If ML predictions affect runtime behavior, document decision boundaries next to implementation and link from README.
+- Difficulty/strategy behavior changes often; treat `src/utils/quiz.ts` as source-of-truth. Keep README to intent and invariants; put exact heuristics, scoring formulas, and ML decision boundaries in code docstrings next to the implementation.
 
 ### Distractor Selection
 
@@ -209,13 +196,11 @@ Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite
 
 Per-device daily reminders via Web Push API. Key files: `pwaReminderService.ts` (client CRUD + SW updates), `supabase/functions/send-reminders/index.ts` (Edge Function), `public/sw.js` (push/click/withdraw handlers). Auto-withdraw on quiz completion via `clearNotifications()`.
 
-Key table: `push_subscriptions` (`reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`).
+Key table: `push_subscriptions` (`reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`). Env: `VITE_VAPID_PUBLIC_KEY` (client), `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (Edge Function secrets).
 
 Migrations (apply in order): `20260213162000` (table + RLS), `20260213230500` (schedule columns), `20260324120000` (pg_cron + pg_net). Cron calls Edge Function every 5 min via service role key in Vault. Verify: `select * from cron.job;`
 
 **Critical mobile settings:** `TTL: 14400` + `urgency: 'high'` (short TTL / default urgency = silent drops). Test sends use `last_tested_at` to avoid blocking scheduled sends.
-
-Env: `VITE_VAPID_PUBLIC_KEY` (client), `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (Edge Function secrets).
 
 **iOS:** Requires 16.4+, must install PWA to home screen (not Safari tab), subscriptions expire after ~2 weeks of non-use. EU iOS 17.4+ may block standalone PWA (DMA).
 
@@ -226,8 +211,6 @@ Any sync strategy changes must update this section and `Known Failures`.
 ## Authentication
 
 All users must sign in via Supabase. Guest mode has been removed. RLS ensures user isolation.
-| "Restore (111)" baseline button | Shown (111-word curated set) | Hidden |
-
 
 ---
 
@@ -235,13 +218,7 @@ All users must sign in via Supabase. Guest mode has been removed. RLS ensures us
 
 ### Learning Focus Weights (0-3)
 
-Controls:
-
-1. Relative frequency of quiz task modalities.
-2. Study card reveal preference.
-3. Weighted overall knowledge score.
-
-Weight meaning: `0` skip, `1` low, `2` medium, `3` high.
+`0` skip, `1` low, `2` medium, `3` high. Controls quiz task modality frequency, Study card reveal preference, and the weighted overall knowledge score.
 
 ### Syntax Frequency (0-3)
 
@@ -250,12 +227,30 @@ Controls how many quiz questions are syntax tile-ordering exercises vs MCQ. Same
 ### Other User Controls
 
 - cards per session
-- theme
+- theme (8 options, incl. `duo` — see "UI and Interaction Design")
 - character size
 - pinyin style
 - TTS voice/rate/auto-play
 - quiz difficulty (easy/hard/expert) — also drives weak/stale word selection + decay
 - PWA reminders (per-device local time + timezone, default 4:00 PM)
+
+---
+
+## UI and Interaction Design
+
+Duolingo-inspired tactile feedback. Primitives live in `src/index.css`; keep new surfaces consistent with them.
+
+- **`.btn-chunky`**: solid bottom edge (box-shadow) that compresses on `:active`. Pair with `btn` in markup. Solid variants (`btn-primary/success/error`) get a darker edge via `color-mix`; other variants derive it from `currentColor`, so it adapts to every theme.
+- **`.answer-option` / `.answer-option-idle`**: enlarged quiz tap targets (min 72px) and the unanswered border/edge treatment. Ghost buttons get no edge (it reads as a stray underline, not a raised surface).
+- **Animations**: `pop-in` (new card), `slide-up` (feedback), `shake` (wrong), `pulse-correct` (right), `tile-pop` (syntax tiles). All disabled by the `reduced-motion` setting.
+- **Haptics**: `haptic(pattern)` from `hapticService.ts` — `tap`/`select`/`correct`/`wrong`/`complete`. Uses the Vibration API, so it is a **silent no-op on iOS Safari** (no API); never make behavior depend on it. Also suppressed under `reduced-motion`.
+- **`duo` theme**: Duolingo's published brand palette (design.duolingo.com/identity/color) — Feather Green `#58CC02` primary, Macaw `#1CB0F6` info, Cardinal `#FF4B4B` error, Bee `#FFC800` warning, Eel/Swan/Polar neutrals. The streak badge uses the Fox→Bee gradient.
+- **Theme constraint**: a theme's `primary` must be clearly distinguishable from `error`, since primary is the "Next" CTA sitting directly beside a red wrong answer. `sunset` was retired for failing this (orange-red primary). Retiring a theme requires an entry in `RETIRED_THEMES` (`settingsStore.ts`) — stored settings still reference it, and an unknown `data-theme` silently falls back.
+
+**Gotchas (cost real debugging time):**
+
+- Do **not** `@apply btn` inside a custom class — it inlines daisyUI's base background unlayered, which then beats `btn-success`/`btn-error`. Put `btn` in the markup.
+- Do **not** set `disabled` on answered quiz options; daisyUI's disabled style greys out the fill and hides correct/wrong feedback. Use `aria-disabled` + `pointer-events-none`.
 
 ---
 
@@ -358,28 +353,14 @@ Never repeat this class of failure.
 
 ## Setup and Local Development
 
-### Install
-
 ```bash
-git clone https://github.com/avi-otterai/mandarin.git
-cd avi-mandarin
-npm install
-```
-
-### Environment
-
-```bash
-cp .env.example .env
-```
-
-Required: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
-Optional: `VITE_DEV_USER_EMAIL`, `VITE_DEV_USER_PASSWORD`, `VITE_VAPID_PUBLIC_KEY` (PWA reminders).
-
-### Run
-
-```bash
+git clone https://github.com/avi-otterai/mandarin.git && cd avi-mandarin
+npm install && cp .env.example .env
 npm run dev
 ```
+
+Required env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
+Optional: `VITE_DEV_USER_EMAIL`, `VITE_DEV_USER_PASSWORD` (dev auto-login), `VITE_VAPID_PUBLIC_KEY` (PWA reminders).
 
 ---
 
@@ -389,7 +370,7 @@ Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `p
 
 `daily_goals` (`user_id`, `date`, `goal`, `updated_at`; PK `(user_id, date)`) stores the per-day streak goal recorded going forward on session completion. RLS restricts rows to the owning user. Days without a stored goal fall back to inference (see `src/lib/streakGoal.ts`).
 
-`quiz_sessions` (`id`, `user_id`, `created_at`, `goal`) is an append-only log with one row per completed quiz session. Streaks count these directly (skip-proof), instead of inferring quizzes via `round(attempts/goal)` — which undercounts when questions are skipped (skips aren't recorded as attempts, so several real sessions can round down to fewer "quizzes"). Days without session rows fall back to the attempts-based estimate.
+`quiz_sessions` (`id`, `user_id`, `created_at`, `goal`) is an append-only log, one row per completed session. Streaks count these directly (skip-proof) rather than inferring via `round(attempts/goal)`, which undercounts when questions are skipped. Days without session rows fall back to the attempts-based estimate.
 RLS expectation: user tables are private; vocabulary is shared reference data.
 If schema contracts change, update `src/types/database.ts`, sync services, and README together.
 
@@ -410,6 +391,7 @@ Layers: README (stable contracts, architecture, safety), module docstrings (vola
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/components/SyntaxExerciseCard.tsx`
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
 - "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/pages/ProfilePage.tsx`, `src/components/Navbar.tsx`
+- "Buttons/animations/haptics look or feel wrong" -> `src/index.css`, `src/services/hapticService.ts`
 - "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
 
 ---

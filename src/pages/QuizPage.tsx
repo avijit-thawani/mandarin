@@ -12,6 +12,7 @@ import { predictCorrect, computeModalityAverages } from '../utils/knowledge';
 import { saveQuizAttempt, buildQuizContext, recordDailyGoal, recordQuizSession } from '../lib/quizService';
 import { clearNotifications } from '../lib/pwaReminderService';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
+import { haptic } from '../services/hapticService';
 import { useAuth } from '../hooks/useAuth';
 import { OPTION_SELECTION_META, SYNTAX_FREQUENCY_META } from '../types/settings';
 import type { OptionSelection, FocusLevel } from '../types/settings';
@@ -244,6 +245,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     
     setPlayingOptionIndex(index);
     setPreviewedAudioOption(index);
+    haptic('select');
     
     try {
       await speak(option.word, {
@@ -270,6 +272,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     const correct = index === currentQuestion.correctIndex;
     setSelectedOption(index);
     setShowResult(true);
+    haptic(correct ? 'correct' : 'wrong');
     
     // Store pending answer - will be logged when user clicks Next (or skipped if they click "Don't log")
     setPendingAnswer({ index, correct, mcqIndex: currentMcqIndex });
@@ -350,6 +353,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       recordQuizSession(auth.user.id, cardsPerSession);
     }
     onStreakRefresh?.();
+    haptic('complete');
     if (totalCorrect > totalCount * 0.6) {
       fireConfetti();
     }
@@ -458,7 +462,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                       No known words match your filter: <span className="font-semibold text-info">{todayFilter.label}</span>
                     </p>
                     <button
-                      className="btn btn-primary mt-6 gap-2"
+                      className="btn btn-primary btn-lg btn-chunky mt-6 gap-2"
                       onClick={todayFilter.clear}
                     >
                       <X className="w-5 h-5" />
@@ -474,7 +478,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                     </p>
                     <Link 
                       to="/vocab"
-                      className="btn btn-primary mt-6 gap-2"
+                      className="btn btn-primary btn-lg btn-chunky mt-6 gap-2"
                     >
                       <BookOpen className="w-5 h-5" />
                       Go to Vocabulary
@@ -503,12 +507,12 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
         
         <div className="flex-1 overflow-auto p-4">
           <div className="max-w-lg mx-auto">
-            <div className="card bg-base-200">
+            <div className="card bg-base-200 animate-pop-in">
               <div className="card-body items-center text-center py-10">
-                <div className="text-6xl mb-4">
+                <div className="text-7xl mb-4 animate-pop-in">
                   {accuracy >= 80 ? '🎉' : accuracy >= 60 ? '👍' : '💪'}
                 </div>
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-3xl font-bold">
                   {accuracy >= 80 ? 'Excellent!' : accuracy >= 60 ? 'Good Job!' : 'Keep Practicing!'}
                 </h2>
                 
@@ -535,8 +539,8 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                 </div>
                 
                 <button 
-                  className="btn btn-primary mt-6 gap-2"
-                  onClick={startNewSession}
+                  className="btn btn-primary btn-lg btn-chunky mt-8 gap-2 w-full max-w-xs"
+                  onClick={() => { haptic('tap'); startNewSession(); }}
                 >
                   <Zap className="w-5 h-5" />
                   Start New Quiz
@@ -594,7 +598,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
             </div>
           </div>
           <progress 
-            className="progress progress-primary w-full h-1.5" 
+            className="progress progress-primary progress-animated w-full h-2.5" 
             value={mixedIndex + 1} 
             max={mixedItems.length}
           />
@@ -721,43 +725,46 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
         
         {/* Progress bar */}
         <progress 
-          className="progress progress-primary w-full h-1.5" 
+          className="progress progress-primary progress-animated w-full h-2.5" 
           value={mixedIndex + 1} 
           max={mixedItems.length}
         />
       </header>
 
       {/* Question Card */}
-      <div className="flex-1 px-3 py-2 max-w-lg mx-auto w-full flex flex-col overflow-auto">
-        <div className="card bg-base-200 shadow-xl border border-base-300">
-          <div className="card-body p-4 gap-2">
+      <div className="flex-1 px-3 py-3 max-w-lg mx-auto w-full flex flex-col justify-center overflow-auto">
+        <div
+          key={currentQuestion.concept.id}
+          className="card bg-base-200 shadow-xl border border-base-300 animate-pop-in"
+        >
+          <div className="card-body p-4 gap-3">
             {/* Question */}
-            <div className="text-center py-2">
+            <div className="text-center py-3">
               {modalityNeedsAudio(currentQuestion.questionModality) ? (
                 // Audio question
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-3">
                   <button
-                    className={`btn btn-circle btn-md ${isPlaying ? 'btn-error' : 'btn-primary'}`}
+                    className={`btn btn-circle btn-lg btn-chunky ${isPlaying ? 'btn-error' : 'btn-primary'}`}
                     onClick={playQuestionAudio}
                     disabled={!ttsSupported}
                   >
                     {isPlaying ? (
-                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <Loader2 className="w-8 h-8 animate-spin" />
                     ) : (
-                      <Volume2 className="w-6 h-6" />
+                      <Volume2 className="w-8 h-8" />
                     )}
                   </button>
                   <p className="text-sm text-base-content/60">Tap to hear the word</p>
                 </div>
               ) : currentQuestion.questionModality === 'character' ? (
                 // Character question
-                <div className="hanzi text-5xl font-bold text-primary">
+                <div className="hanzi text-6xl font-bold text-primary">
                   {getModalityContent(currentQuestion.concept, 'character')}
                 </div>
               ) : currentQuestion.questionModality === 'pinyin' ? (
                 // Pinyin question with optional audio
                 <div className="flex flex-col items-center gap-1.5">
-                  <div className="pinyin text-3xl text-secondary">
+                  <div className="pinyin text-4xl text-secondary">
                     {getModalityContent(currentQuestion.concept, 'pinyin')}
                   </div>
                   {ttsSupported && (
@@ -776,14 +783,14 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                 </div>
               ) : (
                 // Meaning question
-                <div className="text-xl font-medium">
+                <div className="text-2xl font-medium">
                   {getModalityContent(currentQuestion.concept, 'meaning')}
                 </div>
               )}
             </div>
             
             {/* Options - 2 cols for 4 options, 3 cols for 6 options */}
-            <div className={`grid gap-2 ${currentQuestion.options.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            <div className={`grid gap-3 ${currentQuestion.options.length > 4 ? 'grid-cols-3' : 'grid-cols-2'}`}>
               {currentQuestion.options.map((option, index) => {
                 const isSelected = selectedOption === index;
                 const isCorrect = index === currentQuestion.correctIndex;
@@ -805,41 +812,45 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                   <button
                     key={option.id}
                     className={`
-                      btn h-auto min-h-12 py-2 px-3 flex-col gap-0.5 text-wrap
-                      ${!showResult && !isPreviewed ? 'btn-outline hover:btn-primary' : ''}
+                      btn answer-option btn-chunky
+                      ${showResult ? 'pointer-events-none' : ''}
+                      ${!showResult && !isPreviewed ? 'answer-option-idle' : ''}
                       ${!showResult && isPreviewed ? 'btn-primary' : ''}
-                      ${showCorrectHighlight ? 'btn-success' : ''}
-                      ${showWrongHighlight ? 'btn-error' : ''}
-                      ${showResult && !isSelected && !isCorrect ? 'btn-ghost opacity-70' : ''}
+                      ${showCorrectHighlight ? 'btn-success animate-pulse-correct' : ''}
+                      ${showWrongHighlight ? 'btn-error animate-shake' : ''}
+                      ${showResult && !isSelected && !isCorrect ? 'btn-ghost opacity-50' : ''}
                     `}
                     onClick={handleClick}
-                    disabled={showResult}
+                    /* Not `disabled` — daisyUI's disabled style greys out the fill,
+                       hiding the green/red answer feedback. handleSelectOption
+                       already ignores clicks once showResult is set. */
+                    aria-disabled={showResult}
                   >
                     {showResult && isCorrect && (
-                      <Check className="w-4 h-4 text-success-content" />
+                      <Check className="w-5 h-5 text-success-content" />
                     )}
                     {showWrongHighlight && (
-                      <X className="w-4 h-4 text-error-content" />
+                      <X className="w-5 h-5 text-error-content" />
                     )}
                     
                     {currentQuestion.answerModality === 'character' ? (
-                      <span className="hanzi text-xl">
+                      <span className="hanzi text-3xl">
                         {getOptionDisplay(option, 'character')}
                       </span>
                     ) : currentQuestion.answerModality === 'pinyin' ? (
-                      <span className="pinyin text-base">
+                      <span className="pinyin text-xl">
                         {getOptionDisplay(option, 'pinyin')}
                       </span>
                     ) : currentQuestion.answerModality === 'meaning' ? (
-                      <span className="text-sm leading-tight">
+                      <span className="text-base leading-snug">
                         {getOptionDisplay(option, 'meaning')}
                       </span>
                     ) : (
                       <div className="flex flex-col items-center gap-0.5">
                         {isPlayingThis ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <Loader2 className="w-7 h-7 animate-spin" />
                         ) : (
-                          <Volume2 className="w-5 h-5" />
+                          <Volume2 className="w-7 h-7" />
                         )}
                         {isPreviewed && !showResult && (
                           <span className="text-xs opacity-70">✓ Selected</span>
@@ -868,7 +879,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
             {/* Submit button for audio options */}
             {currentQuestion.answerModality === 'audio' && previewedAudioOption !== null && !showResult && (
               <button 
-                className="btn btn-primary w-full mt-3"
+                className="btn btn-primary btn-lg btn-chunky w-full mt-3"
                 onClick={() => handleSelectOption(previewedAudioOption)}
               >
                 Submit Answer
@@ -881,52 +892,52 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
               const isPaused = currentConcept?.paused ?? currentQuestion.concept.paused;
               
               return (
-                <div className="mt-2 space-y-2">
-                  <div className={`alert py-2 ${selectedOption === currentQuestion.correctIndex ? 'alert-success' : 'alert-info'}`}>
+                <div className="mt-2 space-y-3 animate-slide-up">
+                  <div className={`alert py-3 ${selectedOption === currentQuestion.correctIndex ? 'alert-success' : 'alert-info'}`}>
                     <div className="flex flex-col gap-0.5">
-                      <span className="font-bold text-sm">
+                      <span className="font-bold text-base">
                         {currentQuestion.concept.word} · {currentQuestion.concept.pinyin}
                       </span>
-                      <span className="text-xs opacity-80">
+                      <span className="text-sm opacity-80">
                         {currentQuestion.concept.meaning}
                       </span>
                     </div>
                   </div>
                   
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-2">
                     <button
-                      className={`btn btn-sm flex-shrink-0 gap-1 ${
+                      className={`btn btn-chunky flex-shrink-0 gap-1 ${
                         isPaused 
                           ? 'btn-outline btn-warning' 
                           : 'btn-success'
                       }`}
-                      onClick={() => store.togglePaused(currentQuestion.concept.id)}
+                      onClick={() => { haptic('tap'); store.togglePaused(currentQuestion.concept.id); }}
                       title={isPaused ? 'Click to mark as known (include in quiz)' : 'Click to mark as unknown (exclude from quiz)'}
                     >
                       {isPaused ? (
                         <>
-                          <Square className="w-3.5 h-3.5" />
+                          <Square className="w-4 h-4" />
                           <span className="hidden sm:inline">Unknown</span>
                         </>
                       ) : (
                         <>
-                          <CheckSquare className="w-3.5 h-3.5" />
+                          <CheckSquare className="w-4 h-4" />
                           <span className="hidden sm:inline">Known</span>
                         </>
                       )}
                     </button>
                     
                     <button
-                      className="btn btn-sm btn-ghost btn-square text-base-content/50 hover:text-warning hover:bg-warning/10"
-                      onClick={skipAndNext}
+                      className="btn btn-square btn-ghost text-base-content/50 hover:text-warning hover:bg-warning/10"
+                      onClick={() => { haptic('tap'); skipAndNext(); }}
                       title="Don't log this attempt — we won't learn from this question (useful if you guessed)"
                     >
-                      <Ban className="w-4 h-4" />
+                      <Ban className="w-5 h-5" />
                     </button>
                     
                     <button 
-                      className="btn btn-sm btn-primary flex-1"
-                      onClick={goToNext}
+                      className="btn btn-primary btn-chunky flex-1 text-base"
+                      onClick={() => { haptic('tap'); goToNext(); }}
                     >
                       {mixedIndex + 1 >= mixedItems.length ? 'See Results' : 'Next'}
                     </button>

@@ -138,7 +138,7 @@ export function SettingsPage({ settingsStore, onSave, onLogout, userEmail, onSho
     return date.toLocaleDateString();
   };
 
-  const themes: ThemeType[] = ['light', 'dark', 'wooden', 'ocean', 'forest', 'sunset', 'sakura', 'ink'];
+  const themes: ThemeType[] = ['light', 'dark', 'duo', 'wooden', 'ocean', 'forest', 'sakura', 'ink'];
   const focusLevels: FocusLevel[] = [0, 1, 2, 3];
   const focusFields: (keyof LearningFocus)[] = ['character', 'pinyin', 'meaning', 'audio'];
 

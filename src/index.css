@@ -92,35 +92,6 @@
   --radius-box: 0.25rem;
 }
 
-/* Sunset Theme - Warm amber/coral (LIGHT with warm tones) */
-@plugin "daisyui/theme" {
-  name: "sunset";
-  color-scheme: light;
-  --color-base-100: oklch(95% 0.03 50);
-  --color-base-200: oklch(90% 0.04 45);
-  --color-base-300: oklch(85% 0.05 40);
-  --color-base-content: oklch(25% 0.04 35);
-  --color-primary: oklch(62% 0.22 35);
-  --color-primary-content: oklch(98% 0.02 35);
-  --color-secondary: oklch(58% 0.2 15);
-  --color-secondary-content: oklch(98% 0.02 15);
-  --color-accent: oklch(72% 0.18 80);
-  --color-accent-content: oklch(20% 0.02 80);
-  --color-neutral: oklch(80% 0.04 45);
-  --color-neutral-content: oklch(30% 0.03 40);
-  --color-info: oklch(58% 0.15 230);
-  --color-info-content: oklch(98% 0.02 230);
-  --color-success: oklch(58% 0.15 150);
-  --color-success-content: oklch(98% 0.02 150);
-  --color-warning: oklch(72% 0.2 75);
-  --color-warning-content: oklch(25% 0.02 75);
-  --color-error: oklch(58% 0.22 25);
-  --color-error-content: oklch(98% 0.02 25);
-  --radius-selector: 0.5rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.75rem;
-}
-
 /* Sakura Theme - Soft pink blossoms (light theme) */
 @plugin "daisyui/theme" {
   name: "sakura";
@@ -177,6 +148,39 @@
   --radius-selector: 0rem;
   --radius-field: 0rem;
   --radius-box: 0rem;
+}
+
+/* Duo Theme - Duolingo's published brand palette.
+   Hex values from https://design.duolingo.com/identity/color
+   Core: Feather Green (primary), Eel (type), Snow (background).
+   Secondary: Macaw (info), Cardinal (error), Bee (warning), Fox, Beetle.
+   Neutrals: Swan / Polar / Hare for surfaces and borders. */
+@plugin "daisyui/theme" {
+  name: "duo";
+  color-scheme: light;
+  --color-base-100: #ffffff;      /* Snow */
+  --color-base-200: #f7f7f7;      /* Polar */
+  --color-base-300: #e5e5e5;      /* Swan */
+  --color-base-content: #4b4b4b;  /* Eel */
+  --color-primary: #58cc02;       /* Feather Green */
+  --color-primary-content: #ffffff;
+  --color-secondary: #1cb0f6;     /* Macaw */
+  --color-secondary-content: #ffffff;
+  --color-accent: #ce82ff;        /* Beetle */
+  --color-accent-content: #ffffff;
+  --color-neutral: #777777;       /* Wolf */
+  --color-neutral-content: #ffffff;
+  --color-info: #1cb0f6;          /* Macaw */
+  --color-info-content: #ffffff;
+  --color-success: #58cc02;       /* Feather Green */
+  --color-success-content: #ffffff;
+  --color-warning: #ffc800;       /* Bee */
+  --color-warning-content: #4b4b4b;
+  --color-error: #ff4b4b;         /* Cardinal */
+  --color-error-content: #ffffff;
+  --radius-selector: 1rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
 }
 
 /* ========== BASE STYLES ========== */
@@ -319,4 +323,140 @@ body {
 
 .theme-card[data-selected="true"] {
   @apply ring-2 ring-primary ring-offset-2 ring-offset-base-100;
+}
+
+/* ========== CHUNKY BUTTONS (Duolingo-style) ========== */
+/* A solid bottom edge that compresses on press, so taps feel physical.
+   Applied on top of daisyUI's .btn — the edge is drawn with box-shadow so it
+   works against any theme background. */
+.btn-chunky {
+  border-bottom-width: 0;
+  box-shadow: 0 4px 0 0 color-mix(in oklab, currentColor 22%, transparent);
+  transition: transform 0.06s ease-out, box-shadow 0.06s ease-out,
+    background-color 0.15s ease, border-color 0.15s ease;
+  will-change: transform;
+}
+
+.btn-chunky:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 color-mix(in oklab, currentColor 22%, transparent);
+}
+
+/* Solid-fill variants need a darker edge than currentColor (which is the label). */
+.btn-chunky.btn-primary {
+  box-shadow: 0 4px 0 0 color-mix(in oklab, var(--color-primary) 70%, black);
+}
+.btn-chunky.btn-success {
+  box-shadow: 0 4px 0 0 color-mix(in oklab, var(--color-success) 70%, black);
+}
+.btn-chunky.btn-error {
+  box-shadow: 0 4px 0 0 color-mix(in oklab, var(--color-error) 70%, black);
+}
+.btn-chunky.btn-primary:active:not(:disabled) {
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-primary) 70%, black);
+}
+.btn-chunky.btn-success:active:not(:disabled) {
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-success) 70%, black);
+}
+.btn-chunky.btn-error:active:not(:disabled) {
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-error) 70%, black);
+}
+
+.btn-chunky:disabled {
+  box-shadow: none;
+}
+
+/* Ghost buttons have no fill, so an edge reads as a stray underline rather than
+   a raised surface. Used by the de-emphasized options after answering. */
+.btn-chunky.btn-ghost {
+  box-shadow: none;
+}
+
+/* Answer options: larger tap targets. Pair with .btn and .btn-chunky in markup.
+   Deliberately does NOT @apply btn — doing so inlines daisyUI's base button
+   background into this unlayered rule, which would then beat btn-success /
+   btn-error and leave answered options grey. */
+.answer-option {
+  @apply h-auto py-4 px-3 flex-col gap-1 text-wrap normal-case;
+  min-height: 4.5rem;
+}
+
+/* Unanswered state. daisyUI's btn-outline border is too faint next to the chunky
+   edge, so the idle option draws its own border/edge from base-content. */
+.answer-option-idle {
+  @apply bg-base-100 border-2 border-base-content/20;
+  box-shadow: 0 4px 0 0 color-mix(in oklab, var(--color-base-content) 20%, transparent);
+}
+
+.answer-option-idle:hover:not(:disabled) {
+  @apply border-primary bg-primary/10;
+  box-shadow: 0 4px 0 0 color-mix(in oklab, var(--color-primary) 55%, transparent);
+}
+
+.answer-option-idle:active:not(:disabled) {
+  box-shadow: 0 1px 0 0 color-mix(in oklab, var(--color-primary) 55%, transparent);
+}
+
+@media (min-width: 640px) {
+  .answer-option {
+    min-height: 5rem;
+  }
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.94) translateY(6px); }
+  60% { opacity: 1; transform: scale(1.02) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(2px); }
+}
+
+@keyframes pulse-correct {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes tile-pop {
+  0% { transform: scale(0.85); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop-in { animation: pop-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-slide-up { animation: slide-up 0.24s ease-out both; }
+.animate-shake { animation: shake 0.4s ease-in-out both; }
+.animate-pulse-correct { animation: pulse-correct 0.35s ease-out both; }
+.animate-tile-pop { animation: tile-pop 0.16s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Progress bars animate toward their new value instead of snapping */
+.progress-animated::-webkit-progress-value {
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.progress-animated::-moz-progress-bar {
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========== BOTTOM NAV ========== */
+.nav-tab-icon {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.nav-tab[data-active="true"] .nav-tab-icon {
+  transform: translateY(-2px) scale(1.15);
+}
+
+.nav-tab:active .nav-tab-icon {
+  transform: scale(0.9);
 }

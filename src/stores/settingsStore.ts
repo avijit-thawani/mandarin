@@ -7,6 +7,18 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 const SETTINGS_KEY = 'langseed_settings';
 const SETTINGS_SYNC_KEY = 'langseed_settings_sync';
 
+// Themes that no longer exist, mapped to their closest surviving equivalent.
+// Stored settings (localStorage and Supabase) can still reference them, and an
+// unknown data-theme silently falls back to daisyUI's default, so remap on read.
+const RETIRED_THEMES: Record<string, ThemeType> = {
+  sunset: 'wooden', // both warm light themes; sunset's primary collided with error red
+};
+
+export function migrateTheme(theme: string | undefined): ThemeType {
+  if (!theme) return DEFAULT_SETTINGS.theme;
+  return RETIRED_THEMES[theme] ?? (theme as ThemeType);
+}
+
 // Load settings from localStorage
 function loadSettings(): UserSettings {
   try {
@@ -14,7 +26,8 @@ function loadSettings(): UserSettings {
     if (stored) {
       const parsed = JSON.parse(stored);
       // Merge with defaults to handle new settings added over time
-      return { ...DEFAULT_SETTINGS, ...parsed };
+      const merged = { ...DEFAULT_SETTINGS, ...parsed };
+      return { ...merged, theme: migrateTheme(merged.theme) };
     }
   } catch (e) {
     console.error('Failed to load settings:', e);
@@ -96,7 +109,9 @@ export function useSettingsStore(): SettingsStore {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', settings.theme);
     // Also update color-scheme for system UI elements
-    const isDark = ['dark', 'wooden', 'forest', 'sunset', 'ink'].includes(settings.theme);
+    // Must match each theme's `color-scheme` in index.css. Previously listed
+    // wooden (a light theme) and omitted ocean (a dark one).
+    const isDark = ['dark', 'ocean', 'forest', 'ink'].includes(settings.theme);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
   }, [settings.theme]);
 
@@ -233,7 +248,8 @@ export function useSettingsStore(): SettingsStore {
 
       if (data?.settings) {
         // Merge cloud settings with defaults (handles new fields)
-        const cloudSettings = { ...DEFAULT_SETTINGS, ...data.settings };
+        const merged = { ...DEFAULT_SETTINGS, ...data.settings };
+        const cloudSettings = { ...merged, theme: migrateTheme(merged.theme) };
         setSettings(cloudSettings);
         
         const now = new Date().toISOString();
