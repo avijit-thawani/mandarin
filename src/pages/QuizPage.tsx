@@ -732,7 +732,10 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       </header>
 
       {/* Question Card */}
-      <div className="flex-1 px-3 py-3 max-w-lg mx-auto w-full flex flex-col justify-center overflow-auto">
+      {/* Top-anchored, never centered: centering makes the card grow upward when
+          the answer feedback appears, yanking the question and options out from
+          under the user's finger. */}
+      <div className="flex-1 px-3 py-3 max-w-lg mx-auto w-full flex flex-col overflow-auto">
         <div
           key={currentQuestion.concept.id}
           className="card bg-base-200 shadow-xl border border-base-300 animate-pop-in"
@@ -826,11 +829,14 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                        already ignores clicks once showResult is set. */
                     aria-disabled={showResult}
                   >
+                    {/* Absolutely positioned so appearing on answer costs no layout
+                        height — inline, it grew every option and pushed the second
+                        row down. Sits in the button's top padding. */}
                     {showResult && isCorrect && (
-                      <Check className="w-5 h-5 text-success-content" />
+                      <Check className="w-5 h-5 text-success-content absolute top-1 left-1/2 -translate-x-1/2" />
                     )}
                     {showWrongHighlight && (
-                      <X className="w-5 h-5 text-error-content" />
+                      <X className="w-5 h-5 text-error-content absolute top-1 left-1/2 -translate-x-1/2" />
                     )}
                     
                     {currentQuestion.answerModality === 'character' ? (
@@ -858,19 +864,26 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
                       </div>
                     )}
                     
-                    {showResult && (
-                      <div className="flex flex-col items-center gap-0 mt-0.5 border-t border-current/10 pt-0.5 w-full">
-                        {currentQuestion.answerModality !== 'character' && (
-                          <span className="hanzi text-sm">{option.word}</span>
-                        )}
-                        {currentQuestion.answerModality !== 'pinyin' && (
-                          <span className="pinyin text-[11px] opacity-80">{option.pinyin}</span>
-                        )}
-                        {currentQuestion.answerModality !== 'meaning' && (
-                          <span className="text-[11px] opacity-70 leading-tight text-center">{option.meaning}</span>
-                        )}
-                      </div>
-                    )}
+                    {/* Always rendered so the option keeps a constant height —
+                        revealing this on answer would otherwise grow every button
+                        and shove the second row of options down. `invisible` keeps
+                        the reserved space while hiding it from view and from the
+                        accessibility tree. It leaks no answer: each option shows
+                        only its own word, not which one is correct. */}
+                    <div
+                      aria-hidden={!showResult}
+                      className={`flex flex-col items-center gap-0 mt-0.5 border-t border-current/10 pt-0.5 w-full ${showResult ? '' : 'invisible'}`}
+                    >
+                      {currentQuestion.answerModality !== 'character' && (
+                        <span className="hanzi text-sm">{option.word}</span>
+                      )}
+                      {currentQuestion.answerModality !== 'pinyin' && (
+                        <span className="pinyin text-[11px] opacity-80">{option.pinyin}</span>
+                      )}
+                      {currentQuestion.answerModality !== 'meaning' && (
+                        <span className="text-[11px] opacity-70 leading-tight text-center">{option.meaning}</span>
+                      )}
+                    </div>
                   </button>
                 );
               })}

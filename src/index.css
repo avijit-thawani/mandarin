@@ -377,14 +377,21 @@ body {
    background into this unlayered rule, which would then beat btn-success /
    btn-error and leave answered options grey. */
 .answer-option {
-  @apply h-auto py-4 px-3 flex-col gap-1 text-wrap normal-case;
+  @apply relative h-auto py-4 px-3 flex-col gap-1 text-wrap normal-case;
   min-height: 4.5rem;
+  /* Constant across idle/correct/wrong/ghost. The idle state's 2px border would
+     otherwise collapse to daisyUI's 1px on answer, changing the row's height and
+     nudging the second row of options. Bottom stays 0 for .btn-chunky's edge. */
+  border-width: 2px 2px 0 2px;
 }
 
 /* Unanswered state. daisyUI's btn-outline border is too faint next to the chunky
    edge, so the idle option draws its own border/edge from base-content. */
+/* Colour only — widths come from .answer-option so they stay identical across
+   states. A `border-2` shorthand here would re-add a 2px bottom border that the
+   answered states drop, changing row height. */
 .answer-option-idle {
-  @apply bg-base-100 border-2 border-base-content/20;
+  @apply bg-base-100 border-base-content/20;
   box-shadow: 0 4px 0 0 color-mix(in oklab, var(--color-base-content) 20%, transparent);
 }
 
