@@ -8,6 +8,8 @@ import { QuizPage, hasCompletedQuizToday } from './pages/QuizPage';
 import { PinyinPage } from './pages/PinyinPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ChatPage } from './pages/ChatPage';
+import { MascotLabPage } from './pages/MascotLabPage';
+import { TriviaLabPage } from './pages/TriviaLabPage';
 import { LoginPage } from './pages/LoginPage';
 import { useVocabularyStore } from './stores/vocabularyStore';
 import { useSettingsStore } from './stores/settingsStore';
@@ -276,6 +278,15 @@ function AppContent({
             } 
           />
           
+          {/* Mascot prototype — not in the navbar, reachable at /mascot */}
+          <Route path="/mascot" element={<MascotLabPage />} />
+
+          {/* Trivia generator harness — not in the navbar, reachable at /trivia */}
+          <Route
+            path="/trivia"
+            element={<TriviaLabPage store={store} settingsStore={settingsStore} />}
+          />
+
           {/* Legacy: syntax is now integrated into quiz */}
           <Route path="/syntax" element={<Navigate to="/quiz" replace />} />
           
@@ -285,6 +296,7 @@ function AppContent({
               <ChatPage 
                 store={store}
                 userName={getDisplayName(auth.user?.id, auth.user?.email)}
+                userId={auth.user?.id}
               />
             } 
           />

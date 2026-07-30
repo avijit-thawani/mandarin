@@ -1,7 +1,7 @@
 // Settings store with localStorage persistence + Supabase cloud sync
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import type { UserSettings, ThemeType, FocusLevel, LearningFocus, AudioSettings, QuizSettings, SyntaxSettings } from '../types/settings';
-import { DEFAULT_SETTINGS } from '../types/settings';
+import type { UserSettings, ThemeType, FocusLevel, LearningFocus, AudioSettings, QuizSettings, SyntaxSettings, TriviaSettings } from '../types/settings';
+import { DEFAULT_SETTINGS, THEME_PICKER_ENABLED, FORCED_THEME } from '../types/settings';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 const SETTINGS_KEY = 'langseed_settings';
@@ -17,6 +17,18 @@ const RETIRED_THEMES: Record<string, ThemeType> = {
 export function migrateTheme(theme: string | undefined): ThemeType {
   if (!theme) return DEFAULT_SETTINGS.theme;
   return RETIRED_THEMES[theme] ?? (theme as ThemeType);
+}
+
+/**
+ * The theme actually applied to the document.
+ *
+ * While THEME_PICKER_ENABLED is false everyone gets FORCED_THEME regardless of what
+ * they picked before. The stored preference is deliberately left untouched (rather
+ * than rewritten to duo) so re-enabling the picker restores each user's old choice
+ * instead of stranding everyone on duo.
+ */
+export function activeTheme(stored: ThemeType): ThemeType {
+  return THEME_PICKER_ENABLED ? stored : FORCED_THEME;
 }
 
 // Load settings from localStorage
@@ -62,6 +74,7 @@ export interface SettingsStore {
   setAudioSettings: (partial: Partial<AudioSettings>) => void;
   setQuizSettings: (partial: Partial<QuizSettings>) => void;
   setSyntaxSettings: (partial: Partial<SyntaxSettings>) => void;
+  setTriviaSettings: (partial: Partial<TriviaSettings>) => void;
   resetToDefaults: () => void;
   
   // Cloud sync
@@ -107,11 +120,12 @@ export function useSettingsStore(): SettingsStore {
 
   // Apply theme to document
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', settings.theme);
+    const theme = activeTheme(settings.theme);
+    document.documentElement.setAttribute('data-theme', theme);
     // Also update color-scheme for system UI elements
     // Must match each theme's `color-scheme` in index.css. Previously listed
     // wooden (a light theme) and omitted ocean (a dark one).
-    const isDark = ['dark', 'ocean', 'forest', 'ink'].includes(settings.theme);
+    const isDark = ['dark', 'ocean', 'forest', 'ink'].includes(theme);
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
   }, [settings.theme]);
 
@@ -176,6 +190,13 @@ export function useSettingsStore(): SettingsStore {
     setSettings(prev => ({
       ...prev,
       syntax: { ...prev.syntax, ...partial },
+    }));
+  }, []);
+
+  const setTriviaSettings = useCallback((partial: Partial<TriviaSettings>) => {
+    setSettings(prev => ({
+      ...prev,
+      trivia: { ...prev.trivia, ...partial },
     }));
   }, []);
 
@@ -286,6 +307,7 @@ export function useSettingsStore(): SettingsStore {
     setAudioSettings,
     setQuizSettings,
     setSyntaxSettings,
+    setTriviaSettings,
     resetToDefaults,
     syncToCloud,
     loadFromCloud,

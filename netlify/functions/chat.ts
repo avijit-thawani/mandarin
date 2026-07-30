@@ -1,6 +1,7 @@
-import { streamText, tool, UIMessage, convertToModelMessages } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
+import { streamText, generateText, tool, UIMessage, convertToModelMessages } from 'ai';
+
 import { createClient } from '@supabase/supabase-js';
+import { getModel, isModelConfigured } from './_model';
 import { z } from 'zod';
 
 const SYSTEM_PROMPT = `You are a friendly Mandarin Chinese tutor in the app "Saras."
@@ -40,6 +41,13 @@ VERIFYING:
 IMPORTANT:
 - Be accurate with pinyin tone marks -- they feed the quiz system directly
 - When unsure about a word's accuracy, say so rather than guessing`;
+
+// Same model as the conversation itself, just a one-shot non-streaming call.
+
+const TITLE_PROMPT = `Write a title for this Mandarin tutoring conversation.
+Rules: 2-5 words, no quotes, no trailing period, Title Case.
+Use pinyin rather than characters if you reference a specific word.
+Reply with the title only.`;
 
 const tools = {
   add_custom_word: tool({
@@ -150,17 +158,40 @@ export default async (req: Request) => {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!isModelConfigured()) {
     return new Response(
-      JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured on server' }),
+      JSON.stringify({ error: 'No LLM provider configured: set OPENROUTER_API_KEY or ANTHROPIC_API_KEY' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } },
     );
   }
 
-  const { messages, vocabContext } = await req.json() as {
+  const { messages, vocabContext, mode } = await req.json() as {
     messages: UIMessage[];
     vocabContext?: string;
+    mode?: 'title';
   };
+
+  // Title generation for the chat history list: short, non-streaming, no tools.
+  if (mode === 'title') {
+    try {
+      const { text } = await generateText({
+        model: getModel('CHAT_MODEL'),
+        system: TITLE_PROMPT,
+        messages: await convertToModelMessages(messages),
+      });
+      return new Response(
+        JSON.stringify({ title: text.trim() }),
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+    } catch (err) {
+      // Client falls back to the truncated first user message.
+      const msg = err instanceof Error ? err.message : String(err);
+      return new Response(
+        JSON.stringify({ error: msg }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+  }
 
   const systemWithContext = vocabContext
     ? `${SYSTEM_PROMPT}\n\nUSER'S CURRENT VOCABULARY:\n${vocabContext}`
@@ -168,7 +199,7 @@ export default async (req: Request) => {
 
   try {
     const result = streamText({
-      model: anthropic('claude-sonnet-4-6'),
+      model: getModel('CHAT_MODEL'),
       system: systemWithContext,
       messages: await convertToModelMessages(messages),
       tools,

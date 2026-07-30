@@ -1,6 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import { BookOpen, GraduationCap, Zap, User, Mic, Flame, Snowflake, MessageCircle } from 'lucide-react';
 import { haptic } from '../services/hapticService';
+import { MASCOT_CONFIG } from './mascot/mascotConfig';
+
+const MASCOT_HORIZONTAL_OFFSET_PX = MASCOT_CONFIG.horizontalOffsetPx;
 
 interface NavbarProps {
   hasUnsyncedSettings?: boolean;
@@ -23,6 +26,10 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
   ];
 
   const showStreak = streak !== undefined && streak >= 0;
+  // Colored (lit) only when the streak is alive AND today's quiz is done.
+  // If today isn't done yet, keep showing the current streak number but leave
+  // the badge greyed out as a nudge to practice.
+  const litToday = !isStreakBroken && (streak ?? 0) > 0 && !!quizCompletedToday;
   
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-base-200 border-t border-base-300 z-50">
@@ -30,12 +37,16 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
       {showStreak && (
         <button
           onClick={onStreakClick}
+          // Nudged right of centre so it clears the mascot, which sits in a band
+          // directly above and is nudged left by the same amount. Keep in sync
+          // with MASCOT_CONFIG.horizontalOffsetPx.
+          style={{ marginLeft: MASCOT_HORIZONTAL_OFFSET_PX }}
           className="absolute -top-5 left-1/2 -translate-x-1/2 z-10"
         >
           <div className={`flex items-center gap-1 px-3 py-1 rounded-full shadow-lg border transition-all active:scale-95 ${
             isStreakBroken
               ? 'bg-base-300 border-base-content/20 text-base-content/50'
-              : streak! > 0
+              : litToday
                 // Duolingo streak flame: Fox -> Bee (design.duolingo.com/identity/color)
                 ? 'bg-gradient-to-r from-[#FF9600] to-[#FFC800] border-[#FF9600]/40 text-white'
                 : 'bg-base-300 border-base-content/20 text-base-content/60'
@@ -43,7 +54,7 @@ export function Navbar({ hasUnsyncedSettings, quizCompletedToday, streak, isStre
             {isStreakBroken ? (
               <Snowflake className="w-3.5 h-3.5 animate-pulse" />
             ) : (
-              <Flame className={`w-3.5 h-3.5 ${streak! > 0 ? 'drop-shadow-sm' : ''}`} />
+              <Flame className={`w-3.5 h-3.5 ${litToday ? 'drop-shadow-sm' : ''}`} />
             )}
             <span className="text-xs font-bold tabular-nums">{streak}</span>
           </div>

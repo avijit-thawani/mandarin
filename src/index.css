@@ -410,6 +410,32 @@ body {
   }
 }
 
+/* ========== THEMED REVIEW SESSIONS ========== */
+/* A themed review swaps the quiz's neutral base gradient for a wash of that theme's
+   tint, so the surprise is visible the moment the session opens. The tint arrives as
+   the `--review-tint` custom property (set inline from the theme data), and everything
+   is mixed over the current base colours so it stays legible on any theme.
+   Deliberately does NOT touch primary/success/error: those keep their semantic
+   meaning inside the quiz, and a themed session must not recolour right vs wrong. */
+.quiz-themed {
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--review-tint) 22%, var(--color-base-100)),
+    color-mix(in oklab, var(--review-tint) 7%, var(--color-base-200))
+  );
+}
+
+.review-banner {
+  background-color: color-mix(in oklab, var(--review-tint) 20%, var(--color-base-100));
+  border-color: color-mix(in oklab, var(--review-tint) 45%, transparent);
+}
+
+/* The raw tint is chosen for backgrounds, so it's too light for text on a light
+   theme. Darkening toward base-content keeps contrast without losing the hue. */
+.review-banner-text {
+  color: color-mix(in oklab, var(--review-tint) 55%, var(--color-base-content));
+}
+
 /* ========== ANIMATIONS ========== */
 @keyframes pop-in {
   0% { opacity: 0; transform: scale(0.94) translateY(6px); }

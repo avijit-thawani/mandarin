@@ -2,6 +2,15 @@
 
 export type ThemeType = 'light' | 'dark' | 'duo' | 'wooden' | 'ocean' | 'forest' | 'sakura' | 'ink';
 
+// While false, every user is pinned to FORCED_THEME and the Theme picker is hidden.
+// The other themes and their CSS are left intact — flip this back to true to
+// restore the picker. See `migrateTheme` in stores/settingsStore.ts for the pin.
+export const THEME_PICKER_ENABLED = false;
+
+// The single theme everyone gets while the picker is disabled. `duo` is the most
+// animated/bright of the set, which is the direction the app is being tuned for.
+export const FORCED_THEME: ThemeType = 'duo';
+
 export type FocusLevel = 0 | 1 | 2 | 3; // 0 = ignore, 1 = low, 2 = medium, 3 = high
 
 // Option selection - the single "Difficulty" control. Drives both distractor
@@ -27,6 +36,12 @@ export type SyntaxDirectionRatio = 0 | 1 | 2 | 3 | 4;
 export interface SyntaxSettings {
   directionRatio: SyntaxDirectionRatio;  // Reading:Writing ratio slider position
   frequency: FocusLevel;                 // 0=skip, 1=low, 2=med, 3=high — controls syntax question mix in Quiz
+}
+
+// LLM-generated trivia cards shown between quiz questions.
+// frequency maps to an interval (every Nth question) via TRIVIA_FREQUENCY_META.
+export interface TriviaSettings {
+  frequency: FocusLevel;  // 0=off, 1=every 10th, 2=every 5th, 3=every 3rd question
 }
 
 export interface LearningFocus {
@@ -63,6 +78,9 @@ export interface UserSettings {
   
   // Syntax settings
   syntax: SyntaxSettings;          // Sentence construction settings
+
+  // Trivia settings
+  trivia: TriviaSettings;          // LLM trivia cards between quiz questions
   
   // Display preferences
   theme: ThemeType;
@@ -97,7 +115,10 @@ export const DEFAULT_SETTINGS: UserSettings = {
     directionRatio: 1,  // Default to 2:1 reading (English→Chinese more common)
     frequency: 1,       // Low by default — a few syntax questions mixed into each quiz
   },
-  theme: 'dark',
+  trivia: {
+    frequency: 2,       // Med by default — a trivia card every 5th question
+  },
+  theme: FORCED_THEME,
   pinyinDisplay: 'tones',
   characterSize: 'medium',
   autoPlayAudio: false,
@@ -177,6 +198,15 @@ export const SYNTAX_FREQUENCY_META: Record<FocusLevel, { label: string; descript
   1: { label: 'Low', description: '~20% syntax questions', fraction: 0.2 },
   2: { label: 'Med', description: '~35% syntax questions', fraction: 0.35 },
   3: { label: 'High', description: '~50% syntax questions', fraction: 0.5 },
+};
+
+// Trivia frequency: how often an LLM trivia card appears between quiz questions.
+// `interval` is the number of questions between cards (0 = never).
+export const TRIVIA_FREQUENCY_META: Record<FocusLevel, { label: string; description: string; interval: number }> = {
+  0: { label: 'Skip', description: 'No trivia cards', interval: 0 },
+  1: { label: 'Low', description: 'A trivia card every 5th question', interval: 5 },
+  2: { label: 'Med', description: 'A trivia card every 3rd question', interval: 3 },
+  3: { label: 'High', description: 'A trivia card after every question', interval: 1 },
 };
 
 // Syntax direction ratio options

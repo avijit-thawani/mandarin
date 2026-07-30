@@ -24,6 +24,7 @@ import {
   TrendingUp,
   BarChart3,
   Layers,
+  Lightbulb,
   Bell,
   BellOff,
 } from 'lucide-react';
@@ -37,7 +38,7 @@ import type {
   PinyinDisplay,
   OptionSelection,
 } from '../types/settings';
-import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, SYNTAX_DIRECTION_OPTIONS, SYNTAX_FREQUENCY_META, OPTION_SELECTION_META } from '../types/settings';
+import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, SYNTAX_DIRECTION_OPTIONS, SYNTAX_FREQUENCY_META, OPTION_SELECTION_META, THEME_PICKER_ENABLED } from '../types/settings';
 import type { SyntaxDirectionRatio } from '../types/settings';
 import { MODALITY_INFO, type Modality } from '../types/vocabulary';
 import { 
@@ -798,7 +799,38 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
           )}
         </section>
 
+        {/* ========== TRIVIA IN QUIZ ========== */}
+        <section className="space-y-4">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-warning" />
+            Trivia in Quiz
+          </h2>
+          <p className="text-sm text-base-content/60 -mt-2">
+            AI-written "did you know" cards about the word you just answered — character
+            connections, literal meanings, and one new word you're ready for.
+          </p>
+
+          <div className="bg-base-200 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="pr-3">
+                <h3 className="font-medium">Show trivia cards</h3>
+                <p className="text-xs text-base-content/60">
+                  A card is written for every question, and only the most interesting
+                  few are shown — so they stay rare and worth reading.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                className="toggle toggle-warning"
+                checked={(settings.trivia?.frequency ?? 2) > 0}
+                onChange={(e) => settingsStore.setTriviaSettings({ frequency: e.target.checked ? 2 : 0 })}
+              />
+            </div>
+          </div>
+        </section>
+
         {/* ========== THEME SELECTION ========== */}
+        {THEME_PICKER_ENABLED && (
         <section className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             {settings.theme === 'light' || settings.theme === 'sakura' ? (
@@ -836,6 +868,7 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
             })}
           </div>
         </section>
+        )}
 
         {/* ========== DISPLAY SETTINGS ========== */}
         <section className="space-y-4">

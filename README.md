@@ -10,13 +10,10 @@ Future agents: this file is intentionally operational. It is the first map for w
 
 1. Always read `.cursorrules` and `README.md` before making changes.
 2. Keep this README at or below **400 lines**. If an edit would exceed 400, rephrase or trim other sections judiciously — never just append.
-3. **Only update README for major changes** (new features, new failure modes, architecture shifts, schema changes). Do not update it for minor bug fixes, style tweaks, or tuning knob adjustments.
-4. If a section feels outdated, or a request introduces uncertainty, propose doc updates in the same task — before large changes.
-5. Keep README on stable contracts and architecture, not fast-changing tuning details. For volatile logic, update module docstrings first, then README pointers.
-6. Document known failures/incidents and any mitigation steps.
-7. When scripts change (build, data extraction, sync tooling, ML analysis), update the "Script Behavior" section.
-8. Never run risky DB migrations without explicit user confirmation and backup strategy.
-9. All new UI follows "UI and Interaction Design" by default — chunky buttons, entrance animations, haptics, semantic color, and zero layout shift. It is a contract, not a style suggestion.
+3. **Only update README for major changes** (new features, new failure modes, architecture shifts, schema changes) — not minor bug fixes, style tweaks, or tuning knobs. Docs are layered: README holds stable contracts, architecture, and safety; module docstrings hold volatile implementation (quiz heuristics, ML thresholds, syntax templates); script headers hold run instructions. Update the lowest layer that fits, then README pointers. If a section feels outdated, propose doc updates in the same task.
+4. Document known failures/incidents and any mitigation steps. When scripts change (build, data extraction, sync tooling, ML analysis), update "Script Behavior".
+5. Never run risky DB migrations without explicit user confirmation and backup strategy.
+6. All new UI follows "UI and Interaction Design" by default — chunky buttons, entrance animations, haptics, semantic color, and zero layout shift. It is a contract, not a style suggestion.
 
 ### MCP Supabase Access Policy
 
@@ -35,21 +32,11 @@ Reference Chinese words by **pinyin** by default (e.g. "nǚ'ér" not "daughter")
 
 ### Learning Philosophy
 
-- Keep users around a ~70-80% quiz success range.
-- Track knowledge per modality: `character`, `pinyin`, `meaning`, `audio`.
-- Reward recovery: wrong answers reduce score less than correct answers increase it.
-- Show progress clearly (overall + per modality).
+Keep users around a ~70-80% quiz success range. Track knowledge per modality (`character`, `pinyin`, `meaning`, `audio`). Reward recovery: wrong answers reduce score less than correct answers increase it. Show progress clearly (overall + per modality).
 
 ### Critical Concept: Known vs Unknown Words
 
-Binary categories only:
-
-| Status  | Checkbox  | In Revise/Quiz Pool |
-| ------- | --------- | ------------------- |
-| Known   | Checked   | Yes                 |
-| Unknown | Unchecked | No                  |
-
-This is the primary anti-overwhelm mechanism. Do not silently alter this behavior.
+Binary categories only: **known** (checkbox checked) is in the Revise/Quiz pool, **unknown** (unchecked) is not. Stored as `user_progress.paused` — `!paused` is the pool. This is the primary anti-overwhelm mechanism. Do not silently alter this behavior.
 
 ---
 
@@ -59,10 +46,12 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 
 - `Vocabulary`: browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS). "For today" buttons let you send a filtered subset to Quiz/Study as a temporary session filter.
 - `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
-- `Quiz`: active MCQ + syntax tile-ordering exercises + scoring + attempt logging. Syntax exercises are interleaved based on the Syntax Frequency setting (0-3). Supports temporary "for today" filters set from the Vocab page.
+- `Quiz`: active MCQ + syntax tile-ordering exercises + LLM trivia interstitials + scoring + attempt logging. Syntax exercises are interleaved based on the Syntax Frequency setting (0-3). Supports temporary "for today" filters set from the Vocab page.
 - `Pinyin`: pronunciation practice on known vocab. **Listen** = audio quiz with 6 pinyin options; **Speak** = see pinyin, speak, compare with TTS, self-rate.
-- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling. Assistant replies render GitHub-flavored markdown, including tables (useful for pinyin/meaning lists) — wide tables scroll horizontally.
+- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling. Assistant replies render GitHub-flavored markdown, including tables (useful for pinyin/meaning lists) — wide tables scroll horizontally. Threads persist to Supabase and are reopenable from a history drawer.
 - `Profile`: progress charts + settings.
+
+**Hidden dev routes** (not in the navbar): `/mascot` renders every Saras pose/gesture for tuning; `/trivia` generates trivia cards on demand without playing a quiz. Both are prototyping harnesses, not user surfaces.
 
 ### High-Value Files
 
@@ -81,23 +70,23 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/ChatPage.tsx`: LLM tutor chat UI (useChat hook, tool rendering, vocab context injection, `MessageMarkdown` renderer with `remark-gfm` tables).
-- `netlify/functions/chat.mts`: Netlify Function — streamText with Anthropic Claude, 4 vocabulary tools.
+- `src/components/ChatHistoryDrawer.tsx` + `src/lib/chatHistoryService.ts`: conversation list, load/rename/delete, thread persistence.
+- `src/components/TriviaCard.tsx` + `src/lib/triviaService.ts`: trivia card UI and fetch/rank client (see "Trivia Cards").
+- `netlify/functions/chat.ts`: Netlify Function — streamText, 4 vocabulary tools.
+- `netlify/functions/trivia.ts`: Netlify Function — generateObject for trivia generation + ranking.
+- `netlify/functions/_model.ts`: shared provider selection for both functions (see "LLM Provider").
 
 ### State and Domain Logic
 
 - `src/stores/vocabularyStore.ts`: concept state and vocabulary lifecycle.
-- `src/stores/settingsStore.ts`: focus weights, UI and quiz settings.
+- `src/stores/settingsStore.ts`: focus weights, UI and quiz settings, theme pinning.
 - `src/stores/todayFilterStore.ts`: ephemeral in-memory filter (PoS/chapter) for temporary quiz/study sessions. Resets on page refresh.
-- `src/utils/knowledge.ts`: knowledge update math.
-- `src/utils/quiz.ts`: question selection and option generation.
-- `src/utils/syntax.ts`: template-driven sentence generation.
-- `src/services/ttsService.ts`: speech playback.
-- `src/services/hapticService.ts`: vibration feedback patterns (see "UI and Interaction Design").
+- `src/utils/knowledge.ts`: knowledge update math. `src/utils/quiz.ts`: question selection and option generation. `src/utils/syntax.ts`: template-driven sentence generation.
+- `src/services/ttsService.ts`: speech playback. `src/services/hapticService.ts`: vibration feedback patterns (see "UI and Interaction Design").
 
 ### Cloud/Sync Layer
 
-- `src/lib/supabase.ts`: Supabase client.
-- `src/lib/syncService.ts`: sync orchestration.
+- `src/lib/supabase.ts`: Supabase client. `src/lib/syncService.ts`: sync orchestration.
 - `src/lib/quizService.ts`: quiz attempt writes and related persistence.
 - `src/lib/pwaReminderService.ts`: push subscription CRUD, schedule read/write, enable/disable.
 - `src/types/database.ts`: DB schema typing contracts.
@@ -116,14 +105,9 @@ High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxExerciseCard`/`syntax
 
 **Supabase `vocabulary` table is the single source of truth.** `src/data/hsk1_vocabulary.json` is kept for reference/scripts but is NOT imported at runtime.
 
-1. On login, `loadFromCloud` fetches `user_progress JOIN vocabulary` (including `category` column).
-2. localStorage caches concepts for instant boot; Supabase overwrites stale cache.
-3. Custom words (added via Chat tab) use `source: 'chat'` and are first-class — they work in Quiz, Study, Syntax, and Vocab identically to HSK1 words.
+On login, `loadFromCloud` fetches `user_progress JOIN vocabulary` (including `category`). localStorage caches concepts for instant boot; Supabase overwrites stale cache. Custom words use `source: 'chat'` and are first-class — they work in Quiz, Study, Syntax, and Vocab identically to HSK1 words.
 
-**To add new vocabulary:**
-
-- Insert into Supabase `vocabulary` table (required: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`).
-- Users can also add words via the Chat tab (stored as `source: 'chat'`).
+**To add new vocabulary:** insert into the Supabase `vocabulary` table (required: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`). Users can also add words via the Chat tab or a Trivia card suggestion (stored as `source: 'chat'`).
 
 **Concept** (client-side): static vocab fields (including semantic `category`) + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
 
@@ -135,24 +119,15 @@ High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxExerciseCard`/`syntax
 
 ### 12 Task Directions
 
-All modality pairs are supported (e.g., `character -> meaning`, `audio -> pinyin`, etc.).
-**Trivial pair penalty**: `pinyin ↔ audio` directions receive a 95% weight reduction because pinyin directly encodes pronunciation, making these questions trivially easy.
+All modality pairs are supported (e.g., `character -> meaning`, `audio -> pinyin`). **Trivial pair penalty**: `pinyin ↔ audio` directions get a 95% weight reduction because pinyin directly encodes pronunciation.
 
 ### Knowledge Update Formula
 
-Answer modality gets full update rate; question modality gets partial recognition credit.
-
-Approximate update rates:
-
-- Correct answer modality: +25% of remaining distance to 100
-- Incorrect answer modality: -17.5% of current value
-- Question modality uses half-strength rates
-
-This asymmetry is intentional and should only change with explicit product decision.
+Answer modality gets the full update rate, question modality partial recognition credit (half-strength). Correct: +25% of the remaining distance to 100. Incorrect: −17.5% of current value. The asymmetry rewards recovery and should only change with an explicit product decision.
 
 ### Quiz Logging Flow
 
-User answers → UI shows result → attempt logs asynchronously on the next-question transition. "Don't log" skips accidental/lucky guesses. If changing this flow, update analytics expectations and user-facing copy.
+User answers, the UI shows the result, and the attempt logs asynchronously on the next-question transition. "Don't log" skips accidental/lucky guesses. If changing this flow, update analytics expectations and user-facing copy.
 
 ### Difficulty and Prediction Guidance
 
@@ -166,9 +141,8 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 
 - **Semantic category** (`category` field in vocabulary JSON): same-category words are strongly preferred in hard/expert mode (e.g., 爸爸 draws 妈妈/儿子, not 桌子/学校).
 - **Character structure**: words with matching repetition patterns (AA like 爸爸/妈妈/谢谢) are preferred as distractors for each other, preventing the "spot the doubled character" shortcut.
-- POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert). Expert no longer adds extra options — all difficulties use 4 options.
-- Easy mode inverts most signals to make wrong answers obviously different.
-- **Synonym disambiguation**: words that share similar English meanings (e.g., 但是/可是 "but", 会/能 "can", 按/照 "according to", 儿/儿子 "son", 小/些/一点儿/少 "small/some/a little/few") have differentiated glosses with parenthetical context hints (formal/casual, size vs quantity, diminutive suffix vs standalone noun, etc.) so each meaning is unique and quiz collisions are avoided. Collision detection in `hasCollision` is exact-string match on the answer-modality value, so disambiguation must happen in the content/gloss, not the code.
+- POS match, chapter proximity, word length, pinyin similarity, knowledge proximity (expert). All difficulties use 4 options. Easy mode inverts most signals to make wrong answers obviously different.
+- **Synonym disambiguation**: words sharing an English meaning (但是/可是 "but", 会/能 "can", 儿/儿子 "son", 小/些/一点儿/少) carry differentiated glosses with parenthetical hints (formal/casual, size vs quantity, suffix vs standalone noun) so each meaning is unique. `hasCollision` is exact-string match on the answer-modality value, so disambiguation must happen in the gloss, not the code.
 
 ---
 
@@ -176,9 +150,7 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 
 ### Hybrid Persistence, Sync, and Offline
 
-Local: `localStorage` for immediate state/preferences. Cloud: Supabase for signed-in users. Notable local key: `langseed_quiz_completed` (daily flag). Streak is computed purely from `quiz_attempts`.
-
-Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite stale local cache on startup. App works offline with local cache; sync resumes on reconnect. Test offline mode: `?offlineTest=1`.
+Local: `localStorage` for immediate state/preferences. Cloud: Supabase for signed-in users. Notable local key: `langseed_quiz_completed` (daily flag). Streak is computed purely from `quiz_attempts`. Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite stale local cache on startup. App works offline with local cache; sync resumes on reconnect. Test offline mode: `?offlineTest=1`.
 
 ### PWA Caching
 
@@ -186,15 +158,11 @@ Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite
 
 ### PWA Push Notifications
 
-Per-device daily reminders via Web Push API. Key files: `pwaReminderService.ts` (client CRUD + SW updates), `supabase/functions/send-reminders/index.ts` (Edge Function), `public/sw.js` (push/click/withdraw handlers). Auto-withdraw on quiz completion via `clearNotifications()`.
-
-Key table: `push_subscriptions` (`reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`). Env: `VITE_VAPID_PUBLIC_KEY` (client), `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (Edge Function secrets).
+Per-device daily reminders via Web Push API. Key files: `pwaReminderService.ts` (client CRUD + SW updates), `supabase/functions/send-reminders/index.ts` (Edge Function), `public/sw.js` (push/click/withdraw handlers). Auto-withdraw on quiz completion via `clearNotifications()`. Key table: `push_subscriptions` (`reminder_hour_local`, `reminder_minute_local`, `reminder_timezone`, `last_sent_at`, `is_active`). Env: `VITE_VAPID_PUBLIC_KEY` (client), `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (Edge Function secrets).
 
 Migrations (apply in order): `20260213162000` (table + RLS), `20260213230500` (schedule columns), `20260324120000` (pg_cron + pg_net). Cron calls Edge Function every 5 min via service role key in Vault. Verify: `select * from cron.job;`
 
-**Critical mobile settings:** `TTL: 14400` + `urgency: 'high'` (short TTL / default urgency = silent drops). Test sends use `last_tested_at` to avoid blocking scheduled sends.
-
-**iOS:** Requires 16.4+, must install PWA to home screen (not Safari tab), subscriptions expire after ~2 weeks of non-use. EU iOS 17.4+ may block standalone PWA (DMA).
+**Critical mobile settings:** `TTL: 14400` + `urgency: 'high'` (short TTL / default urgency = silent drops). Test sends use `last_tested_at` to avoid blocking scheduled sends. **iOS:** requires 16.4+, must install PWA to home screen (not Safari tab), subscriptions expire after ~2 weeks of non-use. EU iOS 17.4+ may block standalone PWA (DMA).
 
 Any sync strategy changes must update this section and `Known Failures`.
 
@@ -204,27 +172,17 @@ Any sync strategy changes must update this section and `Known Failures`.
 
 All users must sign in via Supabase. Guest mode has been removed. RLS ensures user isolation.
 
----
-
 ## Settings and Personalization
 
-### Learning Focus Weights (0-3)
+**Learning Focus (0-3)** — `0` skip, `1` low, `2` medium, `3` high. Controls quiz task modality frequency, Study card reveal preference, and the weighted overall knowledge score.
 
-`0` skip, `1` low, `2` medium, `3` high. Controls quiz task modality frequency, Study card reveal preference, and the weighted overall knowledge score.
+**Syntax Frequency (0-3)** — same scale, mapping to 0%/20%/35%/50% of quiz questions being tile-ordering exercises. Degrades to all MCQ if vocab satisfies no template.
 
-### Syntax Frequency (0-3)
+**Trivia Frequency (0-3)** — effectively an on/off switch: `0` disables trivia entirely, any other value enables it. How many cards actually appear is decided by ranking (see "Trivia Cards"), not by the setting, so the 1/2/3 interval scale in `TRIVIA_FREQUENCY_META` is vestigial.
 
-Controls how many quiz questions are syntax tile-ordering exercises vs MCQ. Same scale: `0` skip, `1` low (~20%), `2` medium (~35%), `3` high (~50%). Gracefully degrades to all MCQ if vocab doesn't satisfy any template.
+**Other controls** — cards per session, character size, pinyin style, TTS voice/rate/auto-play, quiz difficulty (easy/hard/expert, which also drives weak/stale word selection + decay), PWA reminders (per-device local time + timezone, default 4:00 PM).
 
-### Other User Controls
-
-- cards per session
-- theme (8 options, incl. `duo` — see "UI and Interaction Design")
-- character size
-- pinyin style
-- TTS voice/rate/auto-play
-- quiz difficulty (easy/hard/expert) — also drives weak/stale word selection + decay
-- PWA reminders (per-device local time + timezone, default 4:00 PM)
+**Theme is locked to `duo`** for everyone: `THEME_PICKER_ENABLED = false` (`src/types/settings.ts`) hides the picker and `activeTheme()` (`settingsStore.ts`) pins what's applied. The other 7 themes and their CSS are untouched, and stored preferences are deliberately *not* rewritten, so flipping the flag back restores each user's old choice instead of stranding everyone on duo.
 
 ---
 
@@ -245,20 +203,76 @@ Nothing may move when state changes — never yank content out from under a thum
 
 - **Anchor containers to the top.** Never `justify-center` a container whose content grows; centering makes it expand upward as well as down.
 - **Reserve space for anything that appears later.** Render it and toggle `invisible` (plus `aria-hidden`) instead of mounting it on demand.
-- **Overlay decorations rather than inlining them.** The ✓/✗ on an answered option is `absolute` inside the button's padding, so it costs no height.
-- **Keep border widths identical across states.** A 2px→1px change on answer silently reflows the row.
+- **Overlay decorations rather than inlining them.** The ✓/✗ on an answered option is `absolute` inside the button's padding, so it costs no height. Likewise keep border widths identical across states — a 2px→1px change on answer silently reflows the row.
 - **Verify by measuring**, not eyeballing: compare `getBoundingClientRect().top` before and after. Note the automated browser tab freezes CSS animations at frame 0, so neutralize transforms first or you will chase phantom offsets from a frozen `scale()`.
 
 ### Constraints and Gotchas
 
-- **`reduced-motion`** must disable both animations and haptics. Define animations in `index.css` so the global override catches them.
-- **Haptics are Vibration API**, a silent no-op on iOS Safari. Never let behavior depend on one firing.
+- **`reduced-motion`** must disable both animations and haptics. Define animations in `index.css` so the global override catches them. **Haptics are Vibration API**, a silent no-op on iOS Safari — never let behavior depend on one firing.
 - **A theme's `primary` must be clearly distinguishable from `error`**, since primary is the "Next" CTA sitting beside a red wrong answer. `sunset` was retired for failing this. Retiring a theme needs a `RETIRED_THEMES` entry (`settingsStore.ts`): stored settings still reference it, and an unknown `data-theme` silently falls back.
 - **`duo` theme** = Duolingo's published palette (design.duolingo.com/identity/color): Feather Green `#58CC02`, Macaw `#1CB0F6`, Cardinal `#FF4B4B`, Bee `#FFC800`, Eel/Swan/Polar neutrals; streak badge uses Fox→Bee.
 - Do **not** `@apply btn` inside a custom class — it inlines daisyUI's base background unlayered, which then beats `btn-success`/`btn-error`. Put `btn` in the markup.
 - Do **not** set `disabled` on answered quiz options; daisyUI's disabled style greys out the fill and hides the correct/wrong feedback. Use `aria-disabled` + `pointer-events-none`.
 
+### Saras (Mascot)
+
+A seated veena player, the app's namesake: Saraswati (goddess of learning, always shown with a veena), *saras* (the water her name derives from), and सारस (the Sarus crane). Drawn as a musician **inspired by** that iconography — deliberately not the deity, so no extra arms or halo. `Saras.tsx` geometry, `useMascotRig.ts` motion, `QuizMascot.tsx` quiz behaviour, `mascotConfig.ts` knobs.
+
+Four variability axes: **colour** (sari + veena wood) and **motion** (idle loop set) are seeded from the session id and fixed for the session; **action** (gestures) is random per trigger and deliberately **orthogonal to emotion** (a cheerful pluck attached to a scowl is the charm, not a bug); **emotion** is deterministic from session accuracy.
+
+- She appears in **33% of sessions**, rolled once at session start — not per question, since colour is session-scoped and a per-question roll would flicker her in and out wearing different saris.
+- Her band sits **below** the quiz, outside the scrolling area, so a card growing on answer scrolls in its own container and can never displace her (see Layout Stability). Sparse ambient gestures while the user reads, a bigger reaction on answer, then settle back to the accuracy baseline rather than to neutral.
+- **Band height scales with viewport height** (`viewportHeight - viewportReservePx`, capped at `maxStageHeightPx`) because every pixel she takes comes out of the question's space. Measured against the answered card (~463px): a 390×844 phone affords ~240px, a 375×667 phone only ~63px. Below `minStageHeightPx` she is **skipped entirely** rather than shrunk — on small phones that's what keeps the Next button above the fold.
+- She is nudged left of centre and the navbar streak badge right by the same `horizontalOffsetPx`, since the badge floats above the centre of the navbar directly beneath her. Keep the two in sync.
+
 ---
+
+## Tuning Constants (Hardcoded by Design)
+
+Pacing and personality decisions, deliberately **not** user settings — exposing them would invite turning features into wallpaper or nuisance. Listed so there's no hunting.
+
+| What | Where |
+| ---- | ----- |
+| Mascot appearance rate, gesture pools, idle/thinking timing, emotion thresholds | `mascot/mascotConfig.ts` |
+| Animation easings, follow-through lag, gesture keyframes | `mascot/useMascotRig.ts` |
+| Haptic patterns | `services/hapticService.ts` |
+| Themed review rate (`THEMED_REVIEW_CHANCE`) | `utils/reviewTheme.ts` |
+| Trivia show fraction, earliest slot, stagger | `pages/QuizPage.tsx` |
+| Knowledge update rates + decay floor; distractor weights | `utils/knowledge.ts`, `utils/quiz.ts` |
+| Streak recovery window | `lib/streakGoal.ts` |
+
+Everything else the user *can* change stays in Profile (cards/session, difficulty, focus, syntax + trivia frequency, theme, TTS, reminders).
+
+---
+
+## Themed Reviews
+
+Occasionally a quiz session becomes a **themed review**: MCQ words come from one semantic cluster (Clock & Calendar, Question Words, At School…) with that theme's colour wash and a banner. Motivation is variable reward — most sessions look normal, so themed ones surprise.
+
+- **Catalog**: `src/data/reviewThemes.ts` (24 themes). Curated hanzi lists, *not* a `category` filter — `category` was built for distractor selection, so its buckets are the wrong shape (`grammar` mixes particles/conjunctions/prepositions; At School cuts across place/person/object/communication). `validateReviewThemes()` catches typo'd hanzi, which would otherwise silently shrink a theme below viability.
+- **Selection**: `src/utils/reviewTheme.ts`. Fires on `THEMED_REVIEW_CHANCE` (20%) of sessions, rolled per session; **always fires on localhost**. Override with `?reviewTheme=<id>` or `?reviewTheme=off`.
+- **Viability gate**: needs `max(8, ceil(cardsPerSession * 0.8))` known words, computed per user per session and never precomputed — it depends entirely on which words the user has checked off. A theme surfacing 4 words is worse than no theme.
+- **Scope is MCQ word selection only.** Distractors (via `generateQuizSession`'s `distractorPool` arg) and syntax exercises intentionally keep the full pool: narrow options repeat and become guessable, and a narrow pool satisfies no syntax template, silently degrading the session to all-MCQ. Unlike `todayFilterStore`, which narrows the whole session for Quiz *and* Study — the two filters have deliberately different scopes.
+- **Visuals**: `.quiz-themed` / `.review-banner` in `index.css`, driven by a `--review-tint` custom property mixed over the current base colours. Never recolours primary/success/error — right vs wrong keeps its semantic colour.
+
+---
+
+## Trivia Cards
+
+Between quiz questions, an LLM card explains something surprising about the word just answered — character reuse, literal composition, etymology — and offers **exactly one next word** to add to vocab in a tap.
+
+- **The suggestion is the payoff.** A fact with no next word is discarded unshown (`isShowableTrivia`), because trivia for its own sake doesn't earn an interruption. Two kinds qualify: a `missing_atom` (a character hiding inside 2+ compounds they know) or a `buildable_compound` (decodable from characters they know).
+- **Generate many, show few.** A fact is generated for every eligible question in the background, then `rankTrivia` picks the keepers. Quality is only knowable after generation, so curating beats showing whatever landed at a fixed interval. Tune `TRIVIA_SHOW_FRACTION`, not a user setting.
+- **Back half only** (`TRIVIA_EARLIEST_FRACTION` 0.5). A call takes seconds; an early slot would be reached mid-spinner. Starting halfway in guarantees cards are ready on arrival and halves the calls per quiz. Slots are staggered, one per word, never last (that would only delay the results screen).
+- **Failures are soft.** A dead LLM call renders an in-card error with retry and never blocks the quiz.
+- **Character status is computed client-side** (`src/lib/characterIndex.ts`), not by the model — it kept marking words the user had just been quizzed on as "new". `entry` (own vocab row) beats `seen` (inside a known compound).
+- The card's known-word context is capped at 120 words, biased toward words sharing a character with the focus word.
+
+## LLM Provider
+
+`netlify/functions/_model.ts` resolves the model for both chat and trivia. **OpenRouter is preferred when `OPENROUTER_API_KEY` is set** (one key covers every provider, so switching models is an env change), falling back to Anthropic direct via `ANTHROPIC_API_KEY` so existing deployments keep working. Override slugs per role with `TRIVIA_MODEL` / `CHAT_MODEL`; both default to Claude Sonnet 4.6, so switching providers changes the route and not the behaviour.
+
+Both functions verify the caller's Supabase access token before spending a model call.
 
 ## Syntax (Integrated into Quiz)
 
@@ -268,7 +282,7 @@ Template-driven grammar/word-order practice using known vocabulary (~130 templat
 
 **Exercise format**: tile reordering (no distractors). EN→CN shows English prompt, user arranges Chinese tiles. CN→EN shows Chinese, English tiles are lowercase-shuffled to prevent capitalization-based guessing. Verb conjugation auto-adjusts for subject person.
 
-**Slot filling**: words fill template slots via `SEMANTIC_CATEGORIES` + `VOCAB_CATEGORY_TO_SYNTAX`. Only known/unpaused words participate. Verbs, particles, numbers appear only as `fixedWords`. See `src/types/syntax.ts` for details.
+**Slot filling**: words fill template slots via `SEMANTIC_CATEGORIES` + `VOCAB_CATEGORY_TO_SYNTAX`. Only known/unpaused words participate. Verbs, particles, numbers appear only as `fixedWords`. See `src/types/syntax.ts`.
 
 **Slot-filter rules (`src/utils/syntax.ts`)**
 
@@ -278,8 +292,12 @@ Template-driven grammar/word-order practice using known vocabulary (~130 templat
 - English conjugation is data-driven via `THIRD_PERSON_TO_BASE`. Module load runs `validateEnglishPatterns()`; any new template using an unregistered `-s` verb form prints a `console.warn` (e.g. adding "speaks" or "writes" without registering it).
 - `您` (formal you) is treated as second-person for English conjugation, alongside `你`.
 - Possessive templates (`possessive_book`, `possessive_food`) require `posFilter: ['pronoun']` on the subject, so we never produce "Mr.'s books".
+- **Narrow tags beat broad ones.** `edible` was doing too much work, so verb-specific subsets exist: `cookable` (objects of 做 — dishes and meals, never raw fruit: "会做水果" ✗), `listenable` (objects of 听 — was reusing `watchable`, giving "听电影" ✗), and `study_place` (destinations for the 去…看书/看电影 errand templates — any destination gave "去车站看电视" ✗). Venue words whose DB rows are categorised `food` (`餐厅`, `饭馆`) carry explicit `['place','destination']` overrides; without them they derived `edible` and became objects of 吃/做 ("学生吃餐厅吗" ✗).
+- `TemplateSlot.excludeCategories` disqualifies a word that otherwise matched, for strict-subset exclusions the positive tags can't express: the like/love templates accept any `edible` **except** `bare_meal` (`饭`), because 吃饭/做饭 are idiomatic but 喜欢饭/爱饭 are not.
+- `ADJECTIVE_SUBJECT_CATEGORIES` + `fillIsCoherent()` enforce **cross-slot** agreement, which unary tags cannot: 好吃 and 高兴 are interchangeable as far as the adjective slot is concerned, but only food is delicious and only an animate subject is happy ("小姐很好吃" ✗). Adjectives absent from the map are unrestricted. Because an early slot pick can now strand a later slot, `canFillTemplate` backtracks instead of taking the first match — greedy matching would wrongly report a template as locked.
+- English predicate nouns are number/article-aware: `identityGloss()` renders the 是 templates as "is a teacher" / "are teachers" (was "is the teacher"), and `SENTENCE_ENGLISH` subject forms are singular for countables so the copula agrees ("Books is under the table" → "The book is under the table"). The `item` role uses the subject form since it heads its clause in every template that uses it.
 
-**Local syntax review tooling (gitignored, in `.local-review/`)**: `enumerate-sentences.ts` pulls each user's known vocab from Supabase and writes every possible sentence per template; `classify-findings.ts` buckets the output by issue pattern. Used to drive grammar-rule fixes.
+**Local syntax review tooling (gitignored: `.local-review/`, `.cache/`)**: `enumerate-sentences.ts` pulls each user's known vocab from Supabase and writes every possible sentence per template; `classify-findings.ts` buckets the output by issue pattern. Drives grammar-rule fixes. Output contains real user vocab — never commit it.
 
 ---
 
@@ -287,10 +305,7 @@ Template-driven grammar/word-order practice using known vocabulary (~130 templat
 
 ### NPM Scripts
 
-- `npm run dev`: start Vite dev server.
-- `npm run build`: TypeScript build + production bundle.
-- `npm run lint`: ESLint checks.
-- `npm run preview`: preview built app.
+`npm run dev` (Vite dev server), `build` (TypeScript + production bundle), `lint` (ESLint), `preview` (preview built app). Note `lint` has a pre-existing backlog of errors in untouched files; `build` is the gate.
 
 ### Content/Vocabulary Data
 
@@ -302,42 +317,25 @@ Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textboo
 
 ### ML/Analysis Scripts
 
-`analysis/quiz_ml_model.py` — offline model predicting quiz correctness from context features. Not runtime. Data in `analysis/quiz_attempts_data.json` (gitignored). Export via MCP Supabase read or Python client (see script docstring).
-
-**v2 (Apr 2026):** 26 features (was 11), including `knowledge_before`, modality pair one-hot encoding, individual user averages, per-concept attempt number. Models: Logistic Regression, Random Forest, HistGradientBoostingClassifier + isotonic calibration. Evaluation via stratified 5-fold CV. Best calibration: Brier 0.066 (HGB+Cal). Best discrimination: ROC-AUC 0.844 (LR). Log feature/label changes here.
+`analysis/quiz_ml_model.py` — offline model predicting quiz correctness from context features. Not runtime. Data in `analysis/quiz_attempts_data.json` (gitignored). Export via MCP Supabase read or Python client (see script docstring). **v2 (Apr 2026):** 26 features (was 11), including `knowledge_before`, modality pair one-hot encoding, individual user averages, per-concept attempt number. Models: Logistic Regression, Random Forest, HistGradientBoostingClassifier + isotonic calibration. Evaluation via stratified 5-fold CV. Best calibration: Brier 0.066 (HGB+Cal). Best discrimination: ROC-AUC 0.844 (LR). Log feature/label changes here.
 
 ---
 
 ## Database and Migration Safety (Critical)
 
-Historical incident (Feb 2, 2026):
-
-- A migration changed ID references and added a FK path that orphaned/deleted large quiz history.
-
-Never repeat this class of failure.
+Historical incident (Feb 2, 2026): a migration changed ID references and added a FK path that orphaned/deleted large quiz history. Never repeat this class of failure.
 
 ### Unsafe Patterns (Do Not Do)
 
-- adding FK constraints against remapped IDs without mapping table
-- using `ON DELETE CASCADE` on user-history paths without full impact analysis
-- destructive table recreation on live user tables
+Adding FK constraints against remapped IDs without a mapping table; `ON DELETE CASCADE` on user-history paths without full impact analysis; destructive table recreation on live user tables.
 
 ### Required Safety Process
 
-1. Back up production data first.
-2. Show exact SQL to user before execution.
-3. Explain at-risk tables and blast radius.
-4. Wait for explicit user approval.
-5. Test on a production-like copy/branch before real run.
+1. Back up production data first. 2. Show exact SQL to user before execution. 3. Explain at-risk tables and blast radius. 4. Wait for explicit user approval. 5. Test on a production-like copy/branch before the real run.
 
 ### Sensitive Tables
 
-- `quiz_attempts` (history + analytics + ML inputs)
-- `user_progress` (current learning state)
-- `user_settings` (behavioral preferences)
-- `push_subscriptions` (per-device VAPID keys + reminder schedule)
-
----
+`quiz_attempts` (history + analytics + ML inputs), `user_progress` (current learning state), `user_settings` (behavioral preferences), `push_subscriptions` (per-device VAPID keys + reminder schedule), `chat_messages` (conversation content).
 
 ## Known Failures and Risk Areas
 
@@ -348,6 +346,7 @@ Never repeat this class of failure.
 5. **PWA cron trigger missing (Mar 2026)** — Edge Function existed but no pg_cron job called it. **Lesson**: wire up invocation, not just deploy.
 6. **PWA push dropped on mobile (Mar 2026)** — short TTL + default urgency = silent drops in Doze. **Lesson**: use `TTL: 14400` + `urgency: 'high'`.
 7. **Streak showed 0 (Apr 2026)** — Supabase `max_rows` silently truncated `.limit(10000)`. **Lesson**: always paginate with `.range()` for >1000 rows.
+8. **Chat history depends on a migration (Jul 2026)** — `chatHistoryService` queries `chat_conversations`/`chat_messages`; if `20260729140000` hasn't been applied, the Chat tab breaks for everyone. Same class as #4. **Lesson**: verify the table exists in prod before deploying code that reads it.
 
 ---
 
@@ -355,18 +354,20 @@ Never repeat this class of failure.
 
 ```bash
 git clone https://github.com/avi-otterai/mandarin.git && cd avi-mandarin
-npm install && cp .env.example .env
-npm run dev
+npm install && cp .env.example .env && npm run dev
 ```
 
-Required env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
-Optional: `VITE_DEV_USER_EMAIL`, `VITE_DEV_USER_PASSWORD` (dev auto-login), `VITE_VAPID_PUBLIC_KEY` (PWA reminders).
+Required env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Optional: `VITE_DEV_USER_EMAIL`, `VITE_DEV_USER_PASSWORD` (dev auto-login), `VITE_VAPID_PUBLIC_KEY` (PWA reminders). Server-side (Netlify): `OPENROUTER_API_KEY` or `ANTHROPIC_API_KEY` for Chat and Trivia.
+
+**Testing functions locally**: run `netlify functions:serve` (port 9999) alongside `npm run dev`; Vite proxies `/.netlify/functions` to it (`vite.config.ts`). This keeps you on port 5173, so the Supabase session and cached vocab still apply — going through `netlify dev` on 8888 is a different origin and loses both. The proxy is harmless when nothing is listening on 9999.
 
 ---
 
 ## Supabase Schema Overview (Conceptual)
 
-Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`.
+Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`, `chat_conversations`, `chat_messages`.
+
+`chat_conversations` / `chat_messages` (migration `20260729140000`) persist Chat threads, replacing a single rolling localStorage thread capped at 50 messages. `chat_messages` stores the full `UIMessage` parts array as jsonb so tool calls survive a reload, keyed `(conversation_id, message_id)` so re-saving a growing thread upserts instead of duplicating. The child→parent cascade is safe here (both tables started empty; messages are meaningless without their conversation) — unlike the Feb 2 incident, which cascaded off a column already holding UUIDs pointing elsewhere.
 
 `daily_goals` (`user_id`, `date`, `goal`, `updated_at`; PK `(user_id, date)`) stores the per-day streak goal recorded going forward on session completion. RLS restricts rows to the owning user. Days without a stored goal fall back to inference (see `src/lib/streakGoal.ts`).
 
@@ -376,23 +377,20 @@ If schema contracts change, update `src/types/database.ts`, sync services, and R
 
 ---
 
-## Change Documentation Policy (For Future Agents)
-
-Layers: README (stable contracts, architecture, safety), module docstrings (volatile implementation), script headers (run instructions). Update README for user-visible behavior, new failures, setup/schema changes. Update module docs for quiz heuristics, ML thresholds, syntax templates.
-
 ## Quick Task Routing Cheat Sheet
 
-- "Quiz options are wrong" -> `src/utils/quiz.ts`, `src/pages/QuizPage.tsx`
-- "Scores feel off" -> `src/utils/knowledge.ts`, settings weights
-- "Sync conflicts" -> `src/lib/syncService.ts`, storage key handling
-- "Attempt logs missing" -> `src/lib/quizService.ts`, quiz transition logic
+- "Quiz options are wrong" / "scores feel off" -> `src/utils/quiz.ts`, `src/pages/QuizPage.tsx`, `src/utils/knowledge.ts`
+- "Sync conflicts" / "attempt logs missing" -> `src/lib/syncService.ts`, `src/lib/quizService.ts`, quiz transition logic
 - "Pinyin chart or pronunciation" -> `src/pages/PinyinPage.tsx`, `src/data/pinyinChart.ts`
 - "TTS mispronounces a word" -> `src/services/ttsService.ts` (known polyphonic limitation, no fix yet)
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/components/SyntaxExerciseCard.tsx`
+- "Themed review never appears / wrong words" -> `src/utils/reviewTheme.ts`, `src/data/reviewThemes.ts`
+- "Trivia cards missing / wrong facts" -> `src/pages/QuizPage.tsx`, `src/lib/triviaService.ts`, `netlify/functions/trivia.ts`
+- "Chat history missing" -> `src/lib/chatHistoryService.ts`, migration `20260729140000`
+- "LLM calls failing" -> `netlify/functions/_model.ts`, Netlify env vars
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
 - "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/pages/ProfilePage.tsx`, `src/components/Navbar.tsx`
-- "Buttons/animations/haptics look or feel wrong" -> `src/index.css`, `src/services/hapticService.ts`
-- "Vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
+- "Buttons/animations/haptics wrong" -> `src/index.css`, `src/services/hapticService.ts`; "vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path
 
 ---
 
