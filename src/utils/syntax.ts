@@ -50,27 +50,43 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '先生': ['person', 'subject'],
   '小姐': ['person', 'subject'],
   
-  // Food (can be eaten)
-  '米饭': ['food', 'edible'],
+  // Food (can be eaten). `cookable` is a strict subset of `edible`: 做 (cook)
+  // takes dishes and meals, never raw fruit — "会做苹果" / "不会做水果" are
+  // nonsense, so the 做 templates gate on `cookable` instead of `edible`.
+  // `bare_meal` marks 饭, which is a fine object for 吃/做 (吃饭, 做饭) but not
+  // for 喜欢/爱 — "喜欢饭" / "爱饭" are not said; like/love templates exclude it.
+  '米饭': ['food', 'edible', 'cookable'],
   '苹果': ['food', 'edible', 'fruit'],
-  '菜': ['food', 'edible'],
+  '菜': ['food', 'edible', 'cookable'],
   '水果': ['food', 'edible'],
-  '饭': ['food', 'edible'],
-  '中国菜': ['food', 'edible'],
-  '鱼': ['food', 'edible', 'animal'],
+  '饭': ['food', 'edible', 'cookable', 'bare_meal'],
+  '中国菜': ['food', 'edible', 'cookable'],
+  '鱼': ['food', 'edible', 'animal', 'cookable'],
+  '早饭': ['food', 'edible', 'cookable'],
+  '午饭': ['food', 'edible', 'cookable'],
+  '晚饭': ['food', 'edible', 'cookable'],
+  // Venues whose DB rows are categorised `food`, which derived
+  // ['food','edible'] and made them objects of 吃/做/买 — "学生吃餐厅吗",
+  // "我不会做饭馆". They are places you go to, not things you eat.
+  '餐厅': ['place', 'destination'],
+  '饭馆': ['place', 'destination'],
   
   // Drinks (can be drunk)
   '茶': ['drink', 'drinkable'],
   '水': ['drink', 'drinkable'],
   
-  // Places (can go to)
-  '学校': ['place', 'destination'],
+  // Places (can go to). `study_place` marks where the serial-verb errand
+  // templates (去…看书 / 去…看电影) are plausible — pairing any destination
+  // with any activity produced "妈妈去车站看电视" and "我去超市看电影".
+  // 家 is deliberately excluded: 去家 is not idiomatic (it's 回家).
+  '学校': ['place', 'destination', 'study_place'],
   '家': ['place', 'destination'],
   '医院': ['place', 'destination'],
   '商店': ['place', 'destination'],
   '银行': ['place', 'destination'],
   '饭店': ['place', 'destination'],
-  '大学': ['place', 'destination'],
+  '大学': ['place', 'destination', 'study_place'],
+  '图书馆': ['place', 'destination', 'study_place'],
   '中国': ['place', 'destination', 'country'],
   '美国': ['place', 'destination', 'country'],
   
@@ -153,6 +169,9 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
 
   // Nouns that should fill slots
   '身体': ['describable'],
+  // 心 (heart) derived ['thing','locatable'] from its DB cat=body, which put it
+  // in physical-position and purchase slots: "椅子上面有心", "老师买心".
+  '心': [],
   '钱': ['thing'],
   '名字': ['thing'],
   '衣服': ['thing', 'locatable'],
@@ -195,7 +214,12 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '年': [],
   
   // Languages
-  '汉语': ['language'],
+  '汉语': ['language', 'listenable'],
+
+  // `listenable`: the object of 听. Previously the 听 template reused
+  // `watchable`, which yielded "她听电影" / "儿子听电视".
+  '音乐': ['listenable', 'thing'],
+  '广播': ['listenable', 'thing'],
 
   // ──────────────────────────────────────────────────────────────────────
   // Suppression list — single-character "morpheme roots" and bare locations
@@ -233,6 +257,9 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   // (some/several — used after 一/这/那) only work with a determiner. Block
   // them so they don't slot bare as time / size_adj.
   '点': [], '些': [],
+  // 一点儿 ("a bit") is a degree adverb, not a predicate adjective — its DB
+  // cat=size derived `size_adj` and produced bare "老师一点儿".
+  '一点儿': [],
   // 喜欢 is a verb ("to like") but its DB cat=emotion derives `emotion_adj`
   // — that put it into too_adj templates ("teacher is too like").
   '喜欢': [],
@@ -314,7 +341,9 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '儿子': { subject: 'the son', object: 'the son' },
   // Generic "things/stuff" — was falling back to dictionary meaning "thing"
   // (no article) and producing "want to buy thing".
-  '东西': { subject: 'things', object: 'things' },
+  // Subject form is singular so it agrees with the copula: subject-position
+  // templates were emitting "Things is in front of the chair".
+  '东西': { subject: 'the thing', object: 'things' },
   // 杯子 rendered singular ("the cup") so it agrees with templates like
   // "{item} was bought …" — "Cups was bought" → "The cup was bought".
   '杯子': { subject: 'the cup', object: 'the cup' },
@@ -324,10 +353,13 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '先生': { subject: 'the gentleman', object: 'the gentleman' },
   '小姐': { subject: 'the young lady', object: 'the young lady' },
   
-  // Food - clean single words
+  // Food - clean single words. Countables use a singular SUBJECT form so the
+  // copula agrees ("How much is apples?" → "How much is the apple?"); the
+  // object form stays plural because that's how it reads after a verb
+  // ("eats apples").
   '米饭': { subject: 'rice', object: 'rice' },
-  '苹果': { subject: 'apples', object: 'apples' },
-  '菜': { subject: 'vegetables', object: 'vegetables' },
+  '苹果': { subject: 'the apple', object: 'apples' },
+  '菜': { subject: 'the dish', object: 'vegetables' },
   '水果': { subject: 'fruit', object: 'fruit' },
   '饭': { subject: 'food', object: 'food' },
   '中国菜': { subject: 'Chinese food', object: 'Chinese food' },
@@ -337,8 +369,12 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '茶': { subject: 'tea', object: 'tea' },
   '水': { subject: 'water', object: 'water' },
   
-  // Places
+  // Places — 餐厅/饭馆 are glossed distinctly from 饭店 ("the restaurant") so
+  // three different venue words don't all read as the same English.
   '学校': { subject: 'school', object: 'school' },
+  '餐厅': { subject: 'the dining hall', object: 'the dining hall' },
+  '饭馆': { subject: 'the diner', object: 'the diner' },
+  '图书馆': { subject: 'the library', object: 'the library' },
   // 家 = "home" both as subject and object. The article-less form reads
   // naturally with our copula/preposition templates ("is at home", "is not
   // at home"). For motion verbs ("go to home" / "return to home") we strip
@@ -346,6 +382,12 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '家': { subject: 'home', object: 'home' },
   '医院': { subject: 'the hospital', object: 'the hospital' },
   '商店': { subject: 'the store', object: 'the store' },
+  // Without these the gloss falls back to the bare dictionary meaning and drops
+  // the article: "I go to post office", "Can you go to house?".
+  '超市': { subject: 'the supermarket', object: 'the supermarket' },
+  '邮局': { subject: 'the post office', object: 'the post office' },
+  '房子': { subject: 'the house', object: 'the house' },
+  '车站': { subject: 'the bus station', object: 'the bus station' },
   '银行': { subject: 'the bank', object: 'the bank' },
   '饭店': { subject: 'the restaurant', object: 'the restaurant' },
   '大学': { subject: 'university', object: 'university' },
@@ -388,11 +430,12 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   '月': { subject: 'month', object: 'month' },
   '年': { subject: 'year', object: 'year' },
   
-  // Readable/Watchable
-  '书': { subject: 'books', object: 'books' },
+  // Readable/Watchable — singular subject forms for copula agreement
+  // ("Books is under the table" → "The book is under the table").
+  '书': { subject: 'the book', object: 'books' },
   '电视': { subject: 'TV', object: 'TV' },
-  '电影': { subject: 'movies', object: 'movies' },
-  '汉字': { subject: 'Chinese characters', object: 'Chinese characters' },
+  '电影': { subject: 'the movie', object: 'movies' },
+  '汉字': { subject: 'the Chinese character', object: 'Chinese characters' },
   
   // Describable (lowercase "the" — sentence-casing handles first-letter capitalization)
   '天气': { subject: 'the weather', object: 'the weather' },
@@ -417,6 +460,10 @@ export const SENTENCE_ENGLISH: Record<string, { subject: string; object: string 
   
   // Languages
   '汉语': { subject: 'Chinese', object: 'Chinese' },
+
+  // Listenable
+  '音乐': { subject: 'music', object: 'music' },
+  '广播': { subject: 'the radio', object: 'the radio' },
   
   // Adjectives
   '好': { subject: 'good', object: 'good' },
@@ -465,6 +512,10 @@ export interface TemplateSlot {
   role: string;
   categories: string[];
   posFilter?: string[];
+  /** Categories that disqualify a word even when `categories` matched. Used for
+   *  strict-subset exclusions the positive tags can't express, e.g. the like/love
+   *  templates accept any `edible` EXCEPT the bare meal noun 饭 (爱饭 ✗). */
+  excludeCategories?: string[];
 }
 
 export interface CuratedTemplate {
@@ -545,7 +596,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '她喜欢苹果', en: 'She likes apples' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '喜欢', pinyin: 'xǐhuan', meaning: 'like' },
@@ -719,7 +770,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '你喜欢中国菜吗', en: 'Do you like Chinese food?' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '喜欢', pinyin: 'xǐhuan', meaning: 'like' },
@@ -1383,7 +1434,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '妈妈会做中国菜', en: 'Mom can cook Chinese food' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible'] },
+      { role: 'object', categories: ['cookable'] },
     ],
     fixedWords: [
       { word: '会', pinyin: 'huì', meaning: 'can' },
@@ -1439,7 +1490,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我不会做中国菜', en: "I can't cook Chinese food" },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible'] },
+      { role: 'object', categories: ['cookable'] },
     ],
     fixedWords: [
       { word: '不', pinyin: 'bù', meaning: 'not' },
@@ -1460,7 +1511,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我去学校看书', en: 'I go to school to read books' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'destination', categories: ['destination'] },
+      { role: 'destination', categories: ['study_place'] },
       { role: 'object', categories: ['readable'] },
     ],
     fixedWords: [
@@ -1476,10 +1527,10 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     name: 'Go somewhere to watch',
     description: 'Subject + 去 + Place + 看 + Watchable',
     explanation: 'Serial verb: 去 (go) + 看 (watch) = go somewhere to watch something.',
-    example: { zh: '我去家看电视', en: 'I go home to watch TV' },
+    example: { zh: '我去学校看电影', en: 'I go to school to watch movies' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'destination', categories: ['destination'] },
+      { role: 'destination', categories: ['study_place'] },
       { role: 'object', categories: ['watchable'] },
     ],
     fixedWords: [
@@ -2396,7 +2447,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我爱中国菜', en: 'I love Chinese food' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '爱', pinyin: 'ài', meaning: 'love' },
@@ -2413,7 +2464,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '你爱中国菜吗', en: 'Do you love Chinese food?' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '爱', pinyin: 'ài', meaning: 'love' },
@@ -2451,7 +2502,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我听音乐', en: 'I listen to music' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['watchable'] },
+      { role: 'object', categories: ['listenable'] },
     ],
     fixedWords: [
       { word: '听', pinyin: 'tīng', meaning: 'listen to' },
@@ -2528,7 +2579,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我们都喜欢苹果', en: 'We all like apples' },
     slots: [
       { role: 'subject', categories: ['plural_person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '都', pinyin: 'dōu', meaning: 'all' },
@@ -2619,7 +2670,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '我不喜欢米饭', en: "I don't like rice" },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '不', pinyin: 'bù', meaning: 'not' },
@@ -2749,7 +2800,7 @@ export const CURATED_TEMPLATES: CuratedTemplate[] = [
     example: { zh: '她也喜欢苹果', en: 'She also likes apples' },
     slots: [
       { role: 'subject', categories: ['person'] },
-      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'] },
+      { role: 'object', categories: ['edible', 'drinkable', 'readable', 'watchable'], excludeCategories: ['bare_meal'] },
     ],
     fixedWords: [
       { word: '也', pinyin: 'yě', meaning: 'also' },
@@ -2940,25 +2991,85 @@ function isSlotEligible(word: Concept): boolean {
   return true;
 }
 
+/**
+ * Does `word` satisfy a slot's category / part-of-speech gates, considered on
+ * its own? Shared by the generator, the unlock check and the enumerator so all
+ * three agree on what a slot accepts.
+ */
+export function slotAcceptsWord(word: Concept, slot: TemplateSlot): boolean {
+  if (!isSlotEligible(word)) return false;
+
+  const wordCategories = getCategories(word.word, word.category);
+  if (!slot.categories.some(cat => wordCategories.includes(cat))) return false;
+  if (slot.excludeCategories?.some(cat => wordCategories.includes(cat))) return false;
+
+  if (slot.posFilter && slot.posFilter.length > 0) {
+    if (!slot.posFilter.includes(word.part_of_speech)) return false;
+  }
+
+  return true;
+}
+
+/**
+ * Which subject categories each adjective can actually predicate of.
+ *
+ * Unary category tags can't express this: 好吃 and 高兴 are both `quality_adj` /
+ * `emotion_adj` filling the same slot, but only food can be delicious and only
+ * an animate subject can be happy. Without this the adjective templates emitted
+ * "小姐很好吃" ("the young lady is very delicious") and "同学不大".
+ *
+ * Adjectives absent from this map (e.g. 好) are unrestricted.
+ */
+const ADJECTIVE_SUBJECT_CATEGORIES: Record<string, string[]> = {
+  '好吃': ['edible', 'drinkable', 'food', 'drink'],
+  // Size/quantity: things, places and creatures, but not people
+  '大': ['thing', 'locatable', 'furniture', 'readable', 'watchable', 'vehicle', 'place', 'destination', 'nature', 'animal', 'describable'],
+  '小': ['thing', 'locatable', 'furniture', 'readable', 'watchable', 'vehicle', 'place', 'destination', 'nature', 'animal', 'describable'],
+  '多': ['thing', 'locatable', 'readable', 'watchable', 'edible', 'drinkable', 'food', 'animal'],
+  '远': ['place', 'destination', 'thing', 'locatable'],
+  // Height applies to people, animals, landscape and objects
+  '高': ['person', 'animal', 'nature', 'thing', 'locatable', 'place', 'destination'],
+  '矮': ['person', 'animal', 'nature', 'thing', 'locatable'],
+  // Emotions need an animate subject
+  '高兴': ['person', 'animal'],
+  '开心': ['person', 'animal'],
+  // Temperature: a person can feel cold, and so can weather, places and food
+  '冷': ['person', 'animal', 'nature', 'describable', 'place', 'destination', 'edible', 'drinkable'],
+  '热': ['person', 'animal', 'nature', 'describable', 'place', 'destination', 'edible', 'drinkable'],
+  '漂亮': ['person', 'animal', 'nature', 'thing', 'locatable', 'place', 'destination'],
+};
+
+/**
+ * Cross-slot coherence: rejects fills that pass every per-slot gate but don't
+ * hang together as a sentence. Today that's adjective↔subject agreement.
+ */
+function fillIsCoherent(filledSlots: Map<string, Concept>): boolean {
+  const adjective = filledSlots.get('adjective');
+  const subject = filledSlots.get('subject');
+  if (!adjective || !subject) return true;
+
+  const allowed = ADJECTIVE_SUBJECT_CATEGORIES[adjective.word];
+  if (!allowed) return true;
+
+  const subjectCategories = getCategories(subject.word, subject.category);
+  return allowed.some(cat => subjectCategories.includes(cat));
+}
+
 function findMatchingWords(
   knownVocab: Concept[],
   slot: TemplateSlot,
-  usedWords: Set<string>
+  usedWords: Set<string>,
+  filledSlots: Map<string, Concept> = new Map()
 ): Concept[] {
   return knownVocab.filter(word => {
     if (usedWords.has(word.word)) return false;
-    if (!isSlotEligible(word)) return false;
-    
-    const wordCategories = getCategories(word.word, word.category);
-    const hasMatch = slot.categories.some(cat => wordCategories.includes(cat));
-    
-    if (!hasMatch) return false;
-    
-    if (slot.posFilter && slot.posFilter.length > 0) {
-      if (!slot.posFilter.includes(word.part_of_speech)) return false;
-    }
-    
-    return true;
+    if (!slotAcceptsWord(word, slot)) return false;
+
+    // Check the candidate against the slots already filled, so the generator
+    // never walks into an incoherent combination it would have to back out of.
+    const tentative = new Map(filledSlots);
+    tentative.set(slot.role, word);
+    return fillIsCoherent(tentative);
   });
 }
 
@@ -2985,14 +3096,26 @@ function canFillTemplate(knownVocab: Concept[], template: CuratedTemplate): bool
   if (!allFixedWordsKnown(knownVocab, template)) return false;
 
   const usedWords = new Set<string>();
-  
-  for (const slot of template.slots) {
-    const matches = findMatchingWords(knownVocab, slot, usedWords);
-    if (matches.length === 0) return false;
-    usedWords.add(matches[0].word);
-  }
-  
-  return true;
+  const filledSlots = new Map<string, Concept>();
+
+  // Backtracking rather than greedy first-match: cross-slot coherence means an
+  // early pick can strand a later slot (subject 我 leaves no adjective for
+  // thing_very_adj) even though another subject would work. Greedy would
+  // wrongly report the whole template as locked.
+  const tryFrom = (index: number): boolean => {
+    if (index === template.slots.length) return true;
+    const slot = template.slots[index];
+    for (const candidate of findMatchingWords(knownVocab, slot, usedWords, filledSlots)) {
+      usedWords.add(candidate.word);
+      filledSlots.set(slot.role, candidate);
+      if (tryFrom(index + 1)) return true;
+      usedWords.delete(candidate.word);
+      filledSlots.delete(slot.role);
+    }
+    return false;
+  };
+
+  return tryFrom(0);
 }
 
 export function getAvailableTemplates(knownVocab: Concept[]): CuratedTemplate[] {
@@ -3185,6 +3308,32 @@ validateEnglishPatterns();
 // englishPattern contains "{subject}'s" — we substitute the possessive form
 // directly (e.g. "他's books" → "his books") so we never produce
 // contractions like "She's TV" that English re-parses as "She is TV".
+/**
+ * A 是-predicate noun needs an article or plural in English, while
+ * SENTENCE_ENGLISH stores the definite form used for referring subjects
+ * ("the teacher"). Left alone, the 是 templates read "You are not the student"
+ * and "They are all the doctor".
+ */
+function identityGloss(concept: Concept, pattern: string, subjectIsPlural: boolean): string {
+  const definite = getSentenceEnglish(concept.word, 'object', concept.meaning);
+  if (pattern.includes('are all') || subjectIsPlural) {
+    return PLURAL_IDENTITY[concept.word] ?? definite;
+  }
+  const bare = definite.replace(/^the /, '');
+  return `${/^[aeiou]/i.test(bare) ? 'an' : 'a'} ${bare}`;
+}
+
+// Plural predicate nouns for 都是 and for plural subjects of 是.
+const PLURAL_IDENTITY: Record<string, string> = {
+  '老师': 'teachers',
+  '学生': 'students',
+  '医生': 'doctors',
+  '朋友': 'friends',
+  '同学': 'classmates',
+  '中国人': 'Chinese',
+  '美国人': 'Americans',
+};
+
 const PRONOUN_POSSESSIVE: Record<string, string> = {
   '我': 'my',
   '你': 'your',
@@ -3218,10 +3367,20 @@ export function buildEnglishSentence(
   }
 
   filledSlots.forEach((concept, role) => {
-    const position = (role === 'subject' || role === 'time') ? 'subject' : 'object';
-    const cleanEnglish = getSentenceEnglish(concept.word, position, concept.meaning);
+    // `item` takes the subject form: it heads its clause in every template that
+    // uses it ("{item} was bought at …", "How much is {item}?", "There is
+    // {item} on …"), so it needs the singular, copula-agreeing gloss.
+    const isSubjectPosition = role === 'subject' || role === 'time' || role === 'item';
+    const cleanEnglish = role === 'identity'
+      ? identityGloss(concept, template.englishPattern, isPlural)
+      : getSentenceEnglish(concept.word, isSubjectPosition ? 'subject' : 'object', concept.meaning);
     english = english.replace(`{${role}}`, cleanEnglish);
   });
+
+  // 你们 glosses as "you all", which doubles up with the 都 (all) already in
+  // these patterns: "You all are all the teacher", "You all all like apples".
+  english = english.replace(/^you all are all /i, 'You are all ');
+  english = english.replace(/^you all all /i, 'You all ');
 
   // Preposition fix: 在 + country renders as "in X" in English, not "at X"
   // ("I eat at China" → "I eat in China"). Same for the destination slot
@@ -3295,16 +3454,7 @@ export function enumerateAllSentences(knownVocab: Concept[]): EnumeratedSentence
     if (!allFixedWordsKnown(knownVocab, template)) continue;
 
     const slotOptions: Concept[][] = template.slots.map(slot =>
-      knownVocab.filter(word => {
-        if (!isSlotEligible(word)) return false;
-        const wordCategories = getCategories(word.word, word.category);
-        const hasMatch = slot.categories.some(c => wordCategories.includes(c));
-        if (!hasMatch) return false;
-        if (slot.posFilter && slot.posFilter.length > 0) {
-          if (!slot.posFilter.includes(word.part_of_speech)) return false;
-        }
-        return true;
-      })
+      knownVocab.filter(word => slotAcceptsWord(word, slot))
     );
 
     // Skip if any slot has no candidates
@@ -3334,6 +3484,7 @@ export function enumerateAllSentences(knownVocab: Concept[]): EnumeratedSentence
       if (i === template.slots.length) {
         const filledSlots = new Map<string, Concept>();
         template.slots.forEach((s, idx) => filledSlots.set(s.role, chosen[idx]));
+        if (!fillIsCoherent(filledSlots)) return;
         const { chineseWords, pinyinWords } = buildChineseSentence(template, filledSlots);
         const en = buildEnglishSentence(template, filledSlots);
         const slotFill: Record<string, string> = {};
@@ -3386,7 +3537,7 @@ export function generateSentenceExercise(
   const usedWords = new Set<string>();
   
   for (const slot of template.slots) {
-    const matches = findMatchingWords(knownVocab, slot, usedWords);
+    const matches = findMatchingWords(knownVocab, slot, usedWords, filledSlots);
     if (matches.length === 0) return null;
     
     const selected = getRandomItem(matches);
