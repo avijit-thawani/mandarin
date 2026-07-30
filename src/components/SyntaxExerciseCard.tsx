@@ -4,6 +4,7 @@ import type { SentenceExercise } from '../types/syntax';
 import type { AudioSettings } from '../types/settings';
 import { getTemplateById, shuffleArray } from '../utils/syntax';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
+import { haptic } from '../services/hapticService';
 
 function getEnglishTiles(sentence: string): string[] {
   return sentence
@@ -51,6 +52,7 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
 
   const handleTileTap = useCallback((tile: string, fromPool: boolean) => {
     if (submitted) return;
+    haptic('tap');
     if (fromPool) {
       setAvailableTiles(prev => {
         const idx = prev.indexOf(tile);
@@ -83,6 +85,7 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
       correctOrder = getEnglishTiles(exercise.english);
     }
     const correct = JSON.stringify(userOrder) === JSON.stringify(correctOrder);
+    haptic(correct ? 'correct' : 'wrong');
     setIsCorrect(correct);
     setSubmitted(true);
     setShowExplanation(true);
@@ -176,9 +179,9 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
             Your answer (tap to arrange)
           </p>
           <div className={`
-            min-h-[52px] p-2.5 rounded-xl border-2 border-dashed flex flex-wrap gap-1.5
+            min-h-[64px] p-3 rounded-xl border-2 border-dashed flex flex-wrap gap-2 transition-colors
             ${submitted
-              ? (isCorrect ? 'border-success bg-success/10' : 'border-error bg-error/10')
+              ? (isCorrect ? 'border-success bg-success/10 animate-pulse-correct' : 'border-error bg-error/10 animate-shake')
               : 'border-base-content/20 bg-base-200'}
           `}>
             {userOrder.length === 0 ? (
@@ -190,9 +193,9 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
                   onClick={() => handleTileTap(tile, false)}
                   disabled={submitted}
                   className={`
-                    btn btn-sm
+                    btn btn-chunky animate-tile-pop
                     ${isEnglishToChinese
-                      ? (exercise.chineseModality === 'pinyin' ? 'font-normal' : 'hanzi text-lg')
+                      ? (exercise.chineseModality === 'pinyin' ? 'font-normal' : 'hanzi text-xl')
                       : 'font-normal'}
                     ${submitted
                       ? (correctAnswer[idx] === tile ? 'btn-success' : 'btn-error')
@@ -211,16 +214,16 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
           <p className="text-xs uppercase tracking-wider text-base-content/50 mb-1.5">
             Available words
           </p>
-          <div className="flex flex-wrap gap-1.5 min-h-[40px]">
+          <div className="flex flex-wrap gap-2 min-h-[48px]">
             {availableTiles.map((tile, idx) => (
               <button
                 key={`pool-${idx}`}
                 onClick={() => handleTileTap(tile, true)}
                 disabled={submitted}
                 className={`
-                  btn btn-sm btn-outline
+                  btn btn-outline btn-chunky animate-tile-pop
                   ${isEnglishToChinese
-                    ? (exercise.chineseModality === 'pinyin' ? 'font-normal' : 'hanzi text-lg')
+                    ? (exercise.chineseModality === 'pinyin' ? 'font-normal' : 'hanzi text-xl')
                     : 'font-normal'}
                 `}
               >
@@ -233,7 +236,7 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
         {/* Result */}
         {submitted && (
           <div className={`
-            rounded-lg p-3 mb-1
+            rounded-lg p-3 mb-1 animate-slide-up
             ${isCorrect ? 'bg-success/20 border border-success/30' : 'bg-error/20 border border-error/30'}
           `}>
             <div className="flex items-center gap-2">
@@ -278,29 +281,29 @@ export function SyntaxExerciseCard({ exercise, audioSettings, onComplete, onSkip
 
         {/* Actions */}
         {!submitted ? (
-          <div className="flex gap-1.5 mt-1">
+          <div className="flex gap-2 mt-1">
             {onSkip && (
               <button
-                onClick={onSkip}
-                className="btn btn-ghost btn-sm gap-1 text-base-content/60"
+                onClick={() => { haptic('tap'); onSkip(); }}
+                className="btn btn-ghost btn-lg gap-1 text-base-content/60"
                 title="Skip this question — it won't be recorded"
               >
-                <SkipForward className="w-4 h-4" />
+                <SkipForward className="w-5 h-5" />
                 <span className="hidden sm:inline">Skip</span>
               </button>
             )}
             <button
               onClick={handleSubmit}
               disabled={userOrder.length === 0}
-              className="btn btn-primary flex-1"
+              className="btn btn-primary btn-lg btn-chunky flex-1"
             >
               Check Answer
             </button>
           </div>
         ) : (
           <button
-            onClick={() => onComplete(isCorrect ?? false)}
-            className="btn btn-primary w-full mt-1"
+            onClick={() => { haptic('tap'); onComplete(isCorrect ?? false); }}
+            className="btn btn-primary btn-lg btn-chunky w-full mt-1"
           >
             Next
           </button>

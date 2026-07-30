@@ -42,3 +42,6 @@ analysis/*.json
 
 # Local, ad-hoc review/enumeration output (may contain user data; never commit)
 .local-review/
+.cache/
+# Local Netlify folder
+.netlify

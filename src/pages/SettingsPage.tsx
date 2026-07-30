@@ -27,7 +27,7 @@ import type {
   LearningFocus, 
   PinyinDisplay,
 } from '../types/settings';
-import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS } from '../types/settings';
+import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, THEME_PICKER_ENABLED } from '../types/settings';
 import { 
   getChineseVoices, 
   speak, 
@@ -138,7 +138,7 @@ export function SettingsPage({ settingsStore, onSave, onLogout, userEmail, onSho
     return date.toLocaleDateString();
   };
 
-  const themes: ThemeType[] = ['light', 'dark', 'wooden', 'ocean', 'forest', 'sunset', 'sakura', 'ink'];
+  const themes: ThemeType[] = ['light', 'dark', 'duo', 'wooden', 'ocean', 'forest', 'sakura', 'ink'];
   const focusLevels: FocusLevel[] = [0, 1, 2, 3];
   const focusFields: (keyof LearningFocus)[] = ['character', 'pinyin', 'meaning', 'audio'];
 
@@ -337,6 +337,7 @@ export function SettingsPage({ settingsStore, onSave, onLogout, userEmail, onSho
         </section>
 
         {/* ========== THEME SELECTION ========== */}
+        {THEME_PICKER_ENABLED && (
         <section className="space-y-4">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             {settings.theme === 'light' || settings.theme === 'sakura' ? (
@@ -374,6 +375,7 @@ export function SettingsPage({ settingsStore, onSave, onLogout, userEmail, onSho
             })}
           </div>
         </section>
+        )}
 
         {/* ========== DISPLAY SETTINGS ========== */}
         <section className="space-y-4">

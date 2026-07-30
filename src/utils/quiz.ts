@@ -405,17 +405,24 @@ export function generateQuestion(
 
 /**
  * Generate a full quiz session
+ *
+ * `distractorPool` lets the words being *asked about* differ from the words used as
+ * wrong options. Themed reviews pass a narrow `concepts` (one semantic cluster) plus
+ * the full known pool here, so options stay as varied as in a normal session — see
+ * utils/reviewTheme.ts. Defaults to `concepts`, i.e. the previous behaviour.
  */
 export function generateQuizSession(
   concepts: Concept[],
   questionCount: number,
   learningFocus: LearningFocus,
   questionSelection: QuestionSelection = 'random',
-  optionSelection: OptionSelection = 'hard'
+  optionSelection: OptionSelection = 'hard',
+  distractorPool?: Concept[]
 ): QuizSession {
   // Filter to non-paused concepts
   const availableConcepts = concepts.filter(c => !c.paused);
-  
+  const availableDistractors = (distractorPool ?? concepts).filter(c => !c.paused);
+
   if (availableConcepts.length === 0) {
     return {
       questions: [],
@@ -436,7 +443,7 @@ export function generateQuizSession(
   
   // Generate questions
   const questions = selectedConcepts.map(concept =>
-    generateQuestion(concept, availableConcepts, learningFocus, optionSelection)
+    generateQuestion(concept, availableDistractors, learningFocus, optionSelection)
   );
   
   return {

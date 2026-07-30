@@ -7,6 +7,7 @@ import type { TodayFilterStore } from '../stores/todayFilterStore';
 import type { Concept } from '../types/vocabulary';
 import type { FocusLevel } from '../types/settings';
 import { speak, stopSpeaking, isTTSSupported, getVoiceForCurrentBrowser } from '../services/ttsService';
+import { haptic } from '../services/hapticService';
 
 interface StudyPageProps {
   store: VocabularyStore;
@@ -144,6 +145,7 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
   // Toggle reveal state for a field
   const toggleReveal = useCallback((field: RevealField) => {
     if (!currentWord) return;
+    haptic('select');
     
     setCardStates(prev => {
       const newStates = new Map(prev);
@@ -192,12 +194,14 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
   // Navigation - wrap around for unlimited study
   const goNext = useCallback(() => {
     if (sessionWords.length > 0) {
+      haptic('tap');
       setCurrentIndex(prev => (prev + 1) % sessionWords.length);
     }
   }, [sessionWords.length]);
 
   const goPrev = useCallback(() => {
     if (sessionWords.length > 0) {
+      haptic('tap');
       setCurrentIndex(prev => (prev - 1 + sessionWords.length) % sessionWords.length);
     }
   }, [sessionWords.length]);
@@ -268,7 +272,7 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
                       No known words match your filter: <span className="font-semibold text-info">{todayFilter.label}</span>
                     </p>
                     <button
-                      className="btn btn-primary mt-6 gap-2"
+                      className="btn btn-primary btn-lg btn-chunky mt-6 gap-2"
                       onClick={todayFilter.clear}
                     >
                       <X className="w-5 h-5" />
@@ -284,7 +288,7 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
                     </p>
                     <Link 
                       to="/vocab"
-                      className="btn btn-primary mt-6 gap-2"
+                      className="btn btn-primary btn-lg btn-chunky mt-6 gap-2"
                     >
                       <BookOpen className="w-5 h-5" />
                       Go to Vocabulary
@@ -348,7 +352,7 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
       {/* Flashcard */}
       <div className="flex-1 p-4 max-w-lg mx-auto w-full flex flex-col justify-center min-h-0">
         {currentWord && currentState && (
-          <div className="card bg-base-200 shadow-xl border border-base-300">
+          <div key={currentWord.id} className="card bg-base-200 shadow-xl border border-base-300 animate-pop-in">
             <div className="card-body gap-4 py-5 px-5">
               
               {/* Character Section */}
@@ -433,7 +437,7 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
                 </span>
                 <div className="text-center h-16 flex items-center justify-center rounded-xl bg-info/10 border-2 border-info/30">
                   <button
-                    className={`btn btn-circle btn-lg ${isAudioAvailable ? (isPlaying ? 'btn-error' : 'btn-info') : 'btn-ghost opacity-40 cursor-not-allowed'}`}
+                    className={`btn btn-circle btn-lg btn-chunky ${isAudioAvailable ? (isPlaying ? 'btn-error' : 'btn-info') : 'btn-ghost opacity-40 cursor-not-allowed'}`}
                     onClick={() => isAudioAvailable && handlePlayAudio()}
                     disabled={!isAudioAvailable}
                     title={!isAudioAvailable ? 'TTS not supported' : isPlaying ? 'Stop' : 'Play pronunciation'}
@@ -465,12 +469,12 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
                   
                   return (
                     <button
-                      className={`btn btn-sm gap-1.5 ${
+                      className={`btn btn-chunky gap-1.5 ${
                         isPaused 
                           ? 'btn-outline btn-warning' 
                           : 'btn-success'
                       }`}
-                      onClick={() => store.togglePaused(currentWord.id)}
+                      onClick={() => { haptic('tap'); store.togglePaused(currentWord.id); }}
                       title={isPaused ? 'Click to mark as known (include in quiz)' : 'Click to mark as unknown (exclude from quiz)'}
                     >
                       {isPaused ? (
@@ -493,21 +497,21 @@ export function StudyPage({ store, settingsStore, todayFilter, onShowHelp }: Stu
         )}
 
         {/* Navigation - simple prev/next */}
-        <div className="flex items-center justify-center gap-6 mt-4 shrink-0">
+        <div className="flex items-center justify-center gap-6 mt-5 shrink-0">
           <button 
-            className="btn btn-circle btn-lg btn-primary btn-outline"
+            className="btn btn-circle btn-lg btn-chunky btn-primary btn-outline"
             onClick={goPrev}
             title="Previous"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-7 h-7" />
           </button>
           
           <button 
-            className="btn btn-circle btn-lg btn-primary"
+            className="btn btn-circle btn-lg btn-chunky btn-primary"
             onClick={goNext}
             title="Next"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-7 h-7" />
           </button>
         </div>
 
