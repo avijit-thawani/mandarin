@@ -16,6 +16,7 @@ Future agents: this file is intentionally operational. It is the first map for w
 6. Document known failures/incidents and any mitigation steps.
 7. When scripts change (build, data extraction, sync tooling, ML analysis), update the "Script Behavior" section.
 8. Never run risky DB migrations without explicit user confirmation and backup strategy.
+9. All new UI follows "UI and Interaction Design" by default — chunky buttons, entrance animations, haptics, semantic color, and zero layout shift. It is a contract, not a style suggestion.
 
 ### MCP Supabase Access Policy
 
@@ -59,7 +60,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 - `Vocabulary`: browse words, toggle known/unknown. Filterable by chapter and part of speech (PoS). "For today" buttons let you send a filtered subset to Quiz/Study as a temporary session filter.
 - `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
 - `Quiz`: active MCQ + syntax tile-ordering exercises + scoring + attempt logging. Syntax exercises are interleaved based on the Syntax Frequency setting (0-3). Supports temporary "for today" filters set from the Vocab page.
-- `Pinyin`: pronunciation practice with listen-and-pick quiz and speak-and-check self-evaluation.
+- `Pinyin`: pronunciation practice on known vocab. **Listen** = audio quiz with 6 pinyin options; **Speak** = see pinyin, speak, compare with TTS, self-rate.
 - `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling. Assistant replies render GitHub-flavored markdown, including tables (useful for pinyin/meaning lists) — wide tables scroll horizontally.
 - `Profile`: progress charts + settings.
 
@@ -105,9 +106,7 @@ This is the primary anti-overwhelm mechanism. Do not silently alter this behavio
 
 ## Change Velocity Map
 
-High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxExerciseCard`/`syntax.ts`, ML scripts, `App.tsx`/`Navbar`.
-Stable contracts: known/unknown semantics, modality model, sync guarantees, migration safety.
-Experimental behavior → module-level docs first, README at principle level.
+High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxExerciseCard`/`syntax.ts`, ML scripts, `App.tsx`/`Navbar`. Stable contracts: known/unknown semantics, modality model, sync guarantees, migration safety, UI interaction defaults. Experimental behavior → module docs first, README at principle level.
 
 ---
 
@@ -153,12 +152,7 @@ This asymmetry is intentional and should only change with explicit product decis
 
 ### Quiz Logging Flow
 
-1. User answers.
-2. UI shows result.
-3. On next question transition, log attempt asynchronously.
-4. Support "Don't log" to skip accidental/lucky guesses.
-
-If changing this flow, update analytics expectations and user-facing copy.
+User answers → UI shows result → attempt logs asynchronously on the next-question transition. "Don't log" skips accidental/lucky guesses. If changing this flow, update analytics expectations and user-facing copy.
 
 ### Difficulty and Prediction Guidance
 
@@ -180,11 +174,9 @@ MCQ distractors are scored by multiple signals (see `selectDistractors` in `quiz
 
 ## Storage, Sync, and Offline Behavior
 
-### Hybrid Persistence
+### Hybrid Persistence, Sync, and Offline
 
 Local: `localStorage` for immediate state/preferences. Cloud: Supabase for signed-in users. Notable local key: `langseed_quiz_completed` (daily flag). Streak is computed purely from `quiz_attempts`.
-
-### Sync and Offline
 
 Debounced sync after quiz actions; immediate on hide/unload. Cloud can overwrite stale local cache on startup. App works offline with local cache; sync resumes on reconnect. Test offline mode: `?offlineTest=1`.
 
@@ -238,25 +230,33 @@ Controls how many quiz questions are syntax tile-ordering exercises vs MCQ. Same
 
 ## UI and Interaction Design
 
-Duolingo-inspired tactile feedback. Primitives live in `src/index.css`; keep new surfaces consistent with them.
+**These are the defaults for all new UX, not opt-in extras.** Every new page, card, modal, or control is expected to follow every rule here. A surface that skips them feels foreign next to the rest of the app, so treat an exception as a deliberate decision worth stating. Primitives live in `src/index.css` and `src/services/hapticService.ts` — extend those rather than inventing per-page styles.
 
-- **`.btn-chunky`**: solid bottom edge (box-shadow) that compresses on `:active`. Pair with `btn` in markup. Solid variants (`btn-primary/success/error`) get a darker edge via `color-mix`; other variants derive it from `currentColor`, so it adapts to every theme.
-- **`.answer-option` / `.answer-option-idle`**: enlarged quiz tap targets (min 72px) and the unanswered border/edge treatment. Ghost buttons get no edge (it reads as a stray underline, not a raised surface).
-- **Animations**: `pop-in` (new card), `slide-up` (feedback), `shake` (wrong), `pulse-correct` (right), `tile-pop` (syntax tiles). All disabled by the `reduced-motion` setting.
-- **Haptics**: `haptic(pattern)` from `hapticService.ts` — `tap`/`select`/`correct`/`wrong`/`complete`. Uses the Vibration API, so it is a **silent no-op on iOS Safari** (no API); never make behavior depend on it. Also suppressed under `reduced-motion`.
-- **`duo` theme**: Duolingo's published brand palette (design.duolingo.com/identity/color) — Feather Green `#58CC02` primary, Macaw `#1CB0F6` info, Cardinal `#FF4B4B` error, Bee `#FFC800` warning, Eel/Swan/Polar neutrals. The streak badge uses the Fox→Bee gradient.
-- **Theme constraint**: a theme's `primary` must be clearly distinguishable from `error`, since primary is the "Next" CTA sitting directly beside a red wrong answer. `sunset` was retired for failing this (orange-red primary). Retiring a theme requires an entry in `RETIRED_THEMES` (`settingsStore.ts`) — stored settings still reference it, and an unknown `data-theme` silently falls back.
+1. **Chunky buttons** — `btn btn-chunky` on tappable controls. A solid bottom edge compresses on `:active` so taps feel physical. Solid variants get a darker edge via `color-mix`, others derive it from `currentColor`, so it adapts to all 8 themes. Ghost variants get no edge (with no fill above it, an edge reads as a stray underline).
+2. **Thumb-sized targets** — primary choices ≥72px tall (`.answer-option`), primary actions `btn-lg`. Size for thumbs, not cursors.
+3. **Animate every entrance** — `pop-in` (new card), `slide-up` (feedback), `tile-pop` (tiles), `pulse-correct` / `shake` for right/wrong. Content should never just blink into existence.
+4. **Haptics on every committed action** — `haptic('tap'|'select'|'correct'|'wrong'|'complete')`. Applies app-wide, not just Quiz: taps, selections, and any success/failure moment.
+5. **Never move what the user is looking at** — see Layout Stability below. This is the rule most easily broken and the most jarring when broken.
+6. **Semantic color** — `success` means correct, `error` means a mistake, `info` means neutral explanation. Never reuse error red for something that isn't wrong.
 
-**Gotchas (cost real debugging time):**
+### Layout Stability (No Shift After Interaction)
 
+Nothing may move when state changes — never yank content out from under a thumb. Learned in Quiz, where revealing an answer moved the first option row 113px:
+
+- **Anchor containers to the top.** Never `justify-center` a container whose content grows; centering makes it expand upward as well as down.
+- **Reserve space for anything that appears later.** Render it and toggle `invisible` (plus `aria-hidden`) instead of mounting it on demand.
+- **Overlay decorations rather than inlining them.** The ✓/✗ on an answered option is `absolute` inside the button's padding, so it costs no height.
+- **Keep border widths identical across states.** A 2px→1px change on answer silently reflows the row.
+- **Verify by measuring**, not eyeballing: compare `getBoundingClientRect().top` before and after. Note the automated browser tab freezes CSS animations at frame 0, so neutralize transforms first or you will chase phantom offsets from a frozen `scale()`.
+
+### Constraints and Gotchas
+
+- **`reduced-motion`** must disable both animations and haptics. Define animations in `index.css` so the global override catches them.
+- **Haptics are Vibration API**, a silent no-op on iOS Safari. Never let behavior depend on one firing.
+- **A theme's `primary` must be clearly distinguishable from `error`**, since primary is the "Next" CTA sitting beside a red wrong answer. `sunset` was retired for failing this. Retiring a theme needs a `RETIRED_THEMES` entry (`settingsStore.ts`): stored settings still reference it, and an unknown `data-theme` silently falls back.
+- **`duo` theme** = Duolingo's published palette (design.duolingo.com/identity/color): Feather Green `#58CC02`, Macaw `#1CB0F6`, Cardinal `#FF4B4B`, Bee `#FFC800`, Eel/Swan/Polar neutrals; streak badge uses Fox→Bee.
 - Do **not** `@apply btn` inside a custom class — it inlines daisyUI's base background unlayered, which then beats `btn-success`/`btn-error`. Put `btn` in the markup.
-- Do **not** set `disabled` on answered quiz options; daisyUI's disabled style greys out the fill and hides correct/wrong feedback. Use `aria-disabled` + `pointer-events-none`.
-
----
-
-## Pinyin Tab Behavior
-
-Pronunciation practice using known vocab words. **Listen**: audio quiz with 6 pinyin options. **Speak**: self-evaluation — see pinyin, speak, compare with TTS, self-rate.
+- Do **not** set `disabled` on answered quiz options; daisyUI's disabled style greys out the fill and hides the correct/wrong feedback. Use `aria-disabled` + `pointer-events-none`.
 
 ---
 
