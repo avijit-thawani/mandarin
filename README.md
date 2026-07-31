@@ -48,7 +48,7 @@ Binary categories only: **known** (checkbox checked) is in the Revise/Quiz pool,
 - `Study`: passive flashcards (self-paced). Supports temporary "for today" filters set from the Vocab page.
 - `Quiz`: active MCQ + syntax tile-ordering exercises + LLM trivia interstitials + scoring + attempt logging. Syntax exercises are interleaved based on the Syntax Frequency setting (0-3). Supports temporary "for today" filters set from the Vocab page.
 - `Pinyin`: pronunciation practice on known vocab. **Listen** = audio quiz with 6 pinyin options; **Speak** = see pinyin, speak, compare with TTS, self-rate.
-- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling. Assistant replies render GitHub-flavored markdown, including tables (useful for pinyin/meaning lists) — wide tables scroll horizontally. Threads persist to Supabase and are reopenable from a history drawer.
+- `Chat`: LLM tutor (Claude via Netlify Function). Can add/pause/delete vocabulary words via tool calling. Assistant replies render GitHub-flavored markdown, including tables (useful for pinyin/meaning lists) — wide tables scroll horizontally. The thread is a single rolling conversation in localStorage, capped at 50 messages (see "Chat History (Not Shipped)").
 - `Profile`: progress charts + settings.
 
 **Hidden dev routes** (not in the navbar): `/mascot` renders every Saras pose/gesture for tuning; `/trivia` generates trivia cards on demand without playing a quiz. Both are prototyping harnesses, not user surfaces.
@@ -70,7 +70,6 @@ Binary categories only: **known** (checkbox checked) is in the Revise/Quiz pool,
 - `src/pages/PinyinPage.tsx`: pinyin chart reference + listen/speak practice modes.
 - `src/data/pinyinChart.ts`: complete pinyin syllable grid data and character-to-TTS mapping.
 - `src/pages/ChatPage.tsx`: LLM tutor chat UI (useChat hook, tool rendering, vocab context injection, `MessageMarkdown` renderer with `remark-gfm` tables).
-- `src/components/ChatHistoryDrawer.tsx` + `src/lib/chatHistoryService.ts`: conversation list, load/rename/delete, thread persistence.
 - `src/components/TriviaCard.tsx` + `src/lib/triviaService.ts`: trivia card UI and fetch/rank client (see "Trivia Cards").
 - `netlify/functions/chat.ts`: Netlify Function — streamText, 4 vocabulary tools.
 - `netlify/functions/trivia.ts`: Netlify Function — generateObject for trivia generation + ranking.
@@ -268,6 +267,12 @@ Between quiz questions, an LLM card explains something surprising about the word
 - **Character status is computed client-side** (`src/lib/characterIndex.ts`), not by the model — it kept marking words the user had just been quizzed on as "new". `entry` (own vocab row) beats `seen` (inside a known compound).
 - The card's known-word context is capped at 120 words, biased toward words sharing a character with the focus word.
 
+## Chat History (Not Shipped)
+
+Supabase-backed chat history — a conversation drawer, reopenable threads, tool calls surviving reloads — is **built but deliberately excluded from main**. Its migration `20260729140000_create_chat_conversations.sql` (`chat_conversations` + `chat_messages`, RLS per user) was never applied to production, and shipping the client without the tables would have silently dropped every thread on refresh while burning an LLM call per turn on titles that could not be saved. The SQL is kept in the repo, unapplied and ready.
+
+**To enable**: apply the migration, verify the two tables exist, then restore `src/pages/ChatPage.tsx`, `src/components/ChatHistoryDrawer.tsx`, and `src/lib/chatHistoryService.ts` from branch `feature/duolingo-ui-refresh` (commit `a410fbb`) and pass `userId` to `ChatPage` in `App.tsx`. `netlify/functions/chat.ts` already carries the title-generation branch the drawer needs, so no server change is required. Until then Chat keeps its rolling localStorage thread (`langseed_chat_history`, 50 messages).
+
 ## LLM Provider
 
 `netlify/functions/_model.ts` resolves the model for both chat and trivia. **OpenRouter is preferred when `OPENROUTER_API_KEY` is set** (one key covers every provider, so switching models is an env change), falling back to Anthropic direct via `ANTHROPIC_API_KEY` so existing deployments keep working. Override slugs per role with `TRIVIA_MODEL` / `CHAT_MODEL`; both default to Claude Sonnet 4.6, so switching providers changes the route and not the behaviour.
@@ -346,7 +351,7 @@ Adding FK constraints against remapped IDs without a mapping table; `ON DELETE C
 5. **PWA cron trigger missing (Mar 2026)** — Edge Function existed but no pg_cron job called it. **Lesson**: wire up invocation, not just deploy.
 6. **PWA push dropped on mobile (Mar 2026)** — short TTL + default urgency = silent drops in Doze. **Lesson**: use `TTL: 14400` + `urgency: 'high'`.
 7. **Streak showed 0 (Apr 2026)** — Supabase `max_rows` silently truncated `.limit(10000)`. **Lesson**: always paginate with `.range()` for >1000 rows.
-8. **Chat history depends on a migration (Jul 2026)** — `chatHistoryService` queries `chat_conversations`/`chat_messages`; if `20260729140000` hasn't been applied, the Chat tab breaks for everyone. Same class as #4. **Lesson**: verify the table exists in prod before deploying code that reads it.
+8. **Chat history held back (Jul 2026)** — built, then deliberately not shipped because its migration wasn't applied. See "Chat History (Not Shipped)". **Lesson**: verify a table exists in prod *before* the code that reads it is ready to merge, not after.
 
 ---
 
@@ -365,9 +370,7 @@ Required env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Optional: `VITE_DEV
 
 ## Supabase Schema Overview (Conceptual)
 
-Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`, `chat_conversations`, `chat_messages`.
-
-`chat_conversations` / `chat_messages` (migration `20260729140000`) persist Chat threads, replacing a single rolling localStorage thread capped at 50 messages. `chat_messages` stores the full `UIMessage` parts array as jsonb so tool calls survive a reload, keyed `(conversation_id, message_id)` so re-saving a growing thread upserts instead of duplicating. The child→parent cascade is safe here (both tables started empty; messages are meaningless without their conversation) — unlike the Feb 2 incident, which cascaded off a column already holding UUIDs pointing elsewhere.
+Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`.
 
 `daily_goals` (`user_id`, `date`, `goal`, `updated_at`; PK `(user_id, date)`) stores the per-day streak goal recorded going forward on session completion. RLS restricts rows to the owning user. Days without a stored goal fall back to inference (see `src/lib/streakGoal.ts`).
 
@@ -386,8 +389,7 @@ If schema contracts change, update `src/types/database.ts`, sync services, and R
 - "Syntax generation bugs" -> `src/utils/syntax.ts`, `src/types/syntax.ts`, `src/components/SyntaxExerciseCard.tsx`
 - "Themed review never appears / wrong words" -> `src/utils/reviewTheme.ts`, `src/data/reviewThemes.ts`
 - "Trivia cards missing / wrong facts" -> `src/pages/QuizPage.tsx`, `src/lib/triviaService.ts`, `netlify/functions/trivia.ts`
-- "Chat history missing" -> `src/lib/chatHistoryService.ts`, migration `20260729140000`
-- "LLM calls failing" -> `netlify/functions/_model.ts`, Netlify env vars
+- "LLM calls failing" -> `netlify/functions/_model.ts`, Netlify env vars; "chat history missing" -> expected, see "Chat History (Not Shipped)"
 - "Push notifications broken" -> `src/lib/pwaReminderService.ts`, `supabase/migrations/`, `supabase/functions/send-reminders/`
 - "Streak/recovery issues" -> `src/hooks/useStreak.ts`, `src/pages/ProfilePage.tsx`, `src/components/Navbar.tsx`
 - "Buttons/animations/haptics wrong" -> `src/index.css`, `src/services/hapticService.ts`; "vocab import issues" -> `content/hsk1/*.py`, vocabulary store ingest path

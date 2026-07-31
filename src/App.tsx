@@ -296,7 +296,6 @@ function AppContent({
               <ChatPage 
                 store={store}
                 userName={getDisplayName(auth.user?.id, auth.user?.email)}
-                userId={auth.user?.id}
               />
             } 
           />

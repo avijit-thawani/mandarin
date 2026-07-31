@@ -1,31 +1,21 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Send, Square, Loader2, AlertTriangle, Menu, PlusCircle } from 'lucide-react';
+import { Send, Square, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { VocabularyStore } from '../stores/vocabularyStore';
 import { supabase } from '../lib/supabase';
-import { ChatHistoryDrawer } from '../components/ChatHistoryDrawer';
-import {
-  listConversations,
-  createConversation,
-  loadConversation,
-  saveMessages,
-  renameConversation,
-  deleteConversation,
-  generateTitle,
-  type ConversationSummary,
-} from '../lib/chatHistoryService';
 
 interface ChatPageProps {
   store: VocabularyStore;
   userName?: string;
-  userId?: string;
 }
 
+const CHAT_STORAGE_KEY = 'langseed_chat_history';
 const TOOL_RESULTS_KEY = 'langseed_tool_results';
 const PROCESSED_TOOLS_KEY = 'langseed_processed_tools';
+const MAX_STORED_MESSAGES = 50;
 
 function buildVocabContext(store: VocabularyStore): string {
   const active = store.concepts.filter(c => !c.paused);
@@ -94,23 +84,12 @@ interface ToolExecResult {
   summary: string;
 }
 
-export function ChatPage({ store, userName, userId }: ChatPageProps) {
+export function ChatPage({ store, userName }: ChatPageProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const processedTools = useRef(loadProcessedTools());
   const [input, setInput] = useState('');
   const [toolResults, setToolResults] = useState<Record<string, ToolExecResult>>(loadToolResults);
-
-  // Chat history (persisted in Supabase)
-  const [conversations, setConversations] = useState<ConversationSummary[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  // The conversation row is created lazily on first send, so a drawer full of
-  // empty "New chat" rows can't accumulate. This ref holds the in-flight id so
-  // concurrent saves don't each create their own row.
-  const activeIdRef = useRef<string | null>(null);
-  const titledIds = useRef(new Set<string>());
 
   const recordToolExec = useCallback((toolCallId: string, result: ToolExecResult) => {
     setToolResults(prev => {
@@ -130,16 +109,8 @@ export function ChatPage({ store, userName, userId }: ChatPageProps) {
       },
       body: () => ({ vocabContext: buildVocabContext(store) }),
     }),
+    messages: loadStoredMessages(),
   });
-
-  const refreshConversations = useCallback(async () => {
-    if (!userId) return;
-    setHistoryLoading(true);
-    setConversations(await listConversations(userId));
-    setHistoryLoading(false);
-  }, [userId]);
-
-  useEffect(() => { refreshConversations(); }, [refreshConversations]);
 
   // Process tool invocations from messages and apply to store
   useEffect(() => {
@@ -303,82 +274,29 @@ export function ChatPage({ store, userName, userId }: ChatPageProps) {
     }
   }, [store, recordToolExec]);
 
-  // Persist the thread once a turn settles. Waiting for 'ready' avoids writing
-  // a row per streamed token, and means the assistant message is saved with its
-  // final parts (including any tool calls).
+  // Persist messages to localStorage
   useEffect(() => {
-    if (!userId || messages.length === 0 || status !== 'ready') return;
-
-    let cancelled = false;
-    (async () => {
-      let id = activeIdRef.current;
-      if (!id) {
-        id = await createConversation(userId);
-        if (!id) return; // offline or misconfigured; keep the thread in memory
-        activeIdRef.current = id;
-        if (!cancelled) setActiveId(id);
-      }
-
-      await saveMessages(userId, id, messages);
-
-      // Title once the first exchange exists, using the chat model itself.
-      const hasExchange = messages.some(m => m.role === 'assistant');
-      if (hasExchange && !titledIds.current.has(id)) {
-        titledIds.current.add(id);
-        const title = await generateTitle(messages);
-        await renameConversation(id, title);
-      }
-
-      if (!cancelled) refreshConversations();
-    })();
-
-    return () => { cancelled = true; };
-  }, [messages, status, userId, refreshConversations]);
+    if (messages.length > 0) {
+      try {
+        const trimmed = messages.slice(-MAX_STORED_MESSAGES);
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(trimmed));
+      } catch { /* quota exceeded */ }
+    }
+  }, [messages]);
 
   // Auto-scroll on new messages
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, status, toolResults]);
 
-  const handleNewChat = useCallback(() => {
-    stop();
+  const handleClear = () => {
     setMessages([]);
-    setActiveId(null);
-    activeIdRef.current = null;
-    setDrawerOpen(false);
-  }, [setMessages, stop]);
-
-  const handleSelectConversation = useCallback(async (id: string) => {
-    stop();
-    setDrawerOpen(false);
-    setHistoryLoading(true);
-    const loaded = await loadConversation(id);
-    // Already-applied tool calls must not re-run against the store on reopen.
-    for (const m of loaded) {
-      for (const p of m.parts) {
-        if (p.type.startsWith('tool-') && 'toolCallId' in p) {
-          processedTools.current.add(`${m.id}-${(p as { toolCallId: string }).toolCallId}`);
-        }
-      }
-    }
-    titledIds.current.add(id);
-    setActiveId(id);
-    activeIdRef.current = id;
-    setMessages(loaded);
-    setHistoryLoading(false);
-  }, [setMessages, stop]);
-
-  const handleDeleteConversation = useCallback(async (id: string) => {
-    await deleteConversation(id);
-    if (activeIdRef.current === id) handleNewChat();
-    refreshConversations();
-  }, [handleNewChat, refreshConversations]);
-
-  const handleRenameConversation = useCallback(async (id: string, title: string) => {
-    setConversations(prev => prev.map(c => (c.id === id ? { ...c, title } : c)));
-    await renameConversation(id, title);
-    refreshConversations();
-  }, [refreshConversations]);
+    processedTools.current.clear();
+    setToolResults({});
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+    localStorage.removeItem(TOOL_RESULTS_KEY);
+    localStorage.removeItem(PROCESSED_TOOLS_KEY);
+  };
 
   const handleSend = () => {
     const text = input.trim();
@@ -389,7 +307,6 @@ export function ChatPage({ store, userName, userId }: ChatPageProps) {
 
   const isStreaming = status === 'streaming';
   const isLoading = status === 'submitted';
-  const activeTitle = conversations.find(c => c.id === activeId)?.title;
 
   const greeting = userName ? `Hi ${userName}!` : 'Hi!';
   const welcomeMessage = `${greeting} I'm your Mandarin tutor. Here's what I can do:
@@ -410,49 +327,22 @@ Try "add the word for sunshine" or "which words did you add for me?"`;
 
   return (
     <div className="h-full flex flex-col">
-      {userId && (
-        <ChatHistoryDrawer
-          open={drawerOpen}
-          conversations={conversations}
-          activeId={activeId}
-          loading={historyLoading}
-          onClose={() => setDrawerOpen(false)}
-          onSelect={handleSelectConversation}
-          onNewChat={handleNewChat}
-          onRename={handleRenameConversation}
-          onDelete={handleDeleteConversation}
-        />
-      )}
-
       {/* Header */}
-      <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-2 py-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1 min-w-0">
-          {userId && (
-            <button
-              className="btn btn-sm btn-ghost btn-circle flex-shrink-0"
-              onClick={() => setDrawerOpen(true)}
-              aria-label="Chat history"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          )}
-          <div className="min-w-0">
-            <h1 className="text-xl font-bold truncate">
-              {activeTitle || 'Chat'}
-            </h1>
-            <p className="text-sm text-base-content/60">
-              {store.studyingCount} words active
-            </p>
-          </div>
+      <header className="flex-shrink-0 bg-base-100 border-b border-base-300 px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold">Chat</h1>
+          <p className="text-sm text-base-content/60">
+            {store.studyingCount} words active
+          </p>
         </div>
-        {userId && messages.length > 0 && (
+        {messages.length > 0 && (
           <button
-            className="btn btn-sm btn-ghost gap-1 text-base-content/50 flex-shrink-0"
-            onClick={handleNewChat}
-            title="New chat"
+            className="btn btn-sm btn-ghost gap-1 text-base-content/50"
+            onClick={handleClear}
+            title="Clear chat"
           >
-            <PlusCircle className="w-4 h-4" />
-            New
+            <Trash2 className="w-4 h-4" />
+            Clear
           </button>
         )}
       </header>
@@ -612,6 +502,14 @@ function ToolCard({ toolName, args, serverDone, execResult }: {
       </div>
     </div>
   );
+}
+
+function loadStoredMessages() {
+  try {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch { /* ignore */ }
+  return [];
 }
 
 function loadToolResults(): Record<string, ToolExecResult> {
