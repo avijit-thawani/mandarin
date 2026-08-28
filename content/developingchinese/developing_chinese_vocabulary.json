@@ -1,0 +1,3962 @@
+[
+  {
+    "word": "你",
+    "pinyin": "nǐ",
+    "part_of_speech": "pronoun",
+    "meaning": "you",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "好",
+    "pinyin": "hǎo",
+    "part_of_speech": "adjective",
+    "meaning": "good, well, OK",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "老师",
+    "pinyin": "lǎoshī",
+    "part_of_speech": "noun",
+    "meaning": "teacher",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "您",
+    "pinyin": "nín",
+    "part_of_speech": "pronoun",
+    "meaning": "you (respectful form)",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "你们",
+    "pinyin": "nǐmen",
+    "part_of_speech": "pronoun",
+    "meaning": "you (plural form)",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "们",
+    "pinyin": "men",
+    "part_of_speech": "other",
+    "meaning": "used after a personal pronoun or a noun to show a plural number",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "再见",
+    "pinyin": "zàijiàn",
+    "part_of_speech": "verb",
+    "meaning": "good-bye",
+    "chapter": 1,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "早上",
+    "pinyin": "zǎoshang",
+    "part_of_speech": "noun",
+    "meaning": "morning",
+    "chapter": 2,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "谢谢",
+    "pinyin": "xièxie",
+    "part_of_speech": "verb",
+    "meaning": "thank you",
+    "chapter": 2,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "不客气",
+    "pinyin": "bú kèqi",
+    "part_of_speech": "other",
+    "meaning": "you're welcome",
+    "chapter": 2,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "对不起",
+    "pinyin": "duìbuqǐ",
+    "part_of_speech": "other",
+    "meaning": "sorry, I'm sorry",
+    "chapter": 2,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "没关系",
+    "pinyin": "méi guānxi",
+    "part_of_speech": "other",
+    "meaning": "it doesn't matter, never mind",
+    "chapter": 2,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "今天",
+    "pinyin": "jīntiān",
+    "part_of_speech": "noun",
+    "meaning": "today",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "星期一",
+    "pinyin": "xīngqīyī",
+    "part_of_speech": "noun",
+    "meaning": "Monday",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "明天",
+    "pinyin": "míngtiān",
+    "part_of_speech": "noun",
+    "meaning": "tomorrow",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "星期二",
+    "pinyin": "xīngqī'èr",
+    "part_of_speech": "noun",
+    "meaning": "Tuesday",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "九",
+    "pinyin": "jiǔ",
+    "part_of_speech": "numeral",
+    "meaning": "nine",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "月",
+    "pinyin": "yuè",
+    "part_of_speech": "noun",
+    "meaning": "month",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "八",
+    "pinyin": "bā",
+    "part_of_speech": "numeral",
+    "meaning": "eight",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "日/号",
+    "pinyin": "rì/hào",
+    "part_of_speech": "noun",
+    "meaning": "date",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "星期六",
+    "pinyin": "xīngqīliù",
+    "part_of_speech": "noun",
+    "meaning": "Saturday",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "星期日",
+    "pinyin": "xīngqīrì",
+    "part_of_speech": "noun",
+    "meaning": "Sunday",
+    "chapter": 3,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "我",
+    "pinyin": "wǒ",
+    "part_of_speech": "pronoun",
+    "meaning": "I, me",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "是",
+    "pinyin": "shì",
+    "part_of_speech": "verb",
+    "meaning": "be",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "人",
+    "pinyin": "rén",
+    "part_of_speech": "noun",
+    "meaning": "person, people",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "姓",
+    "pinyin": "xìng",
+    "part_of_speech": "verb",
+    "meaning": "be surnamed",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "叫",
+    "pinyin": "jiào",
+    "part_of_speech": "verb",
+    "meaning": "call",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "中国",
+    "pinyin": "Zhōngguó",
+    "part_of_speech": "noun",
+    "meaning": "China",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "他",
+    "pinyin": "tā",
+    "part_of_speech": "pronoun",
+    "meaning": "he, him",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "我们",
+    "pinyin": "wǒmen",
+    "part_of_speech": "pronoun",
+    "meaning": "we, us",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "朋友",
+    "pinyin": "péngyou",
+    "part_of_speech": "noun",
+    "meaning": "friend",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "英国",
+    "pinyin": "Yīngguó",
+    "part_of_speech": "noun",
+    "meaning": "the United Kingdom",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "认识",
+    "pinyin": "rènshi",
+    "part_of_speech": "verb",
+    "meaning": "know",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "很",
+    "pinyin": "hěn",
+    "part_of_speech": "adverb",
+    "meaning": "very",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "高兴",
+    "pinyin": "gāoxìng",
+    "part_of_speech": "adjective",
+    "meaning": "glad, happy",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "也",
+    "pinyin": "yě",
+    "part_of_speech": "adverb",
+    "meaning": "also, too",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "韩国",
+    "pinyin": "Hánguó",
+    "part_of_speech": "noun",
+    "meaning": "South Korea",
+    "chapter": 4,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "什么",
+    "pinyin": "shénme",
+    "part_of_speech": "pronoun",
+    "meaning": "what",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "名字",
+    "pinyin": "míngzi",
+    "part_of_speech": "noun",
+    "meaning": "name",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "哪",
+    "pinyin": "nǎ",
+    "part_of_speech": "pronoun",
+    "meaning": "which",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "国",
+    "pinyin": "guó",
+    "part_of_speech": "noun",
+    "meaning": "country",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "谁",
+    "pinyin": "shéi",
+    "part_of_speech": "pronoun",
+    "meaning": "who, whom",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "吗",
+    "pinyin": "ma",
+    "part_of_speech": "particle",
+    "meaning": "used at the end of a question",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "不",
+    "pinyin": "bù",
+    "part_of_speech": "adverb",
+    "meaning": "not, no",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "呢",
+    "pinyin": "ne",
+    "part_of_speech": "particle",
+    "meaning": "used at the end of an interrogative sentence",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "学习",
+    "pinyin": "xuéxí",
+    "part_of_speech": "verb",
+    "meaning": "study",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "汉语",
+    "pinyin": "Hànyǔ",
+    "part_of_speech": "noun",
+    "meaning": "Chinese (language)",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "经济",
+    "pinyin": "jīngjì",
+    "part_of_speech": "noun",
+    "meaning": "economy",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "她",
+    "pinyin": "tā",
+    "part_of_speech": "pronoun",
+    "meaning": "she, her",
+    "chapter": 5,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "这",
+    "pinyin": "zhè",
+    "part_of_speech": "pronoun",
+    "meaning": "this",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "家",
+    "pinyin": "jiā",
+    "part_of_speech": "noun",
+    "meaning": "home, family",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "family"
+  },
+  {
+    "word": "和",
+    "pinyin": "hé",
+    "part_of_speech": "conjunction",
+    "meaning": "and",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "哥哥",
+    "pinyin": "gēge",
+    "part_of_speech": "noun",
+    "meaning": "elder brother",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "family"
+  },
+  {
+    "word": "没（有）",
+    "pinyin": "méi",
+    "part_of_speech": "verb",
+    "meaning": "do not have, there is no",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "有",
+    "pinyin": "yǒu",
+    "part_of_speech": "verb",
+    "meaning": "have, there be",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "姐姐",
+    "pinyin": "jiějie",
+    "part_of_speech": "noun",
+    "meaning": "elder sister",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "family"
+  },
+  {
+    "word": "妹妹",
+    "pinyin": "mèimei",
+    "part_of_speech": "noun",
+    "meaning": "younger sister",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "family"
+  },
+  {
+    "word": "口",
+    "pinyin": "kǒu",
+    "part_of_speech": "measure_word",
+    "meaning": "for family members",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "body"
+  },
+  {
+    "word": "对",
+    "pinyin": "duì",
+    "part_of_speech": "adjective",
+    "meaning": "right, correct",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "班",
+    "pinyin": "bān",
+    "part_of_speech": "noun",
+    "meaning": "class",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "个",
+    "pinyin": "gè",
+    "part_of_speech": "measure_word",
+    "meaning": "used before a noun which does not have a fixed measure word of its own",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "多少",
+    "pinyin": "duōshao",
+    "part_of_speech": "pronoun",
+    "meaning": "how much, how many",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "女生",
+    "pinyin": "nǚshēng",
+    "part_of_speech": "noun",
+    "meaning": "schoolgirl, girl",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "男生",
+    "pinyin": "nánshēng",
+    "part_of_speech": "noun",
+    "meaning": "schoolboy, boy",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "几",
+    "pinyin": "jǐ",
+    "part_of_speech": "pronoun",
+    "meaning": "how many",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "还",
+    "pinyin": "hái",
+    "part_of_speech": "adverb",
+    "meaning": "also, still",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "俄罗斯",
+    "pinyin": "Éluósī",
+    "part_of_speech": "noun",
+    "meaning": "Russia",
+    "chapter": 6,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "要",
+    "pinyin": "yào",
+    "part_of_speech": "verb",
+    "meaning": "want, need",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "瓶",
+    "pinyin": "píng",
+    "part_of_speech": "noun",
+    "meaning": "bottle",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "水",
+    "pinyin": "shuǐ",
+    "part_of_speech": "noun",
+    "meaning": "water",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "块（元）",
+    "pinyin": "kuài",
+    "part_of_speech": "measure_word",
+    "meaning": "(unit of Chinese currency) same as \"yuan\"",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "面包",
+    "pinyin": "miànbāo",
+    "part_of_speech": "noun",
+    "meaning": "bread",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "钱",
+    "pinyin": "qián",
+    "part_of_speech": "noun",
+    "meaning": "money",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "再",
+    "pinyin": "zài",
+    "part_of_speech": "adverb",
+    "meaning": "in addition, besides",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "别的",
+    "pinyin": "biéde",
+    "part_of_speech": "pronoun",
+    "meaning": "other",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "了",
+    "pinyin": "le",
+    "part_of_speech": "particle",
+    "meaning": "a modal particle",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "一共",
+    "pinyin": "yígòng",
+    "part_of_speech": "adverb",
+    "meaning": "altogether, in total",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "想",
+    "pinyin": "xiǎng",
+    "part_of_speech": "verb",
+    "meaning": "want to, think",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "买",
+    "pinyin": "mǎi",
+    "part_of_speech": "verb",
+    "meaning": "buy",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "葡萄",
+    "pinyin": "pútao",
+    "part_of_speech": "noun",
+    "meaning": "grape",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "斤",
+    "pinyin": "jīn",
+    "part_of_speech": "measure_word",
+    "meaning": "unit of weight = 1/2 kilogram",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "梨",
+    "pinyin": "lí",
+    "part_of_speech": "noun",
+    "meaning": "pear",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "怎么",
+    "pinyin": "zěnme",
+    "part_of_speech": "pronoun",
+    "meaning": "how, why",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "卖",
+    "pinyin": "mài",
+    "part_of_speech": "verb",
+    "meaning": "sell",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "种",
+    "pinyin": "zhǒng",
+    "part_of_speech": "measure_word",
+    "meaning": "kind, sort",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "太……了",
+    "pinyin": "tài……le",
+    "part_of_speech": "phrase",
+    "meaning": "extremely, too",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "贵",
+    "pinyin": "guì",
+    "part_of_speech": "adjective",
+    "meaning": "expensive",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "那",
+    "pinyin": "nà",
+    "part_of_speech": "pronoun",
+    "meaning": "that",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "便宜",
+    "pinyin": "piányi",
+    "part_of_speech": "adjective",
+    "meaning": "cheap",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "好吃",
+    "pinyin": "hǎochī",
+    "part_of_speech": "adjective",
+    "meaning": "tasty, delicious",
+    "chapter": 7,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "请问",
+    "pinyin": "qǐngwèn",
+    "part_of_speech": "verb",
+    "meaning": "excuse me, please",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "超市",
+    "pinyin": "chāoshì",
+    "part_of_speech": "noun",
+    "meaning": "supermarket",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "在",
+    "pinyin": "zài",
+    "part_of_speech": "verb",
+    "meaning": "be in or at",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "哪儿",
+    "pinyin": "nǎr",
+    "part_of_speech": "pronoun",
+    "meaning": "where",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "前边",
+    "pinyin": "qiánbian",
+    "part_of_speech": "noun",
+    "meaning": "front",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "远",
+    "pinyin": "yuǎn",
+    "part_of_speech": "adjective",
+    "meaning": "far",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "看",
+    "pinyin": "kàn",
+    "part_of_speech": "verb",
+    "meaning": "see, watch, look at",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "邮局",
+    "pinyin": "yóujú",
+    "part_of_speech": "noun",
+    "meaning": "post office",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "就",
+    "pinyin": "jiù",
+    "part_of_speech": "adverb",
+    "meaning": "exactly, precisely, just",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "后边",
+    "pinyin": "hòubian",
+    "part_of_speech": "noun",
+    "meaning": "at the back, behind",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "地方",
+    "pinyin": "dìfang",
+    "part_of_speech": "noun",
+    "meaning": "place",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "学校",
+    "pinyin": "xuéxiào",
+    "part_of_speech": "noun",
+    "meaning": "school",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "里（边）",
+    "pinyin": "lǐ",
+    "part_of_speech": "noun",
+    "meaning": "inside, in, within",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "附近",
+    "pinyin": "fùjìn",
+    "part_of_speech": "noun",
+    "meaning": "close by, nearby",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "对面",
+    "pinyin": "duìmiàn",
+    "part_of_speech": "noun",
+    "meaning": "opposite",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "旁边",
+    "pinyin": "pángbiān",
+    "part_of_speech": "noun",
+    "meaning": "beside, by",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "中国银行",
+    "pinyin": "Zhōngguó Yínháng",
+    "part_of_speech": "noun",
+    "meaning": "Bank of China",
+    "chapter": 8,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "去",
+    "pinyin": "qù",
+    "part_of_speech": "verb",
+    "meaning": "go",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "教室",
+    "pinyin": "jiàoshì",
+    "part_of_speech": "noun",
+    "meaning": "classroom",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "课",
+    "pinyin": "kè",
+    "part_of_speech": "noun",
+    "meaning": "class, lesson, course",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "的",
+    "pinyin": "de",
+    "part_of_speech": "particle",
+    "meaning": "of (used after an attributive word or phrase)",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "电脑",
+    "pinyin": "diànnǎo",
+    "part_of_speech": "noun",
+    "meaning": "computer",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "哦",
+    "pinyin": "ò",
+    "part_of_speech": "interjection",
+    "meaning": "expressing realization and understanding",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "今年",
+    "pinyin": "jīnnián",
+    "part_of_speech": "noun",
+    "meaning": "this year",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "生日",
+    "pinyin": "shēngrì",
+    "part_of_speech": "noun",
+    "meaning": "birthday",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "放假",
+    "pinyin": "fàngjià",
+    "part_of_speech": "verb",
+    "meaning": "have a holiday or vacation",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "咱们",
+    "pinyin": "zánmen",
+    "part_of_speech": "pronoun",
+    "meaning": "we, us",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "一起",
+    "pinyin": "yìqǐ",
+    "part_of_speech": "adverb",
+    "meaning": "together",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "玩儿",
+    "pinyin": "wánr",
+    "part_of_speech": "verb",
+    "meaning": "have fun, play",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "怎么样",
+    "pinyin": "zěnmeyàng",
+    "part_of_speech": "pronoun",
+    "meaning": "what about, how about",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "没问题",
+    "pinyin": "méi wèntí",
+    "part_of_speech": "other",
+    "meaning": "no problem",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "中秋节",
+    "pinyin": "Zhōngqiū Jié",
+    "part_of_speech": "noun",
+    "meaning": "Mid-Autumn Festival",
+    "chapter": 9,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "每",
+    "pinyin": "měi",
+    "part_of_speech": "pronoun",
+    "meaning": "every, each",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "天",
+    "pinyin": "tiān",
+    "part_of_speech": "measure_word",
+    "meaning": "day",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "nature"
+  },
+  {
+    "word": "点",
+    "pinyin": "diǎn",
+    "part_of_speech": "measure_word",
+    "meaning": "o'clock",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "上课",
+    "pinyin": "shàngkè",
+    "part_of_speech": "verb",
+    "meaning": "attend class, go to class",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "下课",
+    "pinyin": "xiàkè",
+    "part_of_speech": "verb",
+    "meaning": "finish class, class is over",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "半",
+    "pinyin": "bàn",
+    "part_of_speech": "numeral",
+    "meaning": "half",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "节",
+    "pinyin": "jié",
+    "part_of_speech": "measure_word",
+    "meaning": "section",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "多长",
+    "pinyin": "duō cháng",
+    "part_of_speech": "other",
+    "meaning": "how long",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "时间",
+    "pinyin": "shíjiān",
+    "part_of_speech": "noun",
+    "meaning": "time, duration",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "分钟",
+    "pinyin": "fēnzhōng",
+    "part_of_speech": "measure_word",
+    "meaning": "minute",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "上午",
+    "pinyin": "shàngwǔ",
+    "part_of_speech": "noun",
+    "meaning": "morning",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "有的",
+    "pinyin": "yǒude",
+    "part_of_speech": "pronoun",
+    "meaning": "some",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "时候",
+    "pinyin": "shíhou",
+    "part_of_speech": "noun",
+    "meaning": "time, moment",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "现在",
+    "pinyin": "xiànzài",
+    "part_of_speech": "noun",
+    "meaning": "now",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "分",
+    "pinyin": "fēn",
+    "part_of_speech": "measure_word",
+    "meaning": "(of time) minute",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "晚",
+    "pinyin": "wǎn",
+    "part_of_speech": "adjective",
+    "meaning": "late",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "睡觉",
+    "pinyin": "shuìjiào",
+    "part_of_speech": "verb",
+    "meaning": "sleep",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "吧",
+    "pinyin": "ba",
+    "part_of_speech": "particle",
+    "meaning": "used at the end of a sentence to indicate suggestion, request or mild command",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "差",
+    "pinyin": "chà",
+    "part_of_speech": "verb",
+    "meaning": "be short of, be less than",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "刻",
+    "pinyin": "kè",
+    "part_of_speech": "measure_word",
+    "meaning": "quarter (of an hour)",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "起床",
+    "pinyin": "qǐchuáng",
+    "part_of_speech": "verb",
+    "meaning": "get up",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "公司",
+    "pinyin": "gōngsī",
+    "part_of_speech": "noun",
+    "meaning": "company",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "回来",
+    "pinyin": "huílai",
+    "part_of_speech": "verb",
+    "meaning": "come back",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "回",
+    "pinyin": "huí",
+    "part_of_speech": "verb",
+    "meaning": "return, go back",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "吃",
+    "pinyin": "chī",
+    "part_of_speech": "verb",
+    "meaning": "eat",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "晚饭（餐）",
+    "pinyin": "wǎnfàn",
+    "part_of_speech": "noun",
+    "meaning": "supper, dinner",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "晚安",
+    "pinyin": "wǎn'ān",
+    "part_of_speech": "verb",
+    "meaning": "good night",
+    "chapter": 10,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "住",
+    "pinyin": "zhù",
+    "part_of_speech": "verb",
+    "meaning": "live, stay",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "在",
+    "pinyin": "zài",
+    "part_of_speech": "preposition",
+    "meaning": "at, in, on",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "留学生",
+    "pinyin": "liúxuéshēng",
+    "part_of_speech": "noun",
+    "meaning": "student studying abroad, international student",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "宿舍",
+    "pinyin": "sùshè",
+    "part_of_speech": "noun",
+    "meaning": "dormitory",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "外边",
+    "pinyin": "wàibian",
+    "part_of_speech": "noun",
+    "meaning": "out, outside",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "小区",
+    "pinyin": "xiǎoqū",
+    "part_of_speech": "noun",
+    "meaning": "residential area, housing estate",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "离",
+    "pinyin": "lí",
+    "part_of_speech": "verb",
+    "meaning": "be away from",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "骑",
+    "pinyin": "qí",
+    "part_of_speech": "verb",
+    "meaning": "ride (an animal or bicycle)",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "自行车",
+    "pinyin": "zìxíngchē",
+    "part_of_speech": "noun",
+    "meaning": "bicycle",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "走路",
+    "pinyin": "zǒulù",
+    "part_of_speech": "verb",
+    "meaning": "walk",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "小时",
+    "pinyin": "xiǎoshí",
+    "part_of_speech": "noun",
+    "meaning": "hour",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "近",
+    "pinyin": "jìn",
+    "part_of_speech": "adjective",
+    "meaning": "near",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "花园小区",
+    "pinyin": "Huāyuán Xiǎoqū",
+    "part_of_speech": "noun",
+    "meaning": "Garden Housing Estate",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "最近",
+    "pinyin": "zuìjìn",
+    "part_of_speech": "noun",
+    "meaning": "recently",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "都",
+    "pinyin": "dōu",
+    "part_of_speech": "adverb",
+    "meaning": "all",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "忙",
+    "pinyin": "máng",
+    "part_of_speech": "adjective",
+    "meaning": "busy",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "来",
+    "pinyin": "lái",
+    "part_of_speech": "verb",
+    "meaning": "come",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "啊",
+    "pinyin": "a",
+    "part_of_speech": "particle",
+    "meaning": "attached to the end of a sentence to show approval, to indicate admiration, or to urge or enjoin sb.",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "大",
+    "pinyin": "dà",
+    "part_of_speech": "adjective",
+    "meaning": "big",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "漂亮",
+    "pinyin": "piàoliang",
+    "part_of_speech": "adjective",
+    "meaning": "beautiful",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "坐",
+    "pinyin": "zuò",
+    "part_of_speech": "verb",
+    "meaning": "take, travel by, sit",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "路",
+    "pinyin": "lù",
+    "part_of_speech": "noun",
+    "meaning": "route",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "公共汽车",
+    "pinyin": "gōnggòng qìchē",
+    "part_of_speech": "phrase",
+    "meaning": "bus",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "下车",
+    "pinyin": "xià chē",
+    "part_of_speech": "other",
+    "meaning": "get off a car or bus",
+    "chapter": 11,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "～总",
+    "pinyin": "～zǒng",
+    "part_of_speech": "other",
+    "meaning": "Mr. ..., general manager (used after a surname as a short title for general manager)",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "同事",
+    "pinyin": "tóngshì",
+    "part_of_speech": "noun",
+    "meaning": "colleague",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "吧",
+    "pinyin": "ba",
+    "part_of_speech": "particle",
+    "meaning": "used at the end of a question, suggestion, request, command and agreement",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "广告",
+    "pinyin": "guǎnggào",
+    "part_of_speech": "noun",
+    "meaning": "advertisement",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "工作",
+    "pinyin": "gōngzuò",
+    "part_of_speech": "verb",
+    "meaning": "work",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "名片",
+    "pinyin": "míngpiàn",
+    "part_of_speech": "noun",
+    "meaning": "name card, business card",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "电话",
+    "pinyin": "diànhuà",
+    "part_of_speech": "noun",
+    "meaning": "telephone, phone call",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "房间",
+    "pinyin": "fángjiān",
+    "part_of_speech": "noun",
+    "meaning": "room",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "手机",
+    "pinyin": "shǒujī",
+    "part_of_speech": "noun",
+    "meaning": "mobile phone",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "号码（号）",
+    "pinyin": "hàomǎ",
+    "part_of_speech": "noun",
+    "meaning": "number",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "number"
+  },
+  {
+    "word": "北京",
+    "pinyin": "Běijīng",
+    "part_of_speech": "noun",
+    "meaning": "Beijing",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "city"
+  },
+  {
+    "word": "喜欢",
+    "pinyin": "xǐhuan",
+    "part_of_speech": "verb",
+    "meaning": "like",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "电视",
+    "pinyin": "diànshì",
+    "part_of_speech": "noun",
+    "meaning": "television",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "多",
+    "pinyin": "duō",
+    "part_of_speech": "adjective",
+    "meaning": "many, much, a lot of",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "节目",
+    "pinyin": "jiémù",
+    "part_of_speech": "noun",
+    "meaning": "programme",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "从……到……",
+    "pinyin": "cóng……dào……",
+    "part_of_speech": "phrase",
+    "meaning": "from...to...",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "对",
+    "pinyin": "duì",
+    "part_of_speech": "preposition",
+    "meaning": "to, with regard to",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "最",
+    "pinyin": "zuì",
+    "part_of_speech": "adverb",
+    "meaning": "most, least",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "感兴趣",
+    "pinyin": "gǎn xìngqù",
+    "part_of_speech": "other",
+    "meaning": "be interested in",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "兴趣",
+    "pinyin": "xìngqù",
+    "part_of_speech": "noun",
+    "meaning": "interest",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "为什么",
+    "pinyin": "wèi shénme",
+    "part_of_speech": "other",
+    "meaning": "why",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "可以",
+    "pinyin": "kěyǐ",
+    "part_of_speech": "other",
+    "meaning": "may",
+    "chapter": 12,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "中餐",
+    "pinyin": "zhōngcān",
+    "part_of_speech": "noun",
+    "meaning": "Chinese food",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "还是",
+    "pinyin": "háishi",
+    "part_of_speech": "conjunction",
+    "meaning": "or",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "西餐",
+    "pinyin": "xīcān",
+    "part_of_speech": "noun",
+    "meaning": "Western food",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "当然",
+    "pinyin": "dāngrán",
+    "part_of_speech": "adverb",
+    "meaning": "certainly, of course",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "中午",
+    "pinyin": "zhōngwǔ",
+    "part_of_speech": "noun",
+    "meaning": "noon",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "饭馆",
+    "pinyin": "fànguǎn",
+    "part_of_speech": "noun",
+    "meaning": "restaurant",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "过",
+    "pinyin": "guo",
+    "part_of_speech": "particle",
+    "meaning": "used after a verb to indicate a past action or state",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "那儿",
+    "pinyin": "nàr",
+    "part_of_speech": "pronoun",
+    "meaning": "there",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "没（有）",
+    "pinyin": "méi",
+    "part_of_speech": "adverb",
+    "meaning": "have not, not yet",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "大家",
+    "pinyin": "dàjiā",
+    "part_of_speech": "pronoun",
+    "meaning": "all, everybody",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "说",
+    "pinyin": "shuō",
+    "part_of_speech": "verb",
+    "meaning": "say, speak, talk",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "又……又……",
+    "pinyin": "yòu……yòu……",
+    "part_of_speech": "phrase",
+    "meaning": "both...and...",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "打",
+    "pinyin": "dǎ",
+    "part_of_speech": "verb",
+    "meaning": "play (ball)",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "网球",
+    "pinyin": "wǎngqiú",
+    "part_of_speech": "noun",
+    "meaning": "tennis, tennis ball",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "足球",
+    "pinyin": "zúqiú",
+    "part_of_speech": "noun",
+    "meaning": "football, soccer",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "游泳",
+    "pinyin": "yóuyǒng",
+    "part_of_speech": "verb",
+    "meaning": "swim",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "踢",
+    "pinyin": "tī",
+    "part_of_speech": "verb",
+    "meaning": "play (football), kick",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "爱好",
+    "pinyin": "àihào",
+    "part_of_speech": "noun",
+    "meaning": "hobby",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "汉字",
+    "pinyin": "Hànzì",
+    "part_of_speech": "noun",
+    "meaning": "Chinese character",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "中国画",
+    "pinyin": "zhōngguóhuà",
+    "part_of_speech": "noun",
+    "meaning": "traditional Chinese painting",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "去年",
+    "pinyin": "qùnián",
+    "part_of_speech": "noun",
+    "meaning": "last year",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "可是",
+    "pinyin": "kěshì",
+    "part_of_speech": "conjunction",
+    "meaning": "but",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "旅行",
+    "pinyin": "lǚxíng",
+    "part_of_speech": "verb",
+    "meaning": "travel",
+    "chapter": 13,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "下",
+    "pinyin": "xià",
+    "part_of_speech": "verb",
+    "meaning": "(of rain or snow) fall",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "雨",
+    "pinyin": "yǔ",
+    "part_of_speech": "noun",
+    "meaning": "rain",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "weather"
+  },
+  {
+    "word": "办",
+    "pinyin": "bàn",
+    "part_of_speech": "verb",
+    "meaning": "do, handle, manage",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "雨伞",
+    "pinyin": "yǔsǎn",
+    "part_of_speech": "noun",
+    "meaning": "umbrella",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "这儿",
+    "pinyin": "zhèr",
+    "part_of_speech": "pronoun",
+    "meaning": "here",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "搬（家）",
+    "pinyin": "bān",
+    "part_of_speech": "verb",
+    "meaning": "move (house)",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "同屋",
+    "pinyin": "tóngwū",
+    "part_of_speech": "noun",
+    "meaning": "roommate",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "别人",
+    "pinyin": "biéren",
+    "part_of_speech": "pronoun",
+    "meaning": "other people, others",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "没意思",
+    "pinyin": "méi yìsi",
+    "part_of_speech": "other",
+    "meaning": "boring",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "到",
+    "pinyin": "dào",
+    "part_of_speech": "verb",
+    "meaning": "get to (a place)",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "号",
+    "pinyin": "hào",
+    "part_of_speech": "measure_word",
+    "meaning": "number, No.",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "层",
+    "pinyin": "céng",
+    "part_of_speech": "measure_word",
+    "meaning": "storey, floor",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "请",
+    "pinyin": "qǐng",
+    "part_of_speech": "verb",
+    "meaning": "please",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "进",
+    "pinyin": "jìn",
+    "part_of_speech": "verb",
+    "meaning": "enter, come in, get into",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "真",
+    "pinyin": "zhēn",
+    "part_of_speech": "adverb",
+    "meaning": "really, indeed",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "干净",
+    "pinyin": "gānjìng",
+    "part_of_speech": "adjective",
+    "meaning": "clean",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "参观",
+    "pinyin": "cānguān",
+    "part_of_speech": "verb",
+    "meaning": "visit",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "客厅",
+    "pinyin": "kètīng",
+    "part_of_speech": "noun",
+    "meaning": "living room",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "餐厅",
+    "pinyin": "cāntīng",
+    "part_of_speech": "noun",
+    "meaning": "dining room",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "左边",
+    "pinyin": "zuǒbian",
+    "part_of_speech": "noun",
+    "meaning": "left, left side",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "右边",
+    "pinyin": "yòubian",
+    "part_of_speech": "noun",
+    "meaning": "right, right side",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "厨房",
+    "pinyin": "chúfáng",
+    "part_of_speech": "noun",
+    "meaning": "kitchen",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "卫生间",
+    "pinyin": "wèishēngjiān",
+    "part_of_speech": "noun",
+    "meaning": "bathroom, washroom, toilet",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "房租",
+    "pinyin": "fángzū",
+    "part_of_speech": "noun",
+    "meaning": "rent",
+    "chapter": 14,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "周末",
+    "pinyin": "zhōumò",
+    "part_of_speech": "noun",
+    "meaning": "weekend",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "趟",
+    "pinyin": "tàng",
+    "part_of_speech": "measure_word",
+    "meaning": "for a round trip",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "好玩儿",
+    "pinyin": "hǎowánr",
+    "part_of_speech": "adjective",
+    "meaning": "fun, amusing, interesting",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "什么的",
+    "pinyin": "shénmede",
+    "part_of_speech": "particle",
+    "meaning": "things like that",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "碰见",
+    "pinyin": "pèngjiàn",
+    "part_of_speech": "verb",
+    "meaning": "run into",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "有名",
+    "pinyin": "yǒumíng",
+    "part_of_speech": "adjective",
+    "meaning": "famous, well-known",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "一定",
+    "pinyin": "yídìng",
+    "part_of_speech": "adverb",
+    "meaning": "certainly",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "要",
+    "pinyin": "yào",
+    "part_of_speech": "other",
+    "meaning": "must, shall, will",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "天津",
+    "pinyin": "Tiānjīn",
+    "part_of_speech": "noun",
+    "meaning": "Tianjin, a city in China",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "一……就……",
+    "pinyin": "yī……jiù……",
+    "part_of_speech": "phrase",
+    "meaning": "as soon as, no sooner...than...",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "特色",
+    "pinyin": "tèsè",
+    "part_of_speech": "noun",
+    "meaning": "distinguishing feature",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "菜",
+    "pinyin": "cài",
+    "part_of_speech": "noun",
+    "meaning": "dish, vegetable",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "家",
+    "pinyin": "jiā",
+    "part_of_speech": "measure_word",
+    "meaning": "for families and business establishments",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "family"
+  },
+  {
+    "word": "老",
+    "pinyin": "lǎo",
+    "part_of_speech": "adjective",
+    "meaning": "old, aged",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "包子",
+    "pinyin": "bāozi",
+    "part_of_speech": "noun",
+    "meaning": "steamed stuffed bun",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "新",
+    "pinyin": "xīn",
+    "part_of_speech": "adjective",
+    "meaning": "new",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "素菜",
+    "pinyin": "sùcài",
+    "part_of_speech": "noun",
+    "meaning": "vegetable dish, vegetable",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "为了",
+    "pinyin": "wèile",
+    "part_of_speech": "preposition",
+    "meaning": "for, for the sake of, in order to",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "环保",
+    "pinyin": "huánbǎo",
+    "part_of_speech": "noun",
+    "meaning": "environmental protection",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "nature"
+  },
+  {
+    "word": "少",
+    "pinyin": "shǎo",
+    "part_of_speech": "adjective",
+    "meaning": "few, little, less",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "肉",
+    "pinyin": "ròu",
+    "part_of_speech": "noun",
+    "meaning": "meat",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "味道",
+    "pinyin": "wèidào",
+    "part_of_speech": "noun",
+    "meaning": "taste, flavour",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "极（了）",
+    "pinyin": "jí",
+    "part_of_speech": "adverb",
+    "meaning": "extremely",
+    "chapter": 15,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "找",
+    "pinyin": "zhǎo",
+    "part_of_speech": "verb",
+    "meaning": "look for, find",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "份",
+    "pinyin": "fèn",
+    "part_of_speech": "measure_word",
+    "meaning": "for job, food portion, newspapers, documents, etc.",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "打工",
+    "pinyin": "dǎgōng",
+    "part_of_speech": "verb",
+    "meaning": "work part-time",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "知道",
+    "pinyin": "zhīdao",
+    "part_of_speech": "verb",
+    "meaning": "know",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "教",
+    "pinyin": "jiāo",
+    "part_of_speech": "verb",
+    "meaning": "teach",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "英语",
+    "pinyin": "Yīngyǔ",
+    "part_of_speech": "noun",
+    "meaning": "English",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "语伴",
+    "pinyin": "yǔbàn",
+    "part_of_speech": "noun",
+    "meaning": "language partner",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "person"
+  },
+  {
+    "word": "互相",
+    "pinyin": "hùxiāng",
+    "part_of_speech": "adverb",
+    "meaning": "mutually, each other",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "帮助",
+    "pinyin": "bāngzhù",
+    "part_of_speech": "verb",
+    "meaning": "help",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "会",
+    "pinyin": "huì",
+    "part_of_speech": "other",
+    "meaning": "be able to; can",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "以后",
+    "pinyin": "yǐhòu",
+    "part_of_speech": "noun",
+    "meaning": "after, later",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "方便",
+    "pinyin": "fāngbiàn",
+    "part_of_speech": "adjective",
+    "meaning": "convenient",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "能",
+    "pinyin": "néng",
+    "part_of_speech": "other",
+    "meaning": "can, be able to",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "聊天儿",
+    "pinyin": "liáotiānr",
+    "part_of_speech": "verb",
+    "meaning": "chat",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "了解",
+    "pinyin": "liǎojiě",
+    "part_of_speech": "verb",
+    "meaning": "know, understand",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "文化",
+    "pinyin": "wénhuà",
+    "part_of_speech": "noun",
+    "meaning": "culture",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "开始",
+    "pinyin": "kāishǐ",
+    "part_of_speech": "verb",
+    "meaning": "begin",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "觉得",
+    "pinyin": "juéde",
+    "part_of_speech": "verb",
+    "meaning": "think, feel",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "难",
+    "pinyin": "nán",
+    "part_of_speech": "adjective",
+    "meaning": "difficult",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "发音",
+    "pinyin": "fāyīn",
+    "part_of_speech": "verb",
+    "meaning": "pronounce",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "容易",
+    "pinyin": "róngyì",
+    "part_of_speech": "adjective",
+    "meaning": "easy",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "写",
+    "pinyin": "xiě",
+    "part_of_speech": "verb",
+    "meaning": "write",
+    "chapter": 16,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "快……了",
+    "pinyin": "kuài……le",
+    "part_of_speech": "phrase",
+    "meaning": "be about to, soon",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "听说",
+    "pinyin": "tīngshuō",
+    "part_of_speech": "verb",
+    "meaning": "hear of, be told",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "过（节）",
+    "pinyin": "guò",
+    "part_of_speech": "verb",
+    "meaning": "celebrate (a festival, birthday)",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "节（日）",
+    "pinyin": "jié",
+    "part_of_speech": "noun",
+    "meaning": "holiday or festival",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "要是",
+    "pinyin": "yàoshi",
+    "part_of_speech": "conjunction",
+    "meaning": "if",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "父母",
+    "pinyin": "fùmǔ",
+    "part_of_speech": "noun",
+    "meaning": "parent",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "family"
+  },
+  {
+    "word": "圣诞节",
+    "pinyin": "Shèngdàn Jié",
+    "part_of_speech": "noun",
+    "meaning": "Christmas",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "香港",
+    "pinyin": "Xiānggǎng",
+    "part_of_speech": "noun",
+    "meaning": "Hong Kong",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "city"
+  },
+  {
+    "word": "哈尔滨",
+    "pinyin": "Hā'ěrbīn",
+    "part_of_speech": "noun",
+    "meaning": "Harbin",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "冰雪节",
+    "pinyin": "Bīngxuě Jié",
+    "part_of_speech": "noun",
+    "meaning": "Ice and Snow Festival",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "下",
+    "pinyin": "xià",
+    "part_of_speech": "noun",
+    "meaning": "next, latter",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "（就）要……了",
+    "pinyin": "yào……le",
+    "part_of_speech": "phrase",
+    "meaning": "be about to, soon",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "打算",
+    "pinyin": "dǎsuan",
+    "part_of_speech": "other",
+    "meaning": "plan, consideration; plan (to do)",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "看",
+    "pinyin": "kàn",
+    "part_of_speech": "verb",
+    "meaning": "see, pay a visit",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "结束",
+    "pinyin": "jiéshù",
+    "part_of_speech": "verb",
+    "meaning": "end, finish",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "名胜古迹",
+    "pinyin": "míngshèng gǔjì",
+    "part_of_speech": "phrase",
+    "meaning": "scenic spots and historical sites",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "也许",
+    "pinyin": "yěxǔ",
+    "part_of_speech": "adverb",
+    "meaning": "maybe",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "考试",
+    "pinyin": "kǎoshì",
+    "part_of_speech": "verb",
+    "meaning": "take an examination",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "元旦",
+    "pinyin": "Yuándàn",
+    "part_of_speech": "noun",
+    "meaning": "New Year's Day",
+    "chapter": 17,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "头",
+    "pinyin": "tóu",
+    "part_of_speech": "noun",
+    "meaning": "head",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "body"
+  },
+  {
+    "word": "疼",
+    "pinyin": "téng",
+    "part_of_speech": "adjective",
+    "meaning": "painful, aching",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "病",
+    "pinyin": "bìng",
+    "part_of_speech": "verb",
+    "meaning": "be ill, be sick",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "累",
+    "pinyin": "lèi",
+    "part_of_speech": "adjective",
+    "meaning": "tired",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "那",
+    "pinyin": "nà",
+    "part_of_speech": "conjunction",
+    "meaning": "well, then, in that case",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "干",
+    "pinyin": "gàn",
+    "part_of_speech": "verb",
+    "meaning": "do",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "作业",
+    "pinyin": "zuòyè",
+    "part_of_speech": "noun",
+    "meaning": "homework",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "中文",
+    "pinyin": "Zhōngwén",
+    "part_of_speech": "noun",
+    "meaning": "Chinese language",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "自己",
+    "pinyin": "zìjǐ",
+    "part_of_speech": "pronoun",
+    "meaning": "oneself",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "看法",
+    "pinyin": "kànfǎ",
+    "part_of_speech": "noun",
+    "meaning": "point of view",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "这样",
+    "pinyin": "zhèyàng",
+    "part_of_speech": "pronoun",
+    "meaning": "such, like this",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "给",
+    "pinyin": "gěi",
+    "part_of_speech": "preposition",
+    "meaning": "for, to",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "打",
+    "pinyin": "dǎ",
+    "part_of_speech": "verb",
+    "meaning": "make (a phone call)",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "跟",
+    "pinyin": "gēn",
+    "part_of_speech": "preposition",
+    "meaning": "with",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "多",
+    "pinyin": "duō",
+    "part_of_speech": "numeral",
+    "meaning": "more, over",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "（一）会儿",
+    "pinyin": "huìr",
+    "part_of_speech": "noun",
+    "meaning": "in a moment, a little while",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "新闻",
+    "pinyin": "xīnwén",
+    "part_of_speech": "noun",
+    "meaning": "news",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "听",
+    "pinyin": "tīng",
+    "part_of_speech": "verb",
+    "meaning": "listen, hear",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "音乐",
+    "pinyin": "yīnyuè",
+    "part_of_speech": "noun",
+    "meaning": "music",
+    "chapter": 18,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "完",
+    "pinyin": "wán",
+    "part_of_speech": "verb",
+    "meaning": "finish",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "帮（忙）",
+    "pinyin": "bāng",
+    "part_of_speech": "verb",
+    "meaning": "help, give a hand",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "老",
+    "pinyin": "lǎo",
+    "part_of_speech": "adverb",
+    "meaning": "often, regularly",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "死机",
+    "pinyin": "sǐjī",
+    "part_of_speech": "verb",
+    "meaning": "(of a computer) crash",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "修",
+    "pinyin": "xiū",
+    "part_of_speech": "verb",
+    "meaning": "repair",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "已经",
+    "pinyin": "yǐjīng",
+    "part_of_speech": "adverb",
+    "meaning": "already",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "刚才",
+    "pinyin": "gāngcái",
+    "part_of_speech": "noun",
+    "meaning": "just now, a moment ago",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "开机",
+    "pinyin": "kāijī",
+    "part_of_speech": "verb",
+    "meaning": "start up",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "行",
+    "pinyin": "xíng",
+    "part_of_speech": "verb",
+    "meaning": "be all right, will do",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "打开",
+    "pinyin": "dǎkāi",
+    "part_of_speech": "verb",
+    "meaning": "open, turn on",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "电源",
+    "pinyin": "diànyuán",
+    "part_of_speech": "noun",
+    "meaning": "power source",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "忘",
+    "pinyin": "wàng",
+    "part_of_speech": "verb",
+    "meaning": "forget",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "这么",
+    "pinyin": "zhème",
+    "part_of_speech": "pronoun",
+    "meaning": "so, such",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "拿",
+    "pinyin": "ná",
+    "part_of_speech": "verb",
+    "meaning": "take, hold",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "包",
+    "pinyin": "bāo",
+    "part_of_speech": "noun",
+    "meaning": "bag, sack",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "装",
+    "pinyin": "zhuāng",
+    "part_of_speech": "verb",
+    "meaning": "load, pack",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "试",
+    "pinyin": "shì",
+    "part_of_speech": "verb",
+    "meaning": "try",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "满",
+    "pinyin": "mǎn",
+    "part_of_speech": "adjective",
+    "meaning": "full, filled",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "快递",
+    "pinyin": "kuàidì",
+    "part_of_speech": "noun",
+    "meaning": "express delivery, courier",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "书店",
+    "pinyin": "shūdiàn",
+    "part_of_speech": "noun",
+    "meaning": "bookshop",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "服务",
+    "pinyin": "fúwù",
+    "part_of_speech": "verb",
+    "meaning": "serve, give service to",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "问",
+    "pinyin": "wèn",
+    "part_of_speech": "verb",
+    "meaning": "ask",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "用",
+    "pinyin": "yòng",
+    "part_of_speech": "verb",
+    "meaning": "(usually in the negative) need, have to",
+    "chapter": 19,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "舒服",
+    "pinyin": "shūfu",
+    "part_of_speech": "adjective",
+    "meaning": "comfortable",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "有点儿",
+    "pinyin": "yǒudiǎnr",
+    "part_of_speech": "adverb",
+    "meaning": "a bit, a little, slightly",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "乱",
+    "pinyin": "luàn",
+    "part_of_speech": "adjective",
+    "meaning": "in disorder, in a mess",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "收拾",
+    "pinyin": "shōushi",
+    "part_of_speech": "verb",
+    "meaning": "tidy, put in order",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "一下",
+    "pinyin": "yīxià",
+    "part_of_speech": "other",
+    "meaning": "used after a verb to indicate one action or one try",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "把",
+    "pinyin": "bǎ",
+    "part_of_speech": "preposition",
+    "meaning": "used in \"A (Subject) + 把 + B (Object) + Verb+...\" sentence",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "桌子",
+    "pinyin": "zhuōzi",
+    "part_of_speech": "noun",
+    "meaning": "table",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "放",
+    "pinyin": "fàng",
+    "part_of_speech": "verb",
+    "meaning": "put",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "窗户",
+    "pinyin": "chuānghu",
+    "part_of_speech": "noun",
+    "meaning": "window",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "张",
+    "pinyin": "zhāng",
+    "part_of_speech": "measure_word",
+    "meaning": "for paper, paintings, beds, tables, etc.",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "挂",
+    "pinyin": "guà",
+    "part_of_speech": "verb",
+    "meaning": "put up, hang",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "墙",
+    "pinyin": "qiáng",
+    "part_of_speech": "noun",
+    "meaning": "wall",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "照片",
+    "pinyin": "zhàopiàn",
+    "part_of_speech": "noun",
+    "meaning": "photograph, picture",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "贴",
+    "pinyin": "tiē",
+    "part_of_speech": "verb",
+    "meaning": "paste, stick",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "看见",
+    "pinyin": "kànjiàn",
+    "part_of_speech": "verb",
+    "meaning": "catch sight of, see",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "欢迎",
+    "pinyin": "huānyíng",
+    "part_of_speech": "verb",
+    "meaning": "welcome",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "啊",
+    "pinyin": "à",
+    "part_of_speech": "interjection",
+    "meaning": "ah, oh (expressing surprise and admiration)",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "以前",
+    "pinyin": "yǐqián",
+    "part_of_speech": "noun",
+    "meaning": "before",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "一样",
+    "pinyin": "yíyàng",
+    "part_of_speech": "adjective",
+    "meaning": "same",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "门",
+    "pinyin": "mén",
+    "part_of_speech": "noun",
+    "meaning": "door",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "椅子",
+    "pinyin": "yǐzi",
+    "part_of_speech": "noun",
+    "meaning": "chair",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "object"
+  },
+  {
+    "word": "换",
+    "pinyin": "huàn",
+    "part_of_speech": "verb",
+    "meaning": "change",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "整齐",
+    "pinyin": "zhěngqí",
+    "part_of_speech": "adjective",
+    "meaning": "in good order, tidy",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "棒",
+    "pinyin": "bàng",
+    "part_of_speech": "adjective",
+    "meaning": "excellent, good",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "主意",
+    "pinyin": "zhǔyi",
+    "part_of_speech": "noun",
+    "meaning": "idea",
+    "chapter": 20,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "天气",
+    "pinyin": "tiānqì",
+    "part_of_speech": "noun",
+    "meaning": "weather",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "weather"
+  },
+  {
+    "word": "预报",
+    "pinyin": "yùbào",
+    "part_of_speech": "verb",
+    "meaning": "forecast",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "阴（天）",
+    "pinyin": "yīn",
+    "part_of_speech": "noun",
+    "meaning": "overcast",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "weather"
+  },
+  {
+    "word": "冷",
+    "pinyin": "lěng",
+    "part_of_speech": "adjective",
+    "meaning": "cold",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "weather"
+  },
+  {
+    "word": "度",
+    "pinyin": "dù",
+    "part_of_speech": "measure_word",
+    "meaning": "degree",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "高",
+    "pinyin": "gāo",
+    "part_of_speech": "adjective",
+    "meaning": "high",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "气温",
+    "pinyin": "qìwēn",
+    "part_of_speech": "noun",
+    "meaning": "temperature",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "weather"
+  },
+  {
+    "word": "低",
+    "pinyin": "dī",
+    "part_of_speech": "adjective",
+    "meaning": "low",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "希望",
+    "pinyin": "xīwàng",
+    "part_of_speech": "verb",
+    "meaning": "hope",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "因为",
+    "pinyin": "yīnwèi",
+    "part_of_speech": "conjunction",
+    "meaning": "because",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "见",
+    "pinyin": "jiàn",
+    "part_of_speech": "verb",
+    "meaning": "see, meet",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "所以",
+    "pinyin": "suǒyǐ",
+    "part_of_speech": "conjunction",
+    "meaning": "so, therefore",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "才",
+    "pinyin": "cái",
+    "part_of_speech": "adverb",
+    "meaning": "only, merely",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "国家",
+    "pinyin": "guójiā",
+    "part_of_speech": "noun",
+    "meaning": "country",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "country"
+  },
+  {
+    "word": "冬天",
+    "pinyin": "dōngtiān",
+    "part_of_speech": "noun",
+    "meaning": "winter",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "更",
+    "pinyin": "gèng",
+    "part_of_speech": "adverb",
+    "meaning": "more, even more",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "一般",
+    "pinyin": "yìbān",
+    "part_of_speech": "adjective",
+    "meaning": "general, ordinary",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "零下",
+    "pinyin": "líng xià",
+    "part_of_speech": "other",
+    "meaning": "below zero",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "weather"
+  },
+  {
+    "word": "左右",
+    "pinyin": "zuǒyòu",
+    "part_of_speech": "noun",
+    "meaning": "about, or so",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "差不多",
+    "pinyin": "chàbuduō",
+    "part_of_speech": "adverb",
+    "meaning": "almost, nearly",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "春天",
+    "pinyin": "chūntiān",
+    "part_of_speech": "noun",
+    "meaning": "spring",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "秋天",
+    "pinyin": "qiūtiān",
+    "part_of_speech": "noun",
+    "meaning": "autumn",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "夏天",
+    "pinyin": "xiàtiān",
+    "part_of_speech": "noun",
+    "meaning": "summer",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "常常",
+    "pinyin": "chángcháng",
+    "part_of_speech": "adverb",
+    "meaning": "often, usually",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "季节",
+    "pinyin": "jìjié",
+    "part_of_speech": "noun",
+    "meaning": "season",
+    "chapter": 21,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "（正）在",
+    "pinyin": "zài",
+    "part_of_speech": "adverb",
+    "meaning": "in the process of, in the course of",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "电视剧",
+    "pinyin": "diànshìjù",
+    "part_of_speech": "noun",
+    "meaning": "TV serial",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "体育",
+    "pinyin": "tǐyù",
+    "part_of_speech": "noun",
+    "meaning": "physical training, physical education",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "台",
+    "pinyin": "tái",
+    "part_of_speech": "noun",
+    "meaning": "stage, station, channel",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "播",
+    "pinyin": "bō",
+    "part_of_speech": "verb",
+    "meaning": "broadcast",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "比赛",
+    "pinyin": "bǐsài",
+    "part_of_speech": "noun",
+    "meaning": "match, competition",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "还是",
+    "pinyin": "háishi",
+    "part_of_speech": "adverb",
+    "meaning": "had better",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "先",
+    "pinyin": "xiān",
+    "part_of_speech": "adverb",
+    "meaning": "first",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "查",
+    "pinyin": "chá",
+    "part_of_speech": "verb",
+    "meaning": "check",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "电子邮件",
+    "pinyin": "diànzǐ yóujiàn",
+    "part_of_speech": "phrase",
+    "meaning": "email",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "马上",
+    "pinyin": "mǎshàng",
+    "part_of_speech": "adverb",
+    "meaning": "right away, immediately",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "呢",
+    "pinyin": "ne",
+    "part_of_speech": "particle",
+    "meaning": "used at the end of a sentence to indicate the continuation of an action or situation",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "操场",
+    "pinyin": "cāochǎng",
+    "part_of_speech": "noun",
+    "meaning": "playground, sports ground",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "place"
+  },
+  {
+    "word": "上",
+    "pinyin": "shang",
+    "part_of_speech": "noun",
+    "meaning": "on, at, in",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "direction"
+  },
+  {
+    "word": "那些",
+    "pinyin": "nàxiē",
+    "part_of_speech": "pronoun",
+    "meaning": "those",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "pronoun"
+  },
+  {
+    "word": "跑步",
+    "pinyin": "pǎobù",
+    "part_of_speech": "verb",
+    "meaning": "run, jog",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "太极拳",
+    "pinyin": "tàijíquán",
+    "part_of_speech": "noun",
+    "meaning": "taijiquan, shadow boxing",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "一边",
+    "pinyin": "yìbiān",
+    "part_of_speech": "adverb",
+    "meaning": "at the same time, simultaneously",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "多",
+    "pinyin": "duō",
+    "part_of_speech": "adverb",
+    "meaning": "how, what",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "应该",
+    "pinyin": "yīnggāi",
+    "part_of_speech": "other",
+    "meaning": "should, ought to",
+    "chapter": 22,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "得",
+    "pinyin": "de",
+    "part_of_speech": "particle",
+    "meaning": "used after a verb or adjective to introduce a complement of result or degree",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "快",
+    "pinyin": "kuài",
+    "part_of_speech": "adjective",
+    "meaning": "fast",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "size"
+  },
+  {
+    "word": "学期",
+    "pinyin": "xuéqī",
+    "part_of_speech": "noun",
+    "meaning": "term, semester",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "听力",
+    "pinyin": "tīnglì",
+    "part_of_speech": "noun",
+    "meaning": "listening comprehension",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "口语",
+    "pinyin": "kǒuyǔ",
+    "part_of_speech": "noun",
+    "meaning": "spoken language",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "communication"
+  },
+  {
+    "word": "进步",
+    "pinyin": "jìnbù",
+    "part_of_speech": "verb",
+    "meaning": "improve, progress",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "语法",
+    "pinyin": "yǔfǎ",
+    "part_of_speech": "noun",
+    "meaning": "grammar",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "年",
+    "pinyin": "nián",
+    "part_of_speech": "measure_word",
+    "meaning": "year",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "手续",
+    "pinyin": "shǒuxù",
+    "part_of_speech": "noun",
+    "meaning": "procedures, formality",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "other"
+  },
+  {
+    "word": "可能",
+    "pinyin": "kěnéng",
+    "part_of_speech": "other",
+    "meaning": "perhaps, probably",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "庆祝",
+    "pinyin": "qìngzhù",
+    "part_of_speech": "verb",
+    "meaning": "celebrate",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "开",
+    "pinyin": "kāi",
+    "part_of_speech": "verb",
+    "meaning": "hold (a meeting, exhibition, etc.)",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "movement"
+  },
+  {
+    "word": "晚会",
+    "pinyin": "wǎnhuì",
+    "part_of_speech": "noun",
+    "meaning": "party, evening party",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "time"
+  },
+  {
+    "word": "开心",
+    "pinyin": "kāixīn",
+    "part_of_speech": "adjective",
+    "meaning": "happy",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "马马虎虎",
+    "pinyin": "mǎmahūhū",
+    "part_of_speech": "adjective",
+    "meaning": "so-so, not so bad, not so good",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "爱",
+    "pinyin": "ài",
+    "part_of_speech": "verb",
+    "meaning": "love",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "哪里",
+    "pinyin": "nǎlǐ",
+    "part_of_speech": "pronoun",
+    "meaning": "used when responding politely to a compliment",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "greeting"
+  },
+  {
+    "word": "饺子",
+    "pinyin": "jiǎozi",
+    "part_of_speech": "noun",
+    "meaning": "dumpling",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "food"
+  },
+  {
+    "word": "想到",
+    "pinyin": "xiǎngdào",
+    "part_of_speech": "other",
+    "meaning": "think of",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "action"
+  },
+  {
+    "word": "那么",
+    "pinyin": "nàme",
+    "part_of_speech": "pronoun",
+    "meaning": "so, such",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "grammar"
+  },
+  {
+    "word": "可爱",
+    "pinyin": "kě'ài",
+    "part_of_speech": "adjective",
+    "meaning": "lovely, cute",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "emotion"
+  },
+  {
+    "word": "机会",
+    "pinyin": "jīhuì",
+    "part_of_speech": "noun",
+    "meaning": "chance, opportunity",
+    "chapter": 23,
+    "source": "developing_chinese_1",
+    "category": "other"
+  }
+]

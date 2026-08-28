@@ -10,111 +10,62 @@
 // answer, and a character that grows into place would reintroduce the exact
 // problem we removed.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Saras } from './Saras';
-import { useMascotRig, pickBySeed, hashSeed } from './useMascotRig';
+import { useMascotRig, pickBySeed } from './useMascotRig';
 import { SARAS_PALETTES, VEENA_TONES } from './sarasPalettes';
-import { MASCOT_CONFIG } from './mascotConfig';
+import { MASCOT_CONFIG, type MascotReaction } from './mascotConfig';
+import { stageHeightFor } from './mascotVisibility';
 
-/** Deterministic 0-1 roll for a session, so re-renders and remounts can't
- *  change their mind about whether she's here. */
-export function mascotAppearsForSession(sessionSeed: string): boolean {
-  const roll = (hashSeed(sessionSeed + ':appearance') % 10000) / 10000;
-  return roll < MASCOT_CONFIG.sessionAppearanceChance;
+/** Pick from a weighted table. Weights are relative, so tables can be retuned
+ *  by editing one number without rebalancing the rest. */
+function pickWeighted(table: MascotReaction[]): MascotReaction {
+  const total = table.reduce((sum, entry) => sum + entry.weight, 0);
+  let roll = Math.random() * total;
+  for (const entry of table) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry;
+  }
+  return table[table.length - 1];
 }
 
-/** Upper bound from viewport height alone, before the actual card is considered. */
-export function stageHeightFor(viewportHeight: number): number {
-  const available = viewportHeight - MASCOT_CONFIG.viewportReservePx;
-  if (available < MASCOT_CONFIG.minStageHeightPx) return 0;
-  return Math.min(available, MASCOT_CONFIG.maxStageHeightPx);
-}
-
-/** Band height that always leaves the quiz card enough room.
+/** Band height, derived from the viewport and nothing else.
  *
- *  A height derived from the viewport alone is guesswork: it has to assume a
- *  card height, and the assumption breaks the moment a themed-review banner
- *  appears, an option's meaning wraps to two lines, or a syntax exercise shows
- *  up. Getting that wrong pushes the Next button below the fold.
+ *  An earlier version measured the quiz card and shrank the band to whatever
+ *  the card left over. It was correct per question and wrong as an experience:
+ *  cards differ in height (a wrapped meaning, a trivia card, a syntax exercise
+ *  with its tile grid), so she changed size as the session went along, and on
+ *  the tall syntax cards the leftover fell under `minStageHeightPx` and she
+ *  disappeared for the rest of the quiz. A per-session shrink ratchet made that
+ *  permanent rather than fixing it.
  *
- *  So the band is measured instead. The scroll area's `scrollHeight` is the
- *  card's true height and doesn't depend on how tall the band is, so:
- *      total  = scroller.clientHeight + band          (invariant)
- *      band  <= total - contentHeight                 (no scrolling)
- *  which converges in a single pass. She yields space to the card rather than
- *  the card yielding to her — and because she sits *below* everything, resizing
- *  her never moves the question or the options.
+ *  So the band is now a constant for a given viewport: one size, chosen before
+ *  the first question, held for the whole session. A card taller than the space
+ *  left simply scrolls in its own container — which is what the container is
+ *  for, and a strictly better failure than a character who resizes under you or
+ *  vanishes mid-session.
  */
-function useStageHeight(
-  scrollAreaRef: React.RefObject<HTMLElement | null>,
-  /** Changes whenever the card's content might have changed size. */
-  contentKey: unknown,
-  /** True once the answer is revealed, i.e. the card is already at full height. */
-  showingResult: boolean,
-): number {
+function useStageHeight(): number {
   const [height, setHeight] = useState(() =>
     typeof window === 'undefined' ? 0 : stageHeightFor(window.innerHeight),
   );
-  const heightRef = useRef(height);
-  heightRef.current = height;
-  const showingResultRef = useRef(showingResult);
-  showingResultRef.current = showingResult;
 
-  const measure = useCallback(() => {
-    const byViewport = stageHeightFor(window.innerHeight);
-    const scroller = scrollAreaRef.current;
-    let next = byViewport;
-    const card = scroller?.firstElementChild;
-    if (scroller && card) {
-      const total = scroller.clientHeight + heightRef.current;
-      // Measure the CARD, not `scrollHeight`. scrollHeight is clamped to at
-      // least clientHeight, so whenever the card fits it reports the container's
-      // size instead of the content's — which made this subtract the growth
-      // reserve on every pass and collapse the band to zero.
-      const style = getComputedStyle(scroller);
-      const padding = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-      const contentHeight = card.getBoundingClientRect().height + padding;
-      // Size against the card's *tallest* state, so she doesn't shrink or pop
-      // out the moment feedback appears.
-      const needed = contentHeight + (showingResultRef.current ? 0 : MASCOT_CONFIG.answeredGrowthPx);
-      next = Math.min(byViewport, total - needed);
-    }
-    if (next < MASCOT_CONFIG.minStageHeightPx) next = 0;
-    // Only commit real changes; 1px jitter would thrash the observer.
-    if (Math.abs(next - heightRef.current) >= 2) setHeight(next);
-  }, [scrollAreaRef]);
-
+  // Only the viewport can change this, and on mobile it changes constantly as
+  // the URL bar collapses and expands. Quantising to a step and ignoring small
+  // deltas keeps that jitter from becoming visible breathing; a real rotation
+  // clears the threshold easily.
   useEffect(() => {
-    measure();
-    const scroller = scrollAreaRef.current;
-    const ro = new ResizeObserver(measure);
-    if (scroller) {
-      ro.observe(scroller);
-      if (scroller.firstElementChild) ro.observe(scroller.firstElementChild);
-    }
+    const measure = () => {
+      const next = stageHeightFor(window.innerHeight);
+      setHeight(prev => (Math.abs(next - prev) >= MASCOT_CONFIG.resizeThresholdPx ? next : prev));
+    };
     window.addEventListener('resize', measure);
     window.addEventListener('orientationchange', measure);
     return () => {
-      ro.disconnect();
       window.removeEventListener('resize', measure);
       window.removeEventListener('orientationchange', measure);
     };
-  }, [scrollAreaRef, measure]);
-
-  // ResizeObserver is the right tool but its delivery is tied to rendering, so
-  // it can be starved (background tabs, throttled frames). Answering is exactly
-  // when the card grows, so re-measure explicitly off React state too — after a
-  // frame, so the new layout has landed.
-  useEffect(() => {
-    // Twice: once on the next frame for the common case, once shortly after to
-    // catch layout that settles late (fonts, the feedback block's slide-up).
-    const frame = requestAnimationFrame(() => measure());
-    const settle = setTimeout(measure, 220);
-    return () => {
-      cancelAnimationFrame(frame);
-      clearTimeout(settle);
-    };
-  }, [contentKey, measure]);
+  }, []);
 
   return height;
 }
@@ -126,73 +77,75 @@ interface QuizMascotProps {
   answerNonce: number;
   /** Whether the most recent answer was correct. */
   lastCorrect: boolean;
-  /** Running session accuracy, 0-1, for the baseline emotion. */
-  accuracy: number;
-  /** Number of answers so far, so early questions don't swing the baseline. */
-  answered: number;
-  /** Session finished — hold a celebration instead of the baseline. */
+  /** Session finished — the one place a held expression makes sense. */
   complete?: boolean;
-  /** True once the answer is revealed on the current question. */
-  showingResult?: boolean;
-  /** The quiz's scrolling area, so her band can shrink to keep the card's
-   *  Next button on screen. */
-  scrollAreaRef: React.RefObject<HTMLElement | null>;
 }
 
 export function QuizMascot({
   sessionSeed,
   answerNonce,
   lastCorrect,
-  accuracy,
-  answered,
   complete = false,
-  showingResult = false,
-  scrollAreaRef,
 }: QuizMascotProps) {
   const { containerRef, setExpression, playGesture } = useMascotRig({ seed: sessionSeed });
   const reactingUntil = useRef(0);
-  // answerNonce covers the card growing on answer; `answered` covers moving to
-  // the next question, when it shrinks back.
-  const stageHeight = useStageHeight(
-    scrollAreaRef,
-    `${answerNonce}:${answered}:${complete}:${showingResult}`,
-    showingResult,
-  );
+  const stageHeight = useStageHeight();
 
   const palette = pickBySeed(SARAS_PALETTES, sessionSeed);
   // Salted separately so the wood tone varies independently of the sari.
   const veenaTone = pickBySeed(VEENA_TONES, sessionSeed + ':veena');
 
-  /** Baseline face from progress. The only axis that encodes performance. */
-  const baseline = () => {
-    if (complete) return 'celebrate' as const;
-    if (answered < MASCOT_CONFIG.emotion.minAnswersForBaseline) return 'idle' as const;
-    if (accuracy >= MASCOT_CONFIG.emotion.happyAtOrAbove) return 'happy' as const;
-    if (accuracy < MASCOT_CONFIG.emotion.sadBelow) return 'sad' as const;
-    return 'idle' as const;
-  };
+  // Answer streaks pick which reaction table to draw from: a first slip gets
+  // sympathy, a second in a row earns irritation, and a run of correct answers
+  // unlocks the livelier responses.
+  const streakRef = useRef({ correct: 0, wrong: 0 });
+  useEffect(() => {
+    streakRef.current = { correct: 0, wrong: 0 };
+  }, [sessionSeed]);
 
-  // React to an answer: immediate face + a random gesture, then settle back to
-  // the progress baseline. The gesture pool is independent of correctness on
-  // purpose, so you get the occasional cheerful pluck attached to a scowl.
+  // React to an answer, then return to idle. Her resting face is always idle —
+  // performance is expressed in the moment of answering, not held on her face.
   useEffect(() => {
     if (answerNonce === 0) return;
-    setExpression(lastCorrect ? 'happy' : 'angry');
-    playGesture(
-      MASCOT_CONFIG.reactionGestures[Math.floor(Math.random() * MASCOT_CONFIG.reactionGestures.length)],
+
+    const streak = streakRef.current;
+    if (lastCorrect) {
+      streak.correct += 1;
+      streak.wrong = 0;
+    } else {
+      streak.wrong += 1;
+      streak.correct = 0;
+    }
+
+    const { reactions, celebrateAtStreak, streakTableChance, escalateWrongAt } = MASCOT_CONFIG;
+    const onStreak = streak.correct >= celebrateAtStreak && Math.random() < streakTableChance;
+    const table = lastCorrect
+      ? onStreak
+        ? reactions.correctStreak
+        : reactions.correct
+      : streak.wrong >= escalateWrongAt
+        ? reactions.wrongRepeat
+        : reactions.wrongFirst;
+
+    const reaction = pickWeighted(table);
+    setExpression(reaction.expression);
+    const timers = reaction.gestures.map((gesture, i) =>
+      setTimeout(() => playGesture(gesture), i * MASCOT_CONFIG.gestureStaggerMs),
     );
+
     reactingUntil.current = Date.now() + MASCOT_CONFIG.reactionHoldMs;
-    const t = setTimeout(() => setExpression(baseline()), MASCOT_CONFIG.reactionHoldMs);
-    return () => clearTimeout(t);
+    const settle = setTimeout(() => setExpression('idle'), MASCOT_CONFIG.reactionHoldMs);
+    return () => {
+      timers.forEach(clearTimeout);
+      clearTimeout(settle);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answerNonce]);
 
-  // Settle to the baseline whenever progress changes and we're not mid-reaction.
+  // The results screen is the one place a held expression makes sense.
   useEffect(() => {
-    if (Date.now() < reactingUntil.current) return;
-    setExpression(baseline());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accuracy, answered, complete]);
+    if (complete) setExpression('celebrate');
+  }, [complete, setExpression]);
 
   // Ambient gestures while the user reads the question, so she's alive rather
   // than a sprite that only exists to judge the answer.

@@ -45,3 +45,10 @@ analysis/*.json
 .cache/
 # Local Netlify folder
 .netlify
+
+# extraction venv (see README: Content/Vocabulary Data)
+.venv-extract/
+
+# copyright files
+content/developingchinese/*.pdf
+content/developingchinese/ocr/

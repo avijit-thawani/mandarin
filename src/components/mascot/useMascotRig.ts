@@ -12,7 +12,7 @@
 // playback control. Note WAAPI defaults to `linear` easing, which reads
 // robotic — every timing below sets an easing explicitly.
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useMemo } from 'react';
 import { MASCOT_PALETTES, type MascotPalette } from './palettes';
 
 export type MascotExpression = 'idle' | 'happy' | 'sad' | 'angry' | 'thinking' | 'celebrate';
@@ -185,11 +185,11 @@ export function useMascotRig({ seed = 'default', paletteId }: UseMascotRigOption
   const blinkTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const expression = useRef<MascotExpression>('idle');
 
-  const variant = useRef<MascotVariant>(null as unknown as MascotVariant);
-  if (!variant.current) {
+  // Derived purely from the seed, so useMemo rather than a lazily-filled ref.
+  const variant = useMemo<MascotVariant>(() => {
     const rand = mulberry32(hashString(seed));
     const pick = <T,>(arr: T[]): T => arr[Math.floor(rand() * arr.length)];
-    variant.current = {
+    return {
       palette: paletteId
         ? MASCOT_PALETTES.find(p => p.id === paletteId) ?? MASCOT_PALETTES[0]
         : pick(MASCOT_PALETTES),
@@ -199,14 +199,18 @@ export function useMascotRig({ seed = 'default', paletteId }: UseMascotRigOption
       blink: pick(BLINK_STYLES).name,
       blush: rand() > 0.35,
     };
-  }
+  }, [seed, paletteId]);
 
   const slot = useCallback((name: string): SVGElement | null => {
     return containerRef.current?.querySelector<SVGElement>(`[data-slot="${name}"]`) ?? null;
   }, []);
 
+  // Blinking reschedules itself, so the recursive call goes through a ref rather
+  // than referencing the callback before it's declared.
+  const scheduleBlinkRef = useRef<() => void>(() => {});
+
   const scheduleBlink = useCallback(() => {
-    const style = BLINK_STYLES.find(b => b.name === variant.current.blink) ?? BLINK_STYLES[0];
+    const style = BLINK_STYLES.find(b => b.name === variant.blink) ?? BLINK_STYLES[0];
     const rand = Math.random();
     const delay = style.gap[0] + rand * (style.gap[1] - style.gap[0]);
     blinkTimer.current = setTimeout(() => {
@@ -219,13 +223,17 @@ export function useMascotRig({ seed = 'default', paletteId }: UseMascotRigOption
           slot(eye)?.animate(frames, { duration: style.double ? 420 : 180, easing: 'ease-in-out' });
         }
       }
-      scheduleBlink();
+      scheduleBlinkRef.current();
     }, delay);
-  }, [slot]);
+  }, [slot, variant.blink]);
+
+  useEffect(() => {
+    scheduleBlinkRef.current = scheduleBlink;
+  }, [scheduleBlink]);
 
   const startIdle = useCallback(() => {
     if (prefersReducedMotion()) return;
-    const v = variant.current;
+    const v = variant;
     const rand = mulberry32(hashString(seed + ':timing'));
     const jitter = (range: [number, number]) => range[0] + rand() * (range[1] - range[0]);
 
@@ -270,7 +278,7 @@ export function useMascotRig({ seed = 'default', paletteId }: UseMascotRigOption
     bind('shadow', { name: 'shadow', frames: [{ transform: 'scaleX(1)', opacity: 0.16 }, { transform: 'scaleX(0.92)', opacity: 0.12 }], duration: [1600, 2400] });
 
     scheduleBlink();
-  }, [seed, slot, scheduleBlink]);
+  }, [seed, slot, scheduleBlink, variant]);
 
   const stopIdle = useCallback(() => {
     idleAnims.current.forEach(a => a.cancel());
@@ -492,5 +500,5 @@ export function useMascotRig({ seed = 'default', paletteId }: UseMascotRigOption
     [setExpression, playGesture],
   );
 
-  return { containerRef, variant: variant.current, setExpression, playGesture, react };
+  return { containerRef, variant, setExpression, playGesture, react };
 }

@@ -217,22 +217,24 @@ Nothing may move when state changes — never yank content out from under a thum
 
 A seated veena player, the app's namesake: Saraswati (goddess of learning, always shown with a veena), *saras* (the water her name derives from), and सारस (the Sarus crane). Drawn as a musician **inspired by** that iconography — deliberately not the deity, so no extra arms or halo. `Saras.tsx` geometry, `useMascotRig.ts` motion, `QuizMascot.tsx` quiz behaviour, `mascotConfig.ts` knobs.
 
-Four variability axes: **colour** (sari + veena wood) and **motion** (idle loop set) are seeded from the session id and fixed for the session; **action** (gestures) is random per trigger and deliberately **orthogonal to emotion** (a cheerful pluck attached to a scowl is the charm, not a bug); **emotion** is deterministic from session accuracy.
+Four variability axes: **colour** (sari + veena wood) and **motion** (idle loop set) are seeded from the session id and fixed for the session; **action** and **emotion** come together from weighted reaction tables (`MASCOT_CONFIG.reactions`) rolled when an answer lands.
 
-- She appears in **33% of sessions**, rolled once at session start — not per question, since colour is session-scoped and a per-question roll would flicker her in and out wearing different saris.
-- Her band sits **below** the quiz, outside the scrolling area, so a card growing on answer scrolls in its own container and can never displace her (see Layout Stability). Sparse ambient gestures while the user reads, a bigger reaction on answer, then settle back to the accuracy baseline rather than to neutral.
-- **Band height scales with viewport height** (`viewportHeight - viewportReservePx`, capped at `maxStageHeightPx`) because every pixel she takes comes out of the question's space. Measured against the answered card (~463px): a 390×844 phone affords ~240px, a 375×667 phone only ~63px. Below `minStageHeightPx` she is **skipped entirely** rather than shrunk — on small phones that's what keeps the Next button above the fold.
-- She is nudged left of centre and the navbar streak badge right by the same `horizontalOffsetPx`, since the badge floats above the centre of the navbar directly beneath her. Keep the two in sync.
+- **Resting face is always `idle`; reactions are weighted tables, not one response per outcome.** Deriving the resting face from running accuracy (an earlier version) left her in a fixed grin, since learners are correct 80%+ of the time, and visibly flipped mood when the average crossed a line. A correct answer is also seen hundreds of times a week, so one animation goes stale: separate tables cover correct, a correct streak (`celebrateAtStreak`, gated by `streakTableChance` or a good learner sits above the threshold permanently), a first mistake (sympathetic), and repeated mistakes (`escalateWrongAt`, where anger lives). Most entries are `idle` + a small gesture; simulated at 80% accuracy that gives ~55% idle, ~26% happy, ~7% sad, ~5% celebrate, ~4% angry.
+- She appears in **33% of sessions**, rolled once at session start — not per question, since colour is session-scoped and a per-question roll would flicker her in and out wearing different saris. Sparse ambient gestures while the user reads, a bigger reaction on answer, then back to idle.
+- Her band sits **below** the quiz, outside the scrolling area, so a card growing on answer scrolls in its own container and can never displace her (see Layout Stability).
+- **Band height comes from the viewport and nothing else** (`viewportHeight - viewportReservePx`, capped at `maxStageHeightPx`): fixed before the first question and held for the whole session. Below `minStageHeightPx` she's **skipped entirely**, which keeps Next above the fold on small phones. Viewport changes under `resizeThresholdPx` are ignored, since mobile URL-bar collapse otherwise makes her breathe.
+- **Never size her against the card.** An earlier version measured the card and shrank the band to the leftover space. Per question it was right; across a session it was wrong — cards differ in height (wrapped meanings, trivia, syntax tile grids), so she changed size as the quiz went along, and on tall syntax cards the leftover fell under `minStageHeightPx` and she disappeared, permanently, because a shrink-only ratchet locked it in. A card taller than the remainder just **scrolls in its own container**; that's the trade for holding still.
+- **Render her in every item branch** (MCQ, syntax, trivia) — scoping her to MCQ made her vanish on trivia/syntax items; she belongs to the session, not a question type. She's nudged left of centre and the navbar streak badge right by the same `horizontalOffsetPx` (keep in sync), since the badge floats above the navbar's centre directly beneath her.
 
 ---
 
 ## Tuning Constants (Hardcoded by Design)
 
-Pacing and personality decisions, deliberately **not** user settings — exposing them would invite turning features into wallpaper or nuisance. Listed so there's no hunting.
+Pacing and personality decisions, deliberately **not** user settings — exposing them would invite turning features into wallpaper or nuisance.
 
 | What | Where |
 | ---- | ----- |
-| Mascot appearance rate, gesture pools, idle/thinking timing, emotion thresholds | `mascot/mascotConfig.ts` |
+| Mascot appearance rate, reaction tables + weights, idle/thinking timing, band sizing | `mascot/mascotConfig.ts` |
 | Animation easings, follow-through lag, gesture keyframes | `mascot/useMascotRig.ts` |
 | Haptic patterns | `services/hapticService.ts` |
 | Themed review rate (`THEMED_REVIEW_CHANCE`) | `utils/reviewTheme.ts` |
@@ -319,6 +321,20 @@ Template-driven grammar/word-order practice using known vocabulary (~130 templat
 **TTS polyphonic characters**: Browser SpeechSynthesis mispronounces polyphonic characters (多音字) like 了/的/地/得/着. Pre-recorded audio clips (`public/audio/tts/`) are used instead, generated via macOS `say -v Tingting` + ffmpeg. See `STATIC_AUDIO` map in `src/services/ttsService.ts`.
 
 Extraction scripts under `content/hsk1/`: OCR + extraction utilities for textbook-driven vocab imports.
+
+#### Second textbook: Developing Chinese — Elementary Speaking Course 1
+
+`content/developingchinese/developing_chinese_vocabulary.json` — 440 New Words entries across the book's 23 Units, `source: "developing_chinese_1"`, `chapter` = Unit number. Same schema as the HSK1 file (word, pinyin, part_of_speech, meaning, chapter, source, category), so it imports into the Supabase `vocabulary` table unchanged. 143 distinct words (156 entries) overlap the HSK1 list; those reuse HSK1's `category` so the two sources agree. **Not** imported at runtime — Supabase is still the source of truth.
+
+Why this pipeline differs from HSK1's: the book is a scan with no text layer, and its vocabulary tables are four-column with tone-marked pinyin. macOS Vision OCR reads the columns out of order and drops tone marks entirely (mā/má/mǎ/mà all come back as `md`), which is useless for a speaking course. So OCR is used only to locate pages cheaply, and a vision model does the actual reading:
+
+1. `ocr_extract.py` — renders every page and OCRs it with macOS Vision into `ocr/page_NNN.txt` (~276 pages, minutes, free).
+2. `extract_vocabulary.py --find` — maps Units to page ranges from the PDF outline and greps the OCR text for the New Words banner (plus the following page, since lists run over).
+3. `extract_vocabulary.py` — re-reads each candidate page with a vision model (OpenRouter, `OPENROUTER_API_KEY` from `.env`) and gets structured JSON back. Each page is read twice and the results unioned: the vision pass is not repeatable even at temperature 0, and consecutive runs differed by ~2% of entries.
+4. `extract_vocabulary.py --recheck` — every entry whose pinyin disagrees with `pypinyin` gets re-read at 320 dpi. Most disagreements are legitimate book conventions (neutral tone `xièxie`, erhua `nǎr`, capitalised proper nouns); the pass exists to catch the real misreads (`māmahūhū` → `mǎmahūhū`). Two the model got wrong twice are pinned in `MANUAL_PINYIN`.
+5. `extract_vocabulary.py --categorize` — fills `category`, reusing HSK1's label wherever the word already exists there.
+
+Environment: `python3.12 -m venv .venv-extract && .venv-extract/bin/pip install pymupdf pyobjc-framework-Vision pyobjc-framework-Quartz requests pypinyin` (gitignored; the OCR step is macOS-only).
 
 ### ML/Analysis Scripts
 
