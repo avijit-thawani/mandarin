@@ -81,6 +81,10 @@ export const MASCOT_CONFIG = {
   /** Gestures fired on answering. Picked at random regardless of right/wrong. */
   reactionGestures: ['wobble', 'nod', 'shake', 'hop', 'pluck'] as MascotGesture[],
 
+  /** Pause after the user taps an option before she reacts. Without this the
+   *  gesture lands in the same frame as the click and reads as pre-emptive. */
+  reactionDelayMs: 420,
+
   /** How long she holds the reaction face before settling back to the baseline
    *  emotion derived from session accuracy. */
   reactionHoldMs: 2200,

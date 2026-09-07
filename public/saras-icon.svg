@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-label="Saras">
+  <!-- App icon: marigold Saras on duo Feather Green. Geometry matches Saras.tsx. -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#58CC02"/>
+      <stop offset="100%" stop-color="#46A302"/>
+    </linearGradient>
+  </defs>
+  <rect width="220" height="220" rx="44" fill="url(#bg)"/>
+
+  <!-- Marigold palette -->
+  <g transform="translate(0 6)">
+    <rect x="44" y="200" width="132" height="11" rx="5.5" fill="#000" opacity="0.12"/>
+
+    <circle cx="110" cy="62" r="33" fill="#241C1C"/>
+    <rect x="128" y="78" width="15" height="62" rx="7.5" fill="#241C1C"/>
+    <circle cx="135" cy="142" r="6" fill="#F0A500"/>
+
+    <rect x="58" y="142" width="104" height="58" rx="29" fill="#FF9600"/>
+    <rect x="56" y="172" width="52" height="28" rx="14" fill="#E07B00"/>
+    <rect x="112" y="172" width="52" height="28" rx="14" fill="#E07B00"/>
+    <rect x="60" y="193" width="44" height="7" rx="3.5" fill="#F0A500" opacity="0.9"/>
+    <rect x="116" y="193" width="44" height="7" rx="3.5" fill="#F0A500" opacity="0.9"/>
+
+    <rect x="84" y="88" width="52" height="54" rx="24" fill="#D62828"/>
+    <rect x="80" y="100" width="60" height="14" rx="7" fill="#FF9600" transform="rotate(-14 110 107)"/>
+
+    <rect x="62" y="112" width="16" height="44" rx="8" fill="#C68642" transform="rotate(24 70 112)"/>
+
+    <circle cx="110" cy="64" r="27" fill="#C68642"/>
+    <path d="M83 58 A27 27 0 0 1 137 58 A27 20 0 0 0 83 58 Z" fill="#241C1C"/>
+    <circle cx="110" cy="50" r="3.5" fill="#D62828"/>
+    <circle cx="100" cy="66" r="6.5" fill="#FFFFFF"/>
+    <circle cx="120" cy="66" r="6.5" fill="#FFFFFF"/>
+    <circle cx="100" cy="66" r="3.2" fill="#241C1C"/>
+    <circle cx="120" cy="66" r="3.2" fill="#241C1C"/>
+    <path d="M103 78 Q110 84 117 78" stroke="#A96C31" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="85" cy="72" r="4.5" fill="#F0A500"/>
+    <circle cx="135" cy="72" r="4.5" fill="#F0A500"/>
+
+    <g transform="rotate(24 110 140)">
+      <polygon points="42,131 56,124 56,146" fill="#7C4A30" stroke="#7C4A30" stroke-width="9" stroke-linejoin="round"/>
+      <circle cx="64" cy="150" r="10" fill="#7C4A30"/>
+      <rect x="56" y="128" width="104" height="16" rx="8" fill="#A56644"/>
+      <rect x="72" y="130" width="2.5" height="12" rx="1.25" fill="#F0A500" opacity="0.55"/>
+      <rect x="84" y="130" width="2.5" height="12" rx="1.25" fill="#F0A500" opacity="0.55"/>
+      <rect x="96" y="130" width="2.5" height="12" rx="1.25" fill="#F0A500" opacity="0.55"/>
+      <rect x="108" y="130" width="2.5" height="12" rx="1.25" fill="#F0A500" opacity="0.55"/>
+      <rect x="120" y="130" width="2.5" height="12" rx="1.25" fill="#F0A500" opacity="0.55"/>
+      <rect x="132" y="130" width="2.5" height="12" rx="1.25" fill="#F0A500" opacity="0.55"/>
+      <circle cx="168" cy="138" r="25" fill="#A56644"/>
+      <circle cx="168" cy="138" r="10" fill="#7C4A30"/>
+      <g stroke="#F0A500" stroke-width="1.5" stroke-linecap="round" opacity="0.95">
+        <line x1="60" y1="132" x2="186" y2="134"/>
+        <line x1="60" y1="136" x2="186" y2="138"/>
+        <line x1="60" y1="140" x2="186" y2="142"/>
+      </g>
+    </g>
+
+    <rect x="132" y="112" width="15" height="42" rx="7.5" fill="#C68642" transform="rotate(-22 139 112)"/>
+    <circle cx="152" cy="150" r="9" fill="#C68642"/>
+  </g>
+</svg>

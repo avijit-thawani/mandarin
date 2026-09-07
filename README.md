@@ -156,7 +156,7 @@ Local: `localStorage` for immediate state/preferences. Cloud: Supabase for signe
 
 ### PWA Caching
 
-`netlify.toml` sets no-cache on `index.html`/`sw.js`/`manifest.webmanifest`; hashed assets cached forever. SW uses network-first for navigation. Auto-reloads on new SW version. Bump `SW_VERSION` in `public/sw.js` for SW behavior changes.
+`netlify.toml` sets no-cache on `index.html`/`sw.js`/`manifest.webmanifest`; hashed assets cached forever. SW uses network-first for navigation. Auto-reloads on new SW version. Bump `SW_VERSION` in `public/sw.js` for SW behavior changes. PWA icons use marigold Saras on duo green (`public/saras-icon.svg` → `icon-192/512.png`); regenerate PNGs from the SVG if the character art changes.
 
 ### PWA Push Notifications
 
@@ -223,6 +223,7 @@ A seated veena player, the app's namesake: Saraswati (goddess of learning, alway
 Four variability axes: **colour** (sari + veena wood) and **motion** (idle loop set) are seeded from the session id and fixed for the session; **action** and **emotion** come together from weighted reaction tables (`MASCOT_CONFIG.reactions`) rolled when an answer lands.
 
 - She appears in **33% of sessions**, rolled once at session start — not per question, since colour is session-scoped and a per-question roll would flicker her in and out wearing different saris.
+- Answer reactions wait **`reactionDelayMs`** (~420ms) after the tap so the gesture lands after you've registered the click, not in the same frame.
 - Her band sits **below** the quiz, outside the scrolling area, so a card growing on answer scrolls in its own container and can never displace her (see Layout Stability). Sparse ambient gestures while the user reads, a bigger reaction on answer, then settle back to the accuracy baseline rather than to neutral.
 - **Band height comes from the viewport and nothing else** (`viewportHeight - viewportReservePx`, capped at `maxStageHeightPx`): fixed before the first question and held for the whole session. Measured against the answered card (~463px): a 390×844 phone affords ~200px, a 375×667 phone nothing. Below `minStageHeightPx` she is **skipped entirely** rather than shrunk — on small phones that's what keeps the Next button above the fold. Viewport changes under `resizeThresholdPx` are ignored, since mobile URL-bar collapse otherwise makes her breathe.
 - **Never size her against the card.** An earlier version measured the card via a `ResizeObserver` and shrank the band to the leftover space. Per question it was right; across a session it was wrong — cards differ in height (wrapped meanings, trivia, syntax tile grids), so she changed size as the quiz went along, and on tall syntax cards the leftover fell under `minStageHeightPx` and she vanished. A card taller than the remainder just **scrolls in its own container**; that's the trade for holding still.

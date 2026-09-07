@@ -110,18 +110,31 @@ export function QuizMascot({
     return 'idle' as const;
   };
 
-  // React to an answer: immediate face + a random gesture, then settle back to
-  // the progress baseline. The gesture pool is independent of correctness on
-  // purpose, so you get the occasional cheerful pluck attached to a scowl.
+  // React to an answer: brief pause so the tap registers first, then face +
+  // gesture, then settle back to the progress baseline. The gesture pool is
+  // independent of correctness on purpose, so you get the occasional cheerful
+  // pluck attached to a scowl.
   useEffect(() => {
     if (answerNonce === 0) return;
-    setExpression(lastCorrect ? 'happy' : 'angry');
-    playGesture(
-      MASCOT_CONFIG.reactionGestures[Math.floor(Math.random() * MASCOT_CONFIG.reactionGestures.length)],
+
+    const { reactionDelayMs, reactionHoldMs } = MASCOT_CONFIG;
+    const react = setTimeout(() => {
+      setExpression(lastCorrect ? 'happy' : 'angry');
+      playGesture(
+        MASCOT_CONFIG.reactionGestures[Math.floor(Math.random() * MASCOT_CONFIG.reactionGestures.length)],
+      );
+      reactingUntil.current = Date.now() + reactionHoldMs;
+    }, reactionDelayMs);
+
+    const settle = setTimeout(
+      () => setExpression(baseline()),
+      reactionDelayMs + reactionHoldMs,
     );
-    reactingUntil.current = Date.now() + MASCOT_CONFIG.reactionHoldMs;
-    const t = setTimeout(() => setExpression(baseline()), MASCOT_CONFIG.reactionHoldMs);
-    return () => clearTimeout(t);
+
+    return () => {
+      clearTimeout(react);
+      clearTimeout(settle);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answerNonce]);
 
