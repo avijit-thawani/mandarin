@@ -263,7 +263,12 @@ function AppContent({
                 settingsStore={settingsStore}
                 todayFilter={todayFilter}
                 onShowHelp={() => setShowHelpModal(true)}
-                onStreakRefresh={streakHook.refresh}
+                onStreakRefresh={() => {
+                  // Flip the badge to "done today" immediately on completion so it
+                  // lights up without waiting for a route change to re-check.
+                  setQuizCompletedToday(true);
+                  streakHook.refresh();
+                }}
               />
             } 
           />
