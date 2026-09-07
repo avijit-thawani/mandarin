@@ -12,32 +12,32 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Saras } from './Saras';
-import { useMascotRig, pickBySeed } from './useMascotRig';
+import { useMascotRig, pickBySeed, hashSeed } from './useMascotRig';
 import { SARAS_PALETTES, VEENA_TONES } from './sarasPalettes';
-import { MASCOT_CONFIG, type MascotReaction } from './mascotConfig';
-import { stageHeightFor } from './mascotVisibility';
+import { MASCOT_CONFIG } from './mascotConfig';
 
-/** Pick from a weighted table. Weights are relative, so tables can be retuned
- *  by editing one number without rebalancing the rest. */
-function pickWeighted(table: MascotReaction[]): MascotReaction {
-  const total = table.reduce((sum, entry) => sum + entry.weight, 0);
-  let roll = Math.random() * total;
-  for (const entry of table) {
-    roll -= entry.weight;
-    if (roll <= 0) return entry;
-  }
-  return table[table.length - 1];
+/** Deterministic 0-1 roll for a session, so re-renders and remounts can't
+ *  change their mind about whether she's here. */
+export function mascotAppearsForSession(sessionSeed: string): boolean {
+  const roll = (hashSeed(sessionSeed + ':appearance') % 10000) / 10000;
+  return roll < MASCOT_CONFIG.sessionAppearanceChance;
+}
+
+/** Upper bound from viewport height alone, before the actual card is considered. */
+export function stageHeightFor(viewportHeight: number): number {
+  const available = viewportHeight - MASCOT_CONFIG.viewportReservePx;
+  if (available < MASCOT_CONFIG.minStageHeightPx) return 0;
+  return Math.min(available, MASCOT_CONFIG.maxStageHeightPx);
 }
 
 /** Band height, derived from the viewport and nothing else.
  *
  *  An earlier version measured the quiz card and shrank the band to whatever
- *  the card left over. It was correct per question and wrong as an experience:
- *  cards differ in height (a wrapped meaning, a trivia card, a syntax exercise
- *  with its tile grid), so she changed size as the session went along, and on
- *  the tall syntax cards the leftover fell under `minStageHeightPx` and she
- *  disappeared for the rest of the quiz. A per-session shrink ratchet made that
- *  permanent rather than fixing it.
+ *  the card left over, re-measuring on every answer via a ResizeObserver. It
+ *  was correct per question and wrong as an experience: cards differ in height
+ *  (a wrapped meaning, a trivia card, a syntax exercise with its tile grid), so
+ *  she changed size as the session went along, and on the tall cards the
+ *  leftover fell under `minStageHeightPx` and she disappeared.
  *
  *  So the band is now a constant for a given viewport: one size, chosen before
  *  the first question, held for the whole session. A card taller than the space
@@ -51,9 +51,9 @@ function useStageHeight(): number {
   );
 
   // Only the viewport can change this, and on mobile it changes constantly as
-  // the URL bar collapses and expands. Quantising to a step and ignoring small
-  // deltas keeps that jitter from becoming visible breathing; a real rotation
-  // clears the threshold easily.
+  // the URL bar collapses and expands. Ignoring small deltas keeps that jitter
+  // from becoming visible breathing; a real rotation clears the threshold
+  // easily.
   useEffect(() => {
     const measure = () => {
       const next = stageHeightFor(window.innerHeight);
@@ -77,7 +77,11 @@ interface QuizMascotProps {
   answerNonce: number;
   /** Whether the most recent answer was correct. */
   lastCorrect: boolean;
-  /** Session finished — the one place a held expression makes sense. */
+  /** Running session accuracy, 0-1, for the baseline emotion. */
+  accuracy: number;
+  /** Number of answers so far, so early questions don't swing the baseline. */
+  answered: number;
+  /** Session finished — hold a celebration instead of the baseline. */
   complete?: boolean;
 }
 
@@ -85,6 +89,8 @@ export function QuizMascot({
   sessionSeed,
   answerNonce,
   lastCorrect,
+  accuracy,
+  answered,
   complete = false,
 }: QuizMascotProps) {
   const { containerRef, setExpression, playGesture } = useMascotRig({ seed: sessionSeed });
@@ -95,57 +101,36 @@ export function QuizMascot({
   // Salted separately so the wood tone varies independently of the sari.
   const veenaTone = pickBySeed(VEENA_TONES, sessionSeed + ':veena');
 
-  // Answer streaks pick which reaction table to draw from: a first slip gets
-  // sympathy, a second in a row earns irritation, and a run of correct answers
-  // unlocks the livelier responses.
-  const streakRef = useRef({ correct: 0, wrong: 0 });
-  useEffect(() => {
-    streakRef.current = { correct: 0, wrong: 0 };
-  }, [sessionSeed]);
+  /** Baseline face from progress. The only axis that encodes performance. */
+  const baseline = () => {
+    if (complete) return 'celebrate' as const;
+    if (answered < MASCOT_CONFIG.emotion.minAnswersForBaseline) return 'idle' as const;
+    if (accuracy >= MASCOT_CONFIG.emotion.happyAtOrAbove) return 'happy' as const;
+    if (accuracy < MASCOT_CONFIG.emotion.sadBelow) return 'sad' as const;
+    return 'idle' as const;
+  };
 
-  // React to an answer, then return to idle. Her resting face is always idle —
-  // performance is expressed in the moment of answering, not held on her face.
+  // React to an answer: immediate face + a random gesture, then settle back to
+  // the progress baseline. The gesture pool is independent of correctness on
+  // purpose, so you get the occasional cheerful pluck attached to a scowl.
   useEffect(() => {
     if (answerNonce === 0) return;
-
-    const streak = streakRef.current;
-    if (lastCorrect) {
-      streak.correct += 1;
-      streak.wrong = 0;
-    } else {
-      streak.wrong += 1;
-      streak.correct = 0;
-    }
-
-    const { reactions, celebrateAtStreak, streakTableChance, escalateWrongAt } = MASCOT_CONFIG;
-    const onStreak = streak.correct >= celebrateAtStreak && Math.random() < streakTableChance;
-    const table = lastCorrect
-      ? onStreak
-        ? reactions.correctStreak
-        : reactions.correct
-      : streak.wrong >= escalateWrongAt
-        ? reactions.wrongRepeat
-        : reactions.wrongFirst;
-
-    const reaction = pickWeighted(table);
-    setExpression(reaction.expression);
-    const timers = reaction.gestures.map((gesture, i) =>
-      setTimeout(() => playGesture(gesture), i * MASCOT_CONFIG.gestureStaggerMs),
+    setExpression(lastCorrect ? 'happy' : 'angry');
+    playGesture(
+      MASCOT_CONFIG.reactionGestures[Math.floor(Math.random() * MASCOT_CONFIG.reactionGestures.length)],
     );
-
     reactingUntil.current = Date.now() + MASCOT_CONFIG.reactionHoldMs;
-    const settle = setTimeout(() => setExpression('idle'), MASCOT_CONFIG.reactionHoldMs);
-    return () => {
-      timers.forEach(clearTimeout);
-      clearTimeout(settle);
-    };
+    const t = setTimeout(() => setExpression(baseline()), MASCOT_CONFIG.reactionHoldMs);
+    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answerNonce]);
 
-  // The results screen is the one place a held expression makes sense.
+  // Settle to the baseline whenever progress changes and we're not mid-reaction.
   useEffect(() => {
-    if (complete) setExpression('celebrate');
-  }, [complete, setExpression]);
+    if (Date.now() < reactingUntil.current) return;
+    setExpression(baseline());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accuracy, answered, complete]);
 
   // Ambient gestures while the user reads the question, so she's alive rather
   // than a sprite that only exists to judge the answer.

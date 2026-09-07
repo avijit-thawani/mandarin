@@ -279,7 +279,6 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   const [answerNonce, setAnswerNonce] = useState(0);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState(false);
   const mascotVisible = useMemo(() => mascotAppearsForSession(mascotSeed), [mascotSeed]);
-  
   // Session stats (MCQ + syntax combined)
   const sessionStats = useMemo(() => {
     const mcqCorrect = session?.answers.filter(a => a.correct).length ?? 0;
@@ -939,12 +938,16 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   // Saras, rendered identically in every item view below. She belongs to the
   // session, not to a question type — scoping her to the MCQ branch made her
   // vanish on every trivia and syntax item, which read as a bug rather than a
-  // rest beat.
+  // rest beat. Her band sits OUTSIDE the scrolling area in each branch, so
+  // revealing an answer scrolls the card within its own container and never
+  // moves her.
   const mascotBand = mascotVisible ? (
     <QuizMascot
       sessionSeed={mascotSeed}
       answerNonce={answerNonce}
       lastCorrect={lastAnswerCorrect}
+      accuracy={sessionStats.total > 0 ? sessionStats.correct / sessionStats.total : 0}
+      answered={sessionStats.total}
     />
   ) : null;
 
