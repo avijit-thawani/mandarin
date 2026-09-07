@@ -493,12 +493,17 @@ function getSentenceEnglish(word: string, position: 'subject' | 'object' = 'subj
     return entry[position];
   }
   if (meaning) {
-    // Clean dictionary meaning for sentence use: take first sense,
-    // strip leading parentheticals like "(singular)", strip "to " verb prefix
+    // Clean dictionary meaning for sentence use: drop every parenthetical,
+    // take the first sense, strip the "to " verb prefix.
+    // Parentheticals go first, and anywhere in the string rather than only at
+    // the start: a trailing one survived into the sentence and then got split
+    // on spaces into tiles ("nephew (brother's son)" → nephew / (brother's /
+    // son)), and one containing a comma or semicolon ("but (formal, in
+    // writing)") would be truncated mid-bracket by the sense split.
     return meaning
+      .replace(/\s*\([^)]*\)/g, '')
       .split(/[,;/]/)[0]
       .trim()
-      .replace(/^\(.*?\)\s*/, '')
       .replace(/^to\s+/i, '');
   }
   return word;
