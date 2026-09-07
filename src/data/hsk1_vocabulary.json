@@ -1086,7 +1086,7 @@
     "meaning": "how much? (expecting any number)",
     "chapter": 8,
     "source": "hsk1",
-    "category": "size"
+    "category": "pronoun"
   },
   {
     "word": "想",
@@ -1527,7 +1527,7 @@
     "meaning": "some (only after \"one\", \"this\" or \"that\")",
     "chapter": 12,
     "source": "hsk1",
-    "category": "size"
+    "category": "grammar"
   },
   {
     "word": "冷",
@@ -1743,7 +1743,7 @@
     "meaning": "a little bit",
     "chapter": 14,
     "source": "hsk1",
-    "category": "size"
+    "category": "grammar"
   },
   {
     "word": "东西",

@@ -4,7 +4,7 @@
 
 UPDATE vocabulary SET meaning = 'child; adds an "r" sound to the end of a word' WHERE word = '儿' AND pinyin = 'ér';
 UPDATE vocabulary SET meaning = 'a person who does something' WHERE word = '者';
-UPDATE vocabulary SET meaning = 'some (only after "one", "this" or "that")' WHERE word = '些';
+UPDATE vocabulary SET category = 'grammar', meaning = 'some (only after "one", "this" or "that")' WHERE word = '些';
 UPDATE vocabulary SET meaning = 'two (when counting things)' WHERE word = '两';
 UPDATE vocabulary SET meaning = 'two (the number itself)' WHERE word = '二';
 UPDATE vocabulary SET meaning = 'the all-purpose counting word' WHERE word = '个';
@@ -21,10 +21,13 @@ UPDATE vocabulary SET meaning = 'minute (a length of time)' WHERE word = '分钟
 UPDATE vocabulary SET meaning = 'not enough; too little' WHERE word = '少';
 UPDATE vocabulary SET meaning = 'a lot; plenty' WHERE word = '多';
 UPDATE vocabulary SET meaning = 'how many? (expecting a small number)' WHERE word = '几';
-UPDATE vocabulary SET meaning = 'how much? (expecting any number)' WHERE word = '多少';
-UPDATE vocabulary SET meaning = 'quite a lot' WHERE word = '不少';
-UPDATE vocabulary SET meaning = 'a little bit', pinyin = 'yìdiǎnr' WHERE word = '一点儿';
-UPDATE vocabulary SET meaning = 'some (a handful of things)', pinyin = 'yìxiē' WHERE word = '一些';
+UPDATE vocabulary SET category = 'pronoun', meaning = 'how much? (expecting any number)' WHERE word = '多少';
+UPDATE vocabulary SET category = 'grammar', meaning = 'quite a lot' WHERE word = '不少';
+UPDATE vocabulary SET category = 'grammar', meaning = 'a little bit', pinyin = 'yìdiǎnr' WHERE word = '一点儿';
+UPDATE vocabulary SET category = 'grammar', meaning = 'some (a handful of things)', pinyin = 'yìxiē' WHERE word = '一些';
+UPDATE vocabulary SET category = 'pronoun' WHERE word = '那些';
+UPDATE vocabulary SET category = 'pronoun' WHERE word = '哪个';
+UPDATE vocabulary SET category = 'pronoun' WHERE word = '几个';
 UPDATE vocabulary SET meaning = 'unit of money (like saying "buck")' WHERE word = '块';
 UPDATE vocabulary SET pinyin = 'yíxià' WHERE word = '一下';
 UPDATE vocabulary SET pinyin = 'bú kèqi' WHERE word = '不客气';

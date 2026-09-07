@@ -161,6 +161,17 @@ export const SEMANTIC_CATEGORIES: Record<string, string[]> = {
   '那儿': [],
   '这儿': [],
   '这些': [],
+  // Demonstratives and question quantifiers. These sat in the invalid
+  // categories `demonstrative`/`quantity`/`other`, which are absent from
+  // VOCAB_CATEGORY_TO_SYNTAX and so resolved to [] by accident. They are now
+  // categorised `pronoun`/`grammar`, and `pronoun` maps to ['person',
+  // 'subject'] — without an explicit block they would start filling person
+  // slots ("Those eats apples", "How many things goes to school").
+  '那些': [],
+  '哪个': [],
+  '几个': [],
+  '一些': [],
+  '不少': [],
   '谁': [],
   '您': ['person', 'subject'],
   '这个': [],
@@ -291,6 +302,7 @@ export const VOCAB_CATEGORY_TO_SYNTAX: Record<string, string[]> = {
   emotion:       ['emotion_adj'],
   body:          ['thing', 'locatable'],
   // Intentionally empty — verbs/particles/numbers handled as fixedWords or need dedicated templates
+  grammar:       [],
   communication: [],
   action:        [],
   movement:      [],

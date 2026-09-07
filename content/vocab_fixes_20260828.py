@@ -20,7 +20,10 @@ CHANGES: dict[tuple[str, str | None], dict[str, str]] = {
     # --- Answer leaks: gloss printed the answer in hanzi, or read as pinyin ---
     ("儿", "ér"): {"meaning": 'child; adds an "r" sound to the end of a word'},
     ("者", None): {"meaning": "a person who does something"},
-    ("些", None): {"meaning": 'some (only after "one", "this" or "that")'},
+    ("些", None): {
+        "meaning": 'some (only after "one", "this" or "that")',
+        "category": "grammar",
+    },
 
     # --- Linguistics jargon the learner does not read ("MW", "suffix") ---
     ("两", None): {"meaning": "two (when counting things)"},
@@ -42,13 +45,23 @@ CHANGES: dict[tuple[str, str | None], dict[str, str]] = {
     ("分钟", None): {"meaning": "minute (a length of time)"},
 
     # --- Quantity cluster: 些/少 were a 50/50 coin flip in quiz history ---
+    # `category` also moves. Same-category words are preferred distractors in
+    # hard/expert, and `size` held 些 and 少 together, so the engine kept
+    # serving the two least-distinguishable glosses as each other's options.
+    # `size` is now gradable adjectives only (大/小/高/矮/多/少); the counters
+    # and quantifiers go to `grammar`, the question words to `pronoun`.
+    # NB `quantity` and `demonstrative` were never valid SemanticCategory
+    # values (see src/types/vocabulary.ts) — those rows were silently invalid.
     ("少", None): {"meaning": "not enough; too little"},
     ("多", None): {"meaning": "a lot; plenty"},
     ("几", None): {"meaning": "how many? (expecting a small number)"},
-    ("多少", None): {"meaning": "how much? (expecting any number)"},
-    ("不少", None): {"meaning": "quite a lot"},
-    ("一点儿", None): {"meaning": "a little bit", "pinyin": "yìdiǎnr"},
-    ("一些", None): {"meaning": "some (a handful of things)", "pinyin": "yìxiē"},
+    ("多少", None): {"meaning": "how much? (expecting any number)", "category": "pronoun"},
+    ("不少", None): {"meaning": "quite a lot", "category": "grammar"},
+    ("一点儿", None): {"meaning": "a little bit", "pinyin": "yìdiǎnr", "category": "grammar"},
+    ("一些", None): {"meaning": "some (a handful of things)", "pinyin": "yìxiē", "category": "grammar"},
+    ("那些", None): {"category": "pronoun"},
+    ("哪个", None): {"category": "pronoun"},
+    ("几个", None): {"category": "pronoun"},
 
     # --- Wrong gloss: 块 is kuài; "yuan" is 元, a different character ---
     ("块", None): {"meaning": 'unit of money (like saying "buck")'},
