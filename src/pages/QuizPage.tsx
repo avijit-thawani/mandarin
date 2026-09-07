@@ -168,6 +168,18 @@ interface QuizPageProps {
   onStreakRefresh?: () => void;
 }
 
+// In-progress quiz kept in module scope so switching tabs (which unmounts QuizPage)
+// resumes the same session instead of restarting. It lives only for the page's
+// lifetime — a hard reload re-evaluates the module and clears it, starting fresh.
+interface PausedQuiz {
+  session: QuizSession;
+  reviewTheme: ThemeCandidate | null;
+  mixedItems: QuizItem[];
+  mixedIndex: number;
+  syntaxAnswers: Array<{ correct: boolean }>;
+}
+let pausedQuiz: PausedQuiz | null = null;
+
 export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStreakRefresh }: QuizPageProps) {
   const auth = useAuth();
   const settings = settingsStore.settings;
@@ -196,12 +208,12 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   // by TRIVIA_SHOW_FRACTION plus ranking, not by the setting's old interval scale.
   const triviaEnabled = (settings.trivia?.frequency ?? 2) > 0;
 
-  // Quiz state
-  const [session, setSession] = useState<QuizSession | null>(null);
+  // Quiz state — initialised from a paused session (if any) so tab switches resume.
+  const [session, setSession] = useState<QuizSession | null>(() => pausedQuiz?.session ?? null);
   // Set when this session is a themed review; drives the banner and colour wash.
-  const [reviewTheme, setReviewTheme] = useState<ThemeCandidate | null>(null);
-  const [mixedItems, setMixedItems] = useState<QuizItem[]>([]);
-  const [mixedIndex, setMixedIndex] = useState(0);
+  const [reviewTheme, setReviewTheme] = useState<ThemeCandidate | null>(() => pausedQuiz?.reviewTheme ?? null);
+  const [mixedItems, setMixedItems] = useState<QuizItem[]>(() => pausedQuiz?.mixedItems ?? []);
+  const [mixedIndex, setMixedIndex] = useState(() => pausedQuiz?.mixedIndex ?? 0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -217,7 +229,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   } | null>(null);
   
   // Syntax answer tracking (separate from MCQ)
-  const [syntaxAnswers, setSyntaxAnswers] = useState<Array<{ correct: boolean }>>([]);
+  const [syntaxAnswers, setSyntaxAnswers] = useState<Array<{ correct: boolean }>>(() => pausedQuiz?.syntaxAnswers ?? []);
   
   // Trivia: one fact generated per question in the background at session start, then
   // ranked so only the best few are actually shown. `triviaWinners` holds the slot ids
@@ -409,6 +421,14 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       startNewSession();
     }
   }, [availableWords.length, session, startNewSession]);
+
+  // Keep the paused-session snapshot in sync so a tab switch can resume mid-quiz.
+  // Cleared once the session is completed (handled in handleSessionComplete).
+  useEffect(() => {
+    if (session && !session.completedAt) {
+      pausedQuiz = { session, reviewTheme, mixedItems, mixedIndex, syntaxAnswers };
+    }
+  }, [session, reviewTheme, mixedItems, mixedIndex, syntaxAnswers]);
   
   // Question numbering excludes trivia cards so progress reflects real questions
   const totalQuestions = useMemo(
@@ -653,6 +673,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     const totalCorrect = allMcqAnswers.filter(a => a.correct).length + allSyntaxAnswers.filter(a => a.correct).length;
     const totalCount = allMcqAnswers.length + allSyntaxAnswers.length;
     store.recordProgressSnapshot(totalCount, totalCorrect);
+    pausedQuiz = null; // session finished — don't resume it on the next visit
     markQuizCompletedToday();
     clearNotifications();
     if (auth.user) {
