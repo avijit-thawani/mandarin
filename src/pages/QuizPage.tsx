@@ -266,9 +266,6 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
   const [answerNonce, setAnswerNonce] = useState(0);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState(false);
   const mascotVisible = useMemo(() => mascotAppearsForSession(mascotSeed), [mascotSeed]);
-  // Handed to the mascot so her band can give space back to a tall card.
-  const quizScrollAreaRef = useRef<HTMLDivElement>(null);
-  
   // Session stats (MCQ + syntax combined)
   const sessionStats = useMemo(() => {
     const mcqCorrect = session?.answers.filter(a => a.correct).length ?? 0;
@@ -916,6 +913,22 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     );
   }
   
+  // Saras, rendered identically in every item view below. She belongs to the
+  // session, not to a question type — scoping her to the MCQ branch made her
+  // vanish on every trivia and syntax item, which read as a bug rather than a
+  // rest beat. Her band sits OUTSIDE the scrolling area in each branch, so
+  // revealing an answer scrolls the card within its own container and never
+  // moves her.
+  const mascotBand = mascotVisible ? (
+    <QuizMascot
+      sessionSeed={mascotSeed}
+      answerNonce={answerNonce}
+      lastCorrect={lastAnswerCorrect}
+      accuracy={sessionStats.total > 0 ? sessionStats.correct / sessionStats.total : 0}
+      answered={sessionStats.total}
+    />
+  ) : null;
+
   // Trivia interstitial — no scoring, just a beat between questions
   if (currentItem.type === 'trivia') {
     const triviaItem = currentItem;
@@ -968,6 +981,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
             </div>
           )}
         </div>
+        {mascotBand}
       </div>
     );
   }
@@ -1023,6 +1037,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
             onSkip={handleSyntaxSkip}
           />
         </div>
+        {mascotBand}
       </div>
     );
   }
@@ -1147,7 +1162,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       {/* Top-anchored, never centered: centering makes the card grow upward when
           the answer feedback appears, yanking the question and options out from
           under the user's finger. */}
-      <div ref={quizScrollAreaRef} className="flex-1 px-3 py-3 max-w-lg mx-auto w-full flex flex-col overflow-auto">
+      <div className="flex-1 px-3 py-3 max-w-lg mx-auto w-full flex flex-col overflow-auto">
 
         <div
           key={currentQuestion.concept.id}
@@ -1376,20 +1391,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
 
       </div>
 
-      {/* Saras sits below the quiz, OUTSIDE the scrolling area above. Her band is
-          reserved for the whole session, so revealing an answer scrolls the card
-          within its own container and never moves her. */}
-      {mascotVisible && (
-        <QuizMascot
-          sessionSeed={mascotSeed}
-          answerNonce={answerNonce}
-          lastCorrect={lastAnswerCorrect}
-          accuracy={sessionStats.total > 0 ? sessionStats.correct / sessionStats.total : 0}
-          answered={sessionStats.total}
-          showingResult={showResult}
-          scrollAreaRef={quizScrollAreaRef}
-        />
-      )}
+      {mascotBand}
     </div>
   );
 }

@@ -26,36 +26,44 @@ export const MASCOT_CONFIG = {
 
   // ── Stage size ───────────────────────────────────────────────────────────
   // Her band sits outside the quiz's scrolling area, so she can never be
-  // displaced by the card growing on answer. But every pixel she takes comes
-  // straight out of the space the question gets, and an answered card that
-  // doesn't fit pushes the Next button below the fold.
+  // displaced by the card growing on answer. Its height depends on the viewport
+  // and NOTHING else: it is fixed before the first question and held for the
+  // whole session.
+  //
+  // Sizing her against the actual card (an earlier version did, via a
+  // ResizeObserver and a re-measure on every answer) was right for each
+  // individual question and wrong as an experience. Cards differ in height —
+  // a wrapped meaning, a trivia card, a syntax exercise's tile grid — so she
+  // grew and shrank as the session went along, and the tall cards squeezed her
+  // under minStageHeightPx and out of existence.
   //
   // Measured against the answered card (the tall state), which needs ~463px
   // including container padding:
   //   390x844 phone -> 599px of scroller -> up to 240px of band before scrolling
   //   375x667 phone -> 422px of scroller -> only  63px
-  // So the band has to scale with viewport height; a single fixed value either
-  // wastes space on big screens or breaks small ones.
+  // So the band still scales with viewport height; a single fixed value either
+  // wastes space on big screens or breaks small ones. Cards taller than the
+  // remainder scroll in their own container, which is the deliberate trade for
+  // holding still.
 
   /** Band height = viewportHeight - this. Derived from the measurements above:
-   *  both data points land on `available ≈ height - 604`, and we keep ~36px of
-   *  slack on top of that for taller cards (long meanings wrap, syntax tiles). */
-  viewportReservePx: 640,
+   *  both data points land on `available ≈ height - 604`, plus slack for the
+   *  taller card types so they usually still fit without scrolling. */
+  viewportReservePx: 680,
 
   /** Never grow past this, however tall the screen. Beyond roughly this size she
    *  stops reading as a companion to the question and starts competing with it. */
-  maxStageHeightPx: 208,
+  maxStageHeightPx: 200,
 
   /** Below this she'd be a squashed sliver, and the space is better given back
    *  to the question — so she is skipped entirely rather than shrunk. On a
    *  375x667 phone this is what keeps the Next button above the fold. */
   minStageHeightPx: 84,
 
-  /** How much taller the card gets once an answer is revealed (feedback alert +
-   *  the Known/skip/Next row). While the question is unanswered we size her
-   *  against `content + this`, so she is already small enough for the answered
-   *  state and never has to shrink or vanish mid-question. */
-  answeredGrowthPx: 152,
+  /** Ignore viewport changes smaller than this. Mobile browsers resize the
+   *  viewport constantly as the URL bar collapses; without a threshold that
+   *  jitter shows up as the character quietly breathing in and out. */
+  resizeThresholdPx: 24,
 
   /** Nudge left of centre, because the streak badge floats above the centre of
    *  the navbar directly below her. The badge is nudged right by the same
