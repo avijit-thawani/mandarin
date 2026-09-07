@@ -21,7 +21,7 @@
     "word": "二",
     "pinyin": "èr",
     "part_of_speech": "numeral",
-    "meaning": "two",
+    "meaning": "two (the number itself)",
     "chapter": 1,
     "source": "hsk1",
     "category": "number"
@@ -145,7 +145,7 @@
   },
   {
     "word": "不客气",
-    "pinyin": "bù kèqi",
+    "pinyin": "bú kèqi",
     "part_of_speech": "interjection",
     "meaning": "you're welcome",
     "chapter": 2,
@@ -372,7 +372,7 @@
     "word": "儿",
     "pinyin": "ér",
     "part_of_speech": "noun",
-    "meaning": "child; diminutive suffix (e.g., 一点儿, 那儿)",
+    "meaning": "child; adds an \"r\" sound to the end of a word",
     "chapter": 4,
     "source": "hsk1",
     "category": "family"
@@ -489,7 +489,7 @@
     "word": "几",
     "pinyin": "jǐ",
     "part_of_speech": "pronoun",
-    "meaning": "how many (small number)",
+    "meaning": "how many? (expecting a small number)",
     "chapter": 5,
     "source": "hsk1",
     "category": "pronoun"
@@ -498,7 +498,7 @@
     "word": "口",
     "pinyin": "kǒu",
     "part_of_speech": "measure_word",
-    "meaning": "mouth; MW (family)",
+    "meaning": "mouth; counting word for family members",
     "chapter": 5,
     "source": "hsk1",
     "category": "body"
@@ -516,7 +516,7 @@
     "word": "多",
     "pinyin": "duō",
     "part_of_speech": "adverb",
-    "meaning": "many, much; how (degree)",
+    "meaning": "a lot; plenty",
     "chapter": 5,
     "source": "hsk1",
     "category": "size"
@@ -597,7 +597,7 @@
     "word": "会",
     "pinyin": "huì",
     "part_of_speech": "verb",
-    "meaning": "can (learned skill)",
+    "meaning": "can (a skill you learned)",
     "chapter": 6,
     "source": "hsk1",
     "category": "grammar"
@@ -1029,7 +1029,7 @@
     "word": "个",
     "pinyin": "ge",
     "part_of_speech": "measure_word",
-    "meaning": "general measure word",
+    "meaning": "the all-purpose counting word",
     "chapter": 8,
     "source": "hsk1",
     "category": "grammar"
@@ -1074,7 +1074,7 @@
     "word": "块",
     "pinyin": "kuài",
     "part_of_speech": "measure_word",
-    "meaning": "yuan (money unit)",
+    "meaning": "unit of money (like saying \"buck\")",
     "chapter": 8,
     "source": "hsk1",
     "category": "number"
@@ -1083,7 +1083,7 @@
     "word": "多少",
     "pinyin": "duōshao",
     "part_of_speech": "pronoun",
-    "meaning": "how many, how much",
+    "meaning": "how much? (expecting any number)",
     "chapter": 8,
     "source": "hsk1",
     "category": "size"
@@ -1164,7 +1164,7 @@
     "word": "儿子",
     "pinyin": "érzi",
     "part_of_speech": "noun",
-    "meaning": "son (one's male child)",
+    "meaning": "son",
     "chapter": 9,
     "source": "hsk1",
     "category": "family"
@@ -1326,7 +1326,7 @@
     "word": "本",
     "pinyin": "běn",
     "part_of_speech": "measure_word",
-    "meaning": "measure word (books)",
+    "meaning": "counting word for books",
     "chapter": 10,
     "source": "hsk1",
     "category": "grammar"
@@ -1353,7 +1353,7 @@
     "word": "能",
     "pinyin": "néng",
     "part_of_speech": "verb",
-    "meaning": "can (permission/ability)",
+    "meaning": "can (physically able right now)",
     "chapter": 10,
     "source": "hsk1",
     "category": "grammar"
@@ -1398,7 +1398,7 @@
     "word": "两",
     "pinyin": "liǎng",
     "part_of_speech": "numeral",
-    "meaning": "two (before MW)",
+    "meaning": "two (when counting things)",
     "chapter": 11,
     "source": "hsk1",
     "category": "number"
@@ -1443,7 +1443,7 @@
     "word": "分",
     "pinyin": "fēn",
     "part_of_speech": "measure_word",
-    "meaning": "minute (time-telling)",
+    "meaning": "minute (in clock times)",
     "chapter": 11,
     "source": "hsk1",
     "category": "time"
@@ -1524,7 +1524,7 @@
     "word": "些",
     "pinyin": "xiē",
     "part_of_speech": "measure_word",
-    "meaning": "several; some (plural marker, used with 一/这/那)",
+    "meaning": "some (only after \"one\", \"this\" or \"that\")",
     "chapter": 12,
     "source": "hsk1",
     "category": "size"
@@ -1738,9 +1738,9 @@
   },
   {
     "word": "一点儿",
-    "pinyin": "yīdiǎnr",
+    "pinyin": "yìdiǎnr",
     "part_of_speech": "adverb",
-    "meaning": "a bit; a small amount or degree",
+    "meaning": "a little bit",
     "chapter": 14,
     "source": "hsk1",
     "category": "size"
@@ -1767,7 +1767,7 @@
     "word": "分钟",
     "pinyin": "fēnzhōng",
     "part_of_speech": "noun",
-    "meaning": "minute (duration)",
+    "meaning": "minute (a length of time)",
     "chapter": 14,
     "source": "hsk1",
     "category": "time"
@@ -1803,7 +1803,7 @@
     "word": "少",
     "pinyin": "shǎo",
     "part_of_speech": "adjective",
-    "meaning": "few; not many (in quantity)",
+    "meaning": "not enough; too little",
     "chapter": 14,
     "source": "hsk1",
     "category": "size"
@@ -2685,7 +2685,7 @@
     "word": "地",
     "pinyin": "de",
     "part_of_speech": "particle",
-    "meaning": "adverbial marker",
+    "meaning": "turns a word into how an action is done",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2793,7 +2793,7 @@
     "word": "但是",
     "pinyin": "dànshì",
     "part_of_speech": "conjunction",
-    "meaning": "but (formal)",
+    "meaning": "but (formal, in writing)",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2802,7 +2802,7 @@
     "word": "可是",
     "pinyin": "kěshì",
     "part_of_speech": "conjunction",
-    "meaning": "but (casual)",
+    "meaning": "but (casual, in speech)",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -2866,15 +2866,6 @@
     "pinyin": "dào",
     "part_of_speech": "preposition",
     "meaning": "to / until",
-    "chapter": 16,
-    "source": "hsk1",
-    "category": "grammar"
-  },
-  {
-    "word": "给",
-    "pinyin": "gěi",
-    "part_of_speech": "preposition",
-    "meaning": "give; to/for",
     "chapter": 16,
     "source": "hsk1",
     "category": "grammar"
@@ -3189,7 +3180,7 @@
     "word": "者",
     "pinyin": "zhě",
     "part_of_speech": "noun",
-    "meaning": "-er (doer suffix)",
+    "meaning": "a person who does something",
     "chapter": 16,
     "source": "hsk1",
     "category": "person"
