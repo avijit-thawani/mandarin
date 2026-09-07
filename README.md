@@ -14,6 +14,7 @@ Future agents: this file is intentionally operational. It is the first map for w
 4. Document known failures/incidents and any mitigation steps. When scripts change (build, data extraction, sync tooling, ML analysis), update "Script Behavior".
 5. Never run risky DB migrations without explicit user confirmation and backup strategy.
 6. All new UI follows "UI and Interaction Design" by default — chunky buttons, entrance animations, haptics, semantic color, and zero layout shift. It is a contract, not a style suggestion.
+7. **Only work pushed to `main` counts.** The site deploys from `main`, so anything on a feature branch, committed-but-unpushed, or left uncommitted is sloppy, inaccessible work the user cannot see or test. A task is not done until it is on `main` and pushed. Do not stop at a local commit or leave changes on a side branch — always finish by pushing to `main` and confirming the deploy will pick it up soon.
 
 ### MCP Supabase Access Policy
 
