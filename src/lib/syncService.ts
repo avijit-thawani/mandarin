@@ -10,7 +10,7 @@ export interface SyncResult {
 }
 
 // Check if modality object is valid (has all required fields with proper structure)
-function isValidModality(modality: unknown): modality is ConceptModality {
+export function isValidModality(modality: unknown): modality is ConceptModality {
   if (!modality || typeof modality !== 'object') return false;
   const m = modality as Record<string, unknown>;
   const requiredKeys = ['character', 'pinyin', 'meaning', 'audio'];
@@ -121,8 +121,10 @@ function buildVocabMaps(vocabRows: Array<{ id: string; word: string; pinyin: str
   const byWord = new Map<string, string[]>();
   const byWordPinyin = new Map<string, string>();
   const byExact = new Map<string, string>();
+  const ids = new Set<string>();
 
   for (const row of vocabRows) {
+    ids.add(row.id);
     const wordEntries = byWord.get(row.word) || [];
     wordEntries.push(row.id);
     byWord.set(row.word, wordEntries);
@@ -130,13 +132,17 @@ function buildVocabMaps(vocabRows: Array<{ id: string; word: string; pinyin: str
     byExact.set(`${row.word}|${row.pinyin}|${row.meaning}`, row.id);
   }
 
-  return { byWord, byWordPinyin, byExact };
+  return { byWord, byWordPinyin, byExact, ids };
 }
 
 function resolveVocabularyId(
   concept: Concept,
   maps: ReturnType<typeof buildVocabMaps>
 ): string | undefined {
+  // A concept's id already *is* its vocabulary id (chat-added words, cloud-loaded words),
+  // so trust it before falling back to text matching, which fails on duplicate words
+  if (maps.ids.has(concept.id)) return concept.id;
+
   // Try exact match first
   const exactKey = `${concept.word}|${concept.pinyin}|${concept.meaning}`;
   if (maps.byExact.has(exactKey)) return maps.byExact.get(exactKey);

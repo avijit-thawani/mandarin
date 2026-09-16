@@ -105,7 +105,9 @@ High-churn: `QuizPage`, `quiz.ts`, settings stores, `SyntaxExerciseCard`/`syntax
 
 **Supabase `vocabulary` table is the single source of truth.** `src/data/hsk1_vocabulary.json` is kept for reference/scripts but is NOT imported at runtime.
 
-On login, `loadFromCloud` fetches `user_progress JOIN vocabulary` (including `category`). localStorage caches concepts for instant boot; Supabase overwrites stale cache. Custom words use `source: 'chat'` and are first-class — they work in Quiz, Study, Syntax, and Vocab identically to HSK1 words.
+On login, `loadFromCloud` fetches `user_progress JOIN vocabulary` (including `category`). localStorage caches concepts for instant boot; Supabase overwrites stale cache, **except** for local-only concepts (ids absent from the cloud result), which are kept and re-flagged as pending sync. Custom words use `source: 'chat'` and are first-class — they work in Quiz, Study, Syntax, and Vocab identically to HSK1 words.
+
+**A word is only in your quiz pool if it has a `user_progress` row.** `vocabulary` is the shared catalog; `user_progress` is enrolment. So `addCustomWord` writes both rows at add time rather than leaving enrolment to the debounced background sync — a word that reaches `vocabulary` alone is invisible to `loadFromCloud` and silently drops out of Quiz/Study/Vocab on the next app open. `addCustomWord` reuses an existing `vocabulary` row matched on `word` + `pinyin` (never `word` alone — 地 de vs dì are distinct words) instead of inserting a duplicate, and preserves the knowledge on an existing `user_progress` row rather than resetting it to 50, so re-adding a word that went missing restores it without erasing history.
 
 **To add new vocabulary:** insert into the Supabase `vocabulary` table (required: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`). Users can also add words via the Chat tab or a Trivia card suggestion (stored as `source: 'chat'`).
 
