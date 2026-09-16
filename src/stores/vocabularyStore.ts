@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Concept, Modality, ProgressSnapshot } from '../types/vocabulary';
 import { createInitialModality, computeConceptKnowledge, updateModalityScore, computeModalityAverages, countByKnowledge } from '../utils/knowledge';
-import { fetchFromCloud, saveToCloud, type SyncResult } from '../lib/syncService';
+import { fetchFromCloud, saveToCloud, isValidModality, type SyncResult } from '../lib/syncService';
 import { supabase } from '../lib/supabase';
 import type { LearningFocus } from '../types/settings';
 
@@ -235,6 +235,10 @@ export function useVocabularyStore(): VocabularyStore {
   );
 
   // Add a custom word via Chat (inserts into Supabase vocabulary + user_progress)
+  //
+  // The user_progress row is written here, not left to the debounced background sync:
+  // a word that only lives in `vocabulary` is invisible to loadFromCloud, so it would
+  // silently disappear from the quiz pool the next time the cloud cache was loaded.
   const addCustomWord = useCallback(async (
     word: string,
     pinyin: string,
@@ -242,20 +246,38 @@ export function useVocabularyStore(): VocabularyStore {
     partOfSpeech: string,
     category: string = 'other'
   ) => {
-    // Insert into Supabase vocabulary table (source: 'chat')
-    const { data: vocabRow, error: vocabError } = await supabase
+    // Same word with different pinyin is a different word (地 de vs dì), so match on both
+    const { data: existingVocab, error: lookupError } = await supabase
       .from('vocabulary')
-      .insert({ word, pinyin, meaning, part_of_speech: partOfSpeech, chapter: 0, source: 'chat', category })
       .select('id')
-      .single();
+      .eq('word', word)
+      .eq('pinyin', pinyin)
+      .limit(1)
+      .maybeSingle();
 
-    if (vocabError) {
-      console.error('[VocabStore] Failed to insert custom word:', vocabError.message);
-      throw new Error(vocabError.message);
+    if (lookupError) {
+      console.error('[VocabStore] Failed to look up vocabulary row:', lookupError.message);
+      throw new Error(lookupError.message);
+    }
+
+    let vocabularyId: string = (existingVocab?.id as string | undefined) ?? '';
+
+    if (!vocabularyId) {
+      const { data: vocabRow, error: vocabError } = await supabase
+        .from('vocabulary')
+        .insert({ word, pinyin, meaning, part_of_speech: partOfSpeech, chapter: 0, source: 'chat', category })
+        .select('id')
+        .single();
+
+      if (vocabError) {
+        console.error('[VocabStore] Failed to insert custom word:', vocabError.message);
+        throw new Error(vocabError.message);
+      }
+      vocabularyId = vocabRow.id;
     }
 
     const newConcept: Concept = {
-      id: vocabRow.id,
+      id: vocabularyId,
       word,
       pinyin,
       part_of_speech: partOfSpeech as Concept['part_of_speech'],
@@ -268,7 +290,57 @@ export function useVocabularyStore(): VocabularyStore {
       paused: false,
     };
 
-    setConcepts(prev => [...prev, newConcept]);
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData?.user?.id;
+
+    if (userId) {
+      // A progress row can already exist for a word that was added before and then
+      // dropped from the local cache — keep its earned knowledge instead of resetting it
+      const { data: existingProgress } = await supabase
+        .from('user_progress')
+        .select('knowledge, modality, paused')
+        .eq('user_id', userId)
+        .eq('vocabulary_id', vocabularyId)
+        .maybeSingle();
+
+      if (existingProgress) {
+        newConcept.knowledge = existingProgress.knowledge ?? newConcept.knowledge;
+        if (isValidModality(existingProgress.modality)) {
+          newConcept.modality = existingProgress.modality;
+        }
+        if (existingProgress.paused) {
+          const { error: unpauseError } = await supabase
+            .from('user_progress')
+            .update({ paused: false })
+            .eq('user_id', userId)
+            .eq('vocabulary_id', vocabularyId);
+          if (unpauseError) {
+            console.error('[VocabStore] Failed to unpause existing word:', unpauseError.message);
+            throw new Error(unpauseError.message);
+          }
+        }
+      } else {
+        const { error: progressError } = await supabase
+          .from('user_progress')
+          .insert({
+            user_id: userId,
+            vocabulary_id: vocabularyId,
+            knowledge: newConcept.knowledge,
+            modality: newConcept.modality,
+            paused: false,
+          });
+
+        if (progressError) {
+          console.error('[VocabStore] Failed to enrol custom word in progress:', progressError.message);
+          throw new Error(progressError.message);
+        }
+      }
+    }
+
+    setConcepts(prev => {
+      if (prev.some(c => c.id === vocabularyId)) return prev;
+      return [...prev, newConcept];
+    });
     markPendingSync();
   }, [markPendingSync]);
 
@@ -444,14 +516,27 @@ export function useVocabularyStore(): VocabularyStore {
           }
           return c;
         }) as Concept[];
-        
-        setConcepts(migratedConcepts);
-        saveProgress(migratedConcepts);
+
+        // Words added locally but not yet in user_progress (a failed or not-yet-run
+        // background sync) must survive the load, or they vanish from the quiz pool
+        const cloudIds = new Set(migratedConcepts.map(c => c.id));
+        const localOnly = concepts.filter(c => !cloudIds.has(c.id));
+        const mergedConcepts = localOnly.length > 0
+          ? [...migratedConcepts, ...localOnly]
+          : migratedConcepts;
+
+        setConcepts(mergedConcepts);
+        saveProgress(mergedConcepts);
         
         const now = new Date().toISOString();
         setLastSyncTime(now);
         localStorage.setItem(LAST_SYNC_KEY, now);
-        clearPendingSync();
+        if (localOnly.length > 0) {
+          console.warn(`[VocabStore] Kept ${localOnly.length} local-only concepts pending sync: ${localOnly.map(c => c.word).join(', ')}`);
+          markPendingSync();
+        } else {
+          clearPendingSync();
+        }
         
         console.log(`[VocabStore] Loaded ${migratedConcepts.length} concepts from cloud`);
       } else {
@@ -462,7 +547,7 @@ export function useVocabularyStore(): VocabularyStore {
     } finally {
       setIsSyncing(false);
     }
-  }, [clearPendingSync]);
+  }, [concepts, clearPendingSync, markPendingSync]);
 
   const clearSyncError = useCallback(() => {
     setSyncError(null);
