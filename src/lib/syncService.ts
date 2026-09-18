@@ -7,6 +7,8 @@ export interface SyncResult {
   success: boolean;
   error?: string;
   conceptsUploaded?: number;
+  /** Words that matched no vocabulary row, so their progress was never saved */
+  skippedWords?: string[];
 }
 
 // Check if modality object is valid (has all required fields with proper structure)
@@ -115,14 +117,17 @@ export async function fetchFromCloud(userId: string): Promise<{
 
 // Build vocabulary lookup maps keyed by word (resilient to meaning/pinyin drift)
 function buildVocabMaps(vocabRows: Array<{ id: string; word: string; pinyin: string; meaning: string }>) {
-  // Primary: word -> id (works when word is unique, which covers most HSK vocab)
-  // Secondary: word|pinyin -> id (disambiguates homophones)
-  // Tertiary: word|pinyin|meaning -> id (exact match, least resilient)
+  // Primary: concept.id -> itself, for concepts that already know their vocabulary row
+  // Secondary: word -> id (works when word is unique, which covers most HSK vocab)
+  // Tertiary: word|pinyin -> id (disambiguates homophones)
+  // Quaternary: word|pinyin|meaning -> id (exact match, least resilient)
+  const byId = new Set<string>();
   const byWord = new Map<string, string[]>();
   const byWordPinyin = new Map<string, string>();
   const byExact = new Map<string, string>();
 
   for (const row of vocabRows) {
+    byId.add(row.id);
     const wordEntries = byWord.get(row.word) || [];
     wordEntries.push(row.id);
     byWord.set(row.word, wordEntries);
@@ -130,13 +135,19 @@ function buildVocabMaps(vocabRows: Array<{ id: string; word: string; pinyin: str
     byExact.set(`${row.word}|${row.pinyin}|${row.meaning}`, row.id);
   }
 
-  return { byWord, byWordPinyin, byExact };
+  return { byId, byWord, byWordPinyin, byExact };
 }
 
 function resolveVocabularyId(
   concept: Concept,
   maps: ReturnType<typeof buildVocabMaps>
 ): string | undefined {
+  // A concept that came from the cloud or from addCustomWord already carries its
+  // vocabulary UUID, so trust that over re-deriving the row from text. The text
+  // fallbacks below cannot separate homographs (地 is both "de" and "dì"), and used
+  // to drop such words from every sync.
+  if (maps.byId.has(concept.id)) return concept.id;
+
   // Try exact match first
   const exactKey = `${concept.word}|${concept.pinyin}|${concept.meaning}`;
   if (maps.byExact.has(exactKey)) return maps.byExact.get(exactKey);
@@ -183,14 +194,14 @@ export async function saveToCloud(
       paused: boolean;
     }> = [];
     const resolvedVocabIds = new Set<string>();
-    let skipped = 0;
+    const skippedWords: string[] = [];
 
     for (const concept of concepts) {
       const vocabularyId = resolveVocabularyId(concept, maps);
 
       if (!vocabularyId) {
         console.warn(`[Sync] No vocabulary match for "${concept.word}" (${concept.pinyin}) — skipping, not creating duplicates`);
-        skipped++;
+        skippedWords.push(`${concept.pinyin} (${concept.word})`);
         continue;
       }
 
@@ -207,8 +218,8 @@ export async function saveToCloud(
       });
     }
 
-    if (skipped > 0) {
-      console.warn(`[Sync] Skipped ${skipped} concepts with no vocabulary match`);
+    if (skippedWords.length > 0) {
+      console.warn(`[Sync] Skipped ${skippedWords.length} concepts with no vocabulary match: ${skippedWords.join(', ')}`);
     }
 
     // UPSERT: insert or update on (user_id, vocabulary_id) unique constraint
@@ -230,6 +241,7 @@ export async function saveToCloud(
     return {
       success: true,
       conceptsUploaded: progressUpserts.length,
+      skippedWords: skippedWords.length > 0 ? skippedWords : undefined,
     };
   } catch (err) {
     return { 
