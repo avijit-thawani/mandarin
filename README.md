@@ -266,12 +266,17 @@ Occasionally a quiz session becomes a **themed review**: MCQ words come from one
 
 Between quiz questions, an LLM card explains something surprising about the word just answered — character reuse, literal composition, etymology — and offers **exactly one next word** to add to vocab in a tap.
 
-- **The suggestion is the payoff.** A fact with no next word is discarded unshown (`isShowableTrivia`), because trivia for its own sake doesn't earn an interruption. Two kinds qualify: a `missing_atom` (a character hiding inside 2+ compounds they know) or a `buildable_compound` (decodable from characters they know).
+- **Three card shapes, and the third is legitimate.** `missing_atom` (a character the user reads inside 2+ of their words but never learned alone), `buildable_compound` (a real word whose every character they own), and a plain `fact` with no suggestion. A suggestion used to be *mandatory* — that was the bug, not the feature: with no valid offer available the model manufactured one, producing a fact about one word and an unrelated word to add. `isShowableTrivia` now shows any card that generated cleanly.
+- **The model is verified, not trusted** (`verifySuggestion` in `netlify/functions/trivia.ts`). `kind` is a self-reported string, so every claim is re-derived from the vocabulary: a `missing_atom` must be one of the candidates the app computed and sent, and every character of a `buildable_compound` must be an existing single-character entry. A failing suggestion is stripped and the card ships as a plain `fact`; the reason lands in `trivia_log.discard_reason`.
+- **Atoms are computed, compounds are proposed.** `findMissingAtoms` derives atom candidates entirely from the user's words, so no model guess is involved — 29 exist at 479 known words. Compounds can't work that way: nothing in the data says 超人 is a real word while 超书 isn't, so the model proposes and the character check rejects.
+- **Count stems, not words.** 期 looks like it hides in 10 words, but nine are 星期一, 星期二, 星期三 … — one stem in ten costumes, which makes a padded card. A compound containing a shorter known compound isn't independent evidence (`stemCompounds`).
+- **A suggested gloss must not restate an existing one.** Meanings are quiz prompts: two cards with indistinguishable English make both unanswerable (the 些/少 failure, both stuck near 52% against an 89% baseline). Glosses are checked for sense collisions against known entries, plus the hanzi/pinyin/jargon rules from "Writing a Gloss"; a colliding gloss gets one rewrite pass to distinguish it before the suggestion is dropped.
 - **Generate many, show few.** A fact is generated for every eligible question in the background, then `rankTrivia` picks the keepers. Quality is only knowable after generation, so curating beats showing whatever landed at a fixed interval. Tune `TRIVIA_SHOW_FRACTION`, not a user setting.
 - **Back half only** (`TRIVIA_EARLIEST_FRACTION` 0.5). A call takes seconds; an early slot would be reached mid-spinner. Starting halfway in guarantees cards are ready on arrival and halves the calls per quiz. Slots are staggered, one per word, never last (that would only delay the results screen).
 - **Failures are soft.** A dead LLM call renders an in-card error with retry and never blocks the quiz.
 - **Character status is computed client-side** (`src/lib/characterIndex.ts`), not by the model — it kept marking words the user had just been quizzed on as "new". `entry` (own vocab row) beats `seen` (inside a known compound).
-- The card's known-word context is capped at 120 words, biased toward words sharing a character with the focus word.
+- The card's known-word context is capped at 120 words, biased toward words sharing a character with the focus word. **The verification payload is not capped** — shape checks run against the full vocabulary, since a suggestion validated against a 120-word sample can still be a word the user already has.
+- **Every card is logged** to `trivia_log` (`src/lib/triviaLog.ts`), at *generation* time rather than display time: most cards are never shown, so judging quality from the survivors samples the wrong population. `shown` and `word_added` are patched on afterwards, making generated → shown → accepted measurable. Words are stored as text with no FK to `vocabulary`, so a vocab edit can never erase history. Logging failures are swallowed — analytics must never disturb a quiz.
 
 ## Chat History (Not Shipped)
 
@@ -390,9 +395,11 @@ Required env: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`. Optional: `VITE_DEV
 
 ## Supabase Schema Overview (Conceptual)
 
-Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`.
+Core tables: `vocabulary`, `user_progress`, `quiz_attempts`, `user_settings`, `push_subscriptions`, `daily_goals`, `quiz_sessions`, `trivia_log`.
 
 `daily_goals` (`user_id`, `date`, `goal`, `updated_at`; PK `(user_id, date)`) stores the per-day streak goal recorded going forward on session completion. RLS restricts rows to the owning user. Days without a stored goal fall back to inference (see `src/lib/streakGoal.ts`).
+
+`trivia_log` (`id`, `user_id`, `created_at`, `card_type`, `focus_word`, `title`, `body`, `suggested_word`, `suggested_pinyin`, `suggested_meaning`, `suggestion_reason`, `shown`, `discard_reason`, `word_added`, `model`, `session_id`) records every generated trivia card for quality analysis. RLS per user. **Words are text, not `vocabulary_id`, deliberately** — no FK means a vocabulary edit can never orphan or cascade away this history.
 
 `quiz_sessions` (`id`, `user_id`, `created_at`, `goal`) is an append-only log, one row per completed session. Streaks count these directly (skip-proof) rather than inferring via `round(attempts/goal)`, which undercounts when questions are skipped. Days without session rows fall back to the attempts-based estimate.
 RLS expectation: user tables are private; vocabulary is shared reference data.

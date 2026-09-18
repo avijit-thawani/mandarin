@@ -22,6 +22,7 @@ import { SyntaxExerciseCard } from '../components/SyntaxExerciseCard';
 import { TriviaCard, type TriviaState } from '../components/TriviaCard';
 import { buildCharacterIndex, type CharacterStatus } from '../lib/characterIndex';
 import { fetchTrivia, rankTrivia, type TriviaSuggestion } from '../lib/triviaService';
+import { logTriviaCard, markTriviaShown, markTriviaWordAdded } from '../lib/triviaLog';
 import { pickThemedReview, type ThemeCandidate } from '../utils/reviewTheme';
 
 // Daily quiz completion tracking
@@ -127,14 +128,19 @@ interface TriviaCandidate {
   itemIndex: number;
   focus: Concept;
   state: TriviaState;
+  /** Row id in trivia_log, so shown/accepted outcomes can be attached to this card. */
+  logId?: string | null;
 }
 
 /**
- * A card earns its interruption only if it has a next word to offer. Facts without a
- * suggestion read as trivia for its own sake, so they're skipped rather than shown.
+ * Any card that generated cleanly is worth showing, with or without a next word.
+ *
+ * Requiring a suggestion was the cause of the worst cards: with no valid offer
+ * available the model manufactured one anyway, producing a fact about one word and an
+ * unrelated word to add. A plain fact is an honest card; a forced suggestion is not.
  */
 function isShowableTrivia(candidate: TriviaCandidate): boolean {
-  return candidate.state.status === 'ready' && Boolean(candidate.state.fact.suggestion);
+  return candidate.state.status === 'ready';
 }
 
 // Where in the session trivia slots become eligible. 0.5 means the back half only,
@@ -302,11 +308,12 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     try {
       const fact = await fetchTrivia(focus, availableWords, triviaCoveredWords.current);
       triviaCoveredWords.current = [...triviaCoveredWords.current, focus.word];
-      if (!fact.suggestion) {
-        // Worth watching: a card with no next word to offer is a weaker card.
-        console.info(`[Trivia] no suggestion for ${focus.word}`);
-      }
       setState({ status: 'ready', fact });
+
+      // Log at generation time, not display time: most cards are never shown, and
+      // judging quality only from the survivors samples the wrong population.
+      const logId = await logTriviaCard(focus.word, fact);
+      setTriviaCandidates(prev => prev.map(c => c.slotId === slotId ? { ...c, logId } : c));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load trivia';
       console.error('Trivia error:', message);
@@ -493,7 +500,10 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     if (candidate?.state.status === 'loading') return;
 
     const showable = candidate ? isShowableTrivia(candidate) : false;
-    if (showable && (TRIVIA_DEBUG_SHOW_ALL || triviaWinners.has(currentItem.id))) return;
+    if (showable && (TRIVIA_DEBUG_SHOW_ALL || triviaWinners.has(currentItem.id))) {
+      markTriviaShown(candidate?.logId ?? null);
+      return;
+    }
 
     setMixedIndex(i => i + 1);
   }, [currentItem, triviaWinners, triviaCandidates]);
@@ -518,11 +528,15 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       );
       haptic('correct');
       setAddedBonusWords(prev => ({ ...prev, [suggestion.word]: 'added' }));
+      // Accepting a suggestion is the only real quality signal the app gets.
+      const accepted = triviaCandidates.find(c =>
+        c.state.status === 'ready' && c.state.fact.suggestion?.word === suggestion.word);
+      markTriviaWordAdded(accepted?.logId ?? null);
     } catch (err) {
       console.error('Add suggested word error:', err);
       setAddedBonusWords(prev => ({ ...prev, [suggestion.word]: 'error' }));
     }
-  }, [store]);
+  }, [store, triviaCandidates]);
 
   const isKnownWord = useCallback(
     (word: string) => Boolean(store.getConceptByWord(word)),

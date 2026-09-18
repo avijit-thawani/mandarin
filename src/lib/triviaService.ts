@@ -5,6 +5,7 @@
 // revisiting the same card (e.g. after a re-render) doesn't spend another LLM call.
 
 import { supabase } from './supabase';
+import { findMissingAtoms, ownedCharacters } from './characterIndex';
 import type { Concept } from '../types/vocabulary';
 
 const TRIVIA_ENDPOINT = '/.netlify/functions/trivia';
@@ -44,10 +45,16 @@ export interface TriviaSuggestion extends TriviaWord {
   components: TriviaComponent[];
 }
 
+/** Which of the three card shapes this turned out to be. `fact` carries no suggestion. */
+export type TriviaCardType = 'fact' | 'missing_atom' | 'buildable_compound';
+
 export interface TriviaFact {
   title: string;
   body: string;
   suggestion: TriviaSuggestion | null;
+  cardType: TriviaCardType;
+  /** Why the server rejected the model's suggestion, if it made one. Logged, not shown. */
+  suggestionDropReason?: string | null;
 }
 
 /**
@@ -111,6 +118,9 @@ export async function fetchTrivia(
   alreadyCoveredWords: string[] = [],
   signal?: AbortSignal,
 ): Promise<TriviaFact> {
+  // The known-word list sent for flavour is capped, but the shape checks must see the
+  // whole vocabulary: a suggestion validated against a 120-word sample can still be a
+  // word the learner already has, or a compound built from characters they don't.
   const response = await fetch(TRIVIA_ENDPOINT, {
     method: 'POST',
     headers: await authHeaders(),
@@ -118,6 +128,9 @@ export async function fetchTrivia(
       focusWord: toPayloadWord(focus),
       knownWords: selectContextWords(focus, knownWords).map(toPayloadWord),
       recentWords: alreadyCoveredWords,
+      missingAtoms: findMissingAtoms(knownWords),
+      ownedCharacters: ownedCharacters(knownWords),
+      allKnownWords: knownWords.map(w => w.word),
     }),
     signal,
   });
@@ -138,14 +151,13 @@ export async function fetchTrivia(
     throw new Error('Empty trivia response');
   }
 
-  // Defend against the model suggesting a word the user already has: the prompt
-  // forbids it, but a duplicate offer is confusing enough to be worth filtering.
-  const knownSet = new Set(knownWords.map(w => w.word));
-  const suggestion = fact.suggestion?.word && !knownSet.has(fact.suggestion.word)
+  // Shape, duplicate and gloss checks all ran server-side against the full vocabulary,
+  // so anything still attached here is verified. Only the optional array is normalised.
+  const suggestion = fact.suggestion
     ? { ...fact.suggestion, components: fact.suggestion.components ?? [] }
     : null;
 
-  return { ...fact, suggestion };
+  return { ...fact, suggestion, cardType: fact.cardType ?? (suggestion?.kind ?? 'fact') };
 }
 
 /**
