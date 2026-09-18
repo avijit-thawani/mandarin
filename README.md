@@ -109,6 +109,10 @@ On login, `loadFromCloud` fetches `user_progress JOIN vocabulary` (including `ca
 
 **To add new vocabulary:** insert into the Supabase `vocabulary` table (required: `word`, `pinyin`, `part_of_speech`, `meaning`, `chapter`, `source`, `category`). Users can also add words via the Chat tab or a Trivia card suggestion (stored as `source: 'chat'`).
 
+**A `vocabulary` row alone is invisible — `user_progress` is what the app reads.** `loadFromCloud` selects *from* `user_progress`, so a word with no progress row for that user is neither known nor unknown: it never appears in Vocabulary and can never be quizzed, with nothing in the UI hinting it exists. `saveToCloud` only upserts progress for words already in local state, so it never backfills. A raw SQL insert into `vocabulary` therefore needs a matching `user_progress` insert per user (`knowledge` 50, all four modalities at 70, `paused` false is the convention `addCustomWord` uses). 97 such orphans accumulated this way (Sep 18 2026) and were backfilled as known.
+
+**Sync resolves a concept to its vocabulary row by `concept.id` first.** Every `Concept` already carries the vocabulary UUID, so `resolveVocabularyId` trusts it before falling back to word/pinyin/meaning text matching. The text fallbacks exist for legacy local caches but cannot separate homographs — 地 is both *de* (particle) and *dì* (ground), so the old word-only fallback bailed out as "ambiguous" and silently dropped it from every sync. That cost five chat-added words (*dì*, *bù shǎo*, *dǒng*, *bù dǒng*, *bù zhīdào*). Unresolvable words now come back in `SyncResult.skippedWords` instead of only a console warning.
+
 **Concept** (client-side): static vocab fields (including semantic `category`) + per-modality knowledge/attempt metadata + overall knowledge (weighted average) + paused/selection state.
 
 **Quiz Attempt** (analytics + ML): vocabulary id, question/answer modalities, selected option, correctness, difficulty context, knowledge snapshot. Do not remove fields without migration and analytics review.
@@ -325,7 +329,7 @@ Template-driven grammar/word-order practice using known vocabulary (~130 templat
 
 ### Content/Vocabulary Data
 
-`src/data/hsk1_vocabulary.json` — canonical word list (354 entries). This is the **primary data source** the app reads from (see "Vocabulary Data Flow" above). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: compound phrases tied to their positive chapter.
+`src/data/hsk1_vocabulary.json` — canonical word list (354 entries). This is the **primary data source** the app reads from (see "Vocabulary Data Flow" above). Ch 1-15: standard HSK1 textbook. Ch 16: advanced function words (particles, prepositions, conjunctions, common verbs, noun morphemes). Negative chapters: supplementary entries tied to their positive chapter — mostly compound phrases (`zài duìmiàn`, `mǎi dōngxi`), but also five single characters added alongside a chapter's theme (`wài`/`zuǒ`/`yòu` at −10, `ǎi`/`gāo` at −16). The Vocabulary page labels every negative chapter "Compound phrase" and hides them behind the Phrases toggle, so those five are mislabelled and hidden; the sign is intentional, not a data error.
 
 **TTS polyphonic characters**: Browser SpeechSynthesis mispronounces polyphonic characters (多音字) like 了/的/地/得/着. Pre-recorded audio clips (`public/audio/tts/`) are used instead, generated via macOS `say -v Tingting` + ffmpeg. See `STATIC_AUDIO` map in `src/services/ttsService.ts`.
 
