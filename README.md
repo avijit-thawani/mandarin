@@ -135,8 +135,9 @@ User answers, the UI shows the result, and the attempt logs asynchronously on th
 
 ### Difficulty and Prediction Guidance
 
-- A single **Difficulty** control (easy/hard/expert, set in Profile → Quiz Settings) drives both distractor trickiness AND word selection. All levels use 4 options. `easy` quizzes a random mix; `hard`/`expert` target weak & stale words (`selectionForDifficulty` in `quiz.ts`) to keep accuracy in the ~70-80% band even with few cards/day. There is no separate manual "question selection" control.
+- **Difficulty** (easy/hard/expert, Profile → Quiz Settings) drives distractor trickiness, and also supplies the *default* word selection via `selectionForDifficulty` (`easy` → random, otherwise → weak). **Which words** (Profile → Quiz Settings) overrides that default; `QuizPage` reads the stored `quiz.questionSelection` and only falls back to the difficulty-derived value when nothing valid is stored. Until Sep 2026 `QuizPage` overwrote the stored value unconditionally, so the setting was dead and every non-easy user was pinned to `weak`.
 - **Selection-time knowledge decay**: `effectiveKnowledge` in `knowledge.ts` virtually fades stale "mastered" words toward a floor (default ~1.5 pts/idle day, floor 40) so they resurface in hard/expert selection. This decay is NOT persisted — it never writes to `user_progress`, only influences which words are picked.
+- **Untested words need a handicap against decay** (`UNTESTED_PRIORITY_BONUS` in `quiz.ts`). A practised word's score is evidence that decay then drags to the floor of 40; an untested word's score is only a chapter-based guess that never decays, because decay keys off `lastAttempt`. Comparing them directly meant any word idle ~20 days outranked every word never seen, so newly added vocabulary could never enter rotation — measured on a real 478-word account, the highest-ranked untested word sat 111th, unreachable at 20 cards/session. `weak` selection therefore adds a flat bonus for words with zero attempts across the focused modalities. The bonus must exceed the worst-case prior-to-floor gap (70 − 40) by more than the ±10 random jitter. It is self-limiting: one attempt and the word rejoins normal ranking.
 - Difficulty/strategy behavior changes often; treat `src/utils/quiz.ts` as source-of-truth. Keep README to intent and invariants; put exact heuristics, scoring formulas, and ML decision boundaries in code docstrings next to the implementation.
 
 ### Distractor Selection
@@ -186,7 +187,7 @@ All users must sign in via Supabase. Guest mode has been removed. RLS ensures us
 
 **Trivia Frequency (0-3)** — effectively an on/off switch: `0` disables trivia entirely, any other value enables it. How many cards actually appear is decided by ranking (see "Trivia Cards"), not by the setting, so the 1/2/3 interval scale in `TRIVIA_FREQUENCY_META` is vestigial.
 
-**Other controls** — cards per session, character size, pinyin style, TTS voice/rate/auto-play, quiz difficulty (easy/hard/expert, which also drives weak/stale word selection + decay), PWA reminders (per-device local time + timezone, default 4:00 PM).
+**Other controls** — cards per session, character size, pinyin style, TTS voice/rate/auto-play, quiz difficulty (easy/hard/expert, which also seeds the default word selection + decay), **Which words** (weak / coverage / due review / random, overriding that default), PWA reminders (per-device local time + timezone, default 4:00 PM).
 
 **Theme is locked to `duo`** for everyone: `THEME_PICKER_ENABLED = false` (`src/types/settings.ts`) hides the picker and `activeTheme()` (`settingsStore.ts`) pins what's applied. The other 7 themes and their CSS are untouched, and stored preferences are deliberately *not* rewritten, so flipping the flag back restores each user's old choice instead of stranding everyone on duo.
 

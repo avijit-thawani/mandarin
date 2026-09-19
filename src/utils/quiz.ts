@@ -504,6 +504,14 @@ function selectRandomConcepts(concepts: Concept[], count: number): Concept[] {
   return selected;
 }
 
+// An untested word's knowledge is only a chapter-based guess, while a practised word
+// earns a real score that decay then drags down to KNOWLEDGE_DECAY_FLOOR. Without this
+// bonus the two are compared as if equally evidenced, so every word idle for ~20 days
+// outranks every word never seen, and newly added vocabulary can never enter rotation.
+// Must exceed the gap between a fresh word's prior and the decay floor (70 - 40 = 30
+// at worst) by more than the ±10 random jitter below.
+export const UNTESTED_PRIORITY_BONUS = 35;
+
 /**
  * Select concepts with lowest knowledge (weak spots)
  * Weighted by learning focus to prioritize relevant modalities
@@ -520,22 +528,26 @@ function selectWeakConcepts(
     // Weighted average of modality knowledge, inverted
     let weightedKnowledge = 0;
     let totalWeight = 0;
-    
+    let attemptsInFocus = 0;
+
     const modalities = ['character', 'pinyin', 'meaning', 'audio'] as const;
     for (const mod of modalities) {
       const weight = learningFocus[mod];
       if (weight > 0) {
         weightedKnowledge += effectiveKnowledge(c.modality[mod], now) * weight;
         totalWeight += weight;
+        attemptsInFocus += c.modality[mod].attempts;
       }
     }
-    
+
     const avgKnowledge = totalWeight > 0 ? weightedKnowledge / totalWeight : c.knowledge;
-    
+
     // Invert: lower knowledge = higher score for selection
     // Add small random factor for variety
-    const score = (100 - avgKnowledge) + Math.random() * 10;
-    
+    const score = (100 - avgKnowledge)
+      + (attemptsInFocus === 0 ? UNTESTED_PRIORITY_BONUS : 0)
+      + Math.random() * 10;
+
     return { concept: c, score };
   });
   
