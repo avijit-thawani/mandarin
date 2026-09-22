@@ -64,6 +64,7 @@ Binary categories only: **known** (checkbox checked) is in the Revise/Quiz pool,
   - **Per-day goal**: the goal stored in `daily_goals` if present, else inferred by "always pick the larger candidate goal {50,30,20}" so lowering the daily setting can never retroactively inflate a streak.
   - **Carry-forward banking**: extra goals completed in a day bank "freezes" that carry forward chronologically and cover later missed days (unlimited).
   - **Recovery**: a streak-breaking miss (empty bank) stays recoverable for `RECOVERY_WINDOW` (20) days — extra quizzes beyond the daily goal pay off the gap and reconnect the prior run. Only offered when a real prior streak exists. `computeStreak` reports `recoverableStreak` and `quizzesNeeded`; Profile renders this as "do N quizzes today".
+  - **Recovery order is oldest-gap-first**, since the oldest pending gap is the one closest to expiring out of the window. Paying the newest gap first (the behaviour until Sep 2026) left an older hole to expire as permanently broken, which severed the chain behind it and silently shrank the streak the user could ever restore. Expiry is evaluated before extras are spent, so extras are never wasted on an already-dead gap.
 - `src/pages/VocabularyPage.tsx`: vocabulary list, filters, toggle flow.
 - `src/pages/StudyPage.tsx`: flashcard behavior.
 - `src/pages/QuizPage.tsx`: question lifecycle, mixed MCQ + syntax session, correctness UI (post-answer: all options reveal full character/pinyin/meaning), logging controls.
@@ -381,6 +382,7 @@ Adding FK constraints against remapped IDs without a mapping table; `ON DELETE C
 6. **PWA push dropped on mobile (Mar 2026)** — short TTL + default urgency = silent drops in Doze. **Lesson**: use `TTL: 14400` + `urgency: 'high'`.
 7. **Streak showed 0 (Apr 2026)** — Supabase `max_rows` silently truncated `.limit(10000)`. **Lesson**: always paginate with `.range()` for >1000 rows.
 8. **Chat history held back (Jul 2026)** — built, then deliberately not shipped because its migration wasn't applied. See "Chat History (Not Shipped)". **Lesson**: verify a table exists in prod *before* the code that reads it is ready to merge, not after.
+9. **Streak recovery paid the wrong gap (Sep 2026)** — extras were spent newest-gap-first, so older gaps expired out of `RECOVERY_WINDOW` and permanently severed the run behind them; users lost restorable streak length with no warning. **Lesson**: when credits expire, spend them earliest-deadline-first.
 
 ---
 

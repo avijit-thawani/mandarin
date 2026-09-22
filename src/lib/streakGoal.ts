@@ -108,15 +108,23 @@ export function computeStreak(
   let bank = 0;
   const pending: number[] = [];
   for (let i = 0; i < n; i++) {
+    // Expire pending gaps that can no longer be recovered, before spending
+    // today's extras, so everything left in `pending` is inside the window.
+    while (pending.length && i - pending[0] > RECOVERY_WINDOW) {
+      const g = pending.shift() as number;
+      kind[g] = 'broken';
+    }
+
     if (kind[i] === 'active') {
       let extras = qty[i] - 1;
-      // Recovery spends extras on the MOST RECENT pending gap first, protecting
-      // the chain ending today. Spending on the oldest gap instead would starve
-      // the recent streak and make the result non-monotonic in RECOVERY_WINDOW.
+      // Recovery spends extras on the EARLIEST pending gap first, because the
+      // oldest gap is the one closest to expiring out of RECOVERY_WINDOW. Paying
+      // the newest gap first leaves an older hole that expires as permanently
+      // broken, which severs the chain behind it and truncates the streak the
+      // user can ever restore. Oldest-first maximises how many gaps are ever
+      // recovered; a newer gap skipped now stays recoverable for longer.
       while (extras > 0 && pending.length) {
-        const g = pending[pending.length - 1];
-        if (i - g > RECOVERY_WINDOW) break; // most recent pending is out of window
-        pending.pop();
+        const g = pending.shift() as number;
         kind[g] = 'recovered';
         extras--;
       }
@@ -130,12 +138,6 @@ export function computeStreak(
       kind[i] = 'frozen';
     } else {
       pending.push(i);
-    }
-
-    // Expire pending gaps that can no longer be recovered.
-    while (pending.length && i - pending[0] > RECOVERY_WINDOW) {
-      const g = pending.shift() as number;
-      kind[g] = 'broken';
     }
   }
   for (const g of pending) kind[g] = 'pending';
