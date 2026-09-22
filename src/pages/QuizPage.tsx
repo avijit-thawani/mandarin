@@ -152,9 +152,11 @@ const TRIVIA_EARLIEST_FRACTION = 0.5;
 // so what the user sees is curated rather than whatever landed at a fixed position.
 const TRIVIA_SHOW_FRACTION = 0.1;
 
-// Debug: show every generated card rather than only the top-ranked ones.
-// Set to false to exercise the real "generate all, keep the best" behaviour.
-const TRIVIA_DEBUG_SHOW_ALL = true;
+// Debug: show every generated card rather than only the top-ranked ones. Left `true`
+// by accident from the feature's first commit, which silently disabled every later
+// curation change — the ranking effect returns early on it, so `rankTrivia` never ran
+// in production and `TRIVIA_SHOW_FRACTION` had no effect. Keep this `false` on main.
+const TRIVIA_DEBUG_SHOW_ALL = false;
 
 // Gap between kicking off each background generation, so a 10-question quiz doesn't
 // fire ten LLM calls simultaneously. All finish long before their slot is reached.
@@ -306,7 +308,11 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
 
     setState({ status: 'loading' });
     try {
-      const fact = await fetchTrivia(focus, availableWords, triviaCoveredWords.current);
+      // `availableWords` is the quiz pool; the full concept list goes along so the
+      // server's duplicate check isn't scoped to this session's filter.
+      const fact = await fetchTrivia(
+        focus, availableWords, triviaCoveredWords.current, undefined, store.concepts,
+      );
       triviaCoveredWords.current = [...triviaCoveredWords.current, focus.word];
       setState({ status: 'ready', fact });
 
@@ -319,7 +325,7 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
       console.error('Trivia error:', message);
       setState({ status: 'error', message });
     }
-  }, [availableWords]);
+  }, [availableWords, store.concepts]);
 
   // Kick off background generation for every slot in the session, staggered.
   const startTriviaGeneration = useCallback((slots: Array<{ slotId: string; itemIndex: number; focus: Concept }>) => {
@@ -513,7 +519,12 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
 
   // Add a word suggested by a trivia card to the user's vocabulary in one tap
   const handleAddSuggestedWord = useCallback(async (suggestion: TriviaSuggestion) => {
-    if (store.getConceptByWord(suggestion.word)) {
+    const existing = store.getConceptByWord(suggestion.word);
+    if (existing) {
+      // A word the learner has but left unchecked is not in the quiz pool, so "add"
+      // means enrol it. Inserting a second vocabulary row instead would duplicate the
+      // word; reporting "Added" and doing nothing was the old silent no-op.
+      if (existing.paused) store.togglePaused(existing.id);
       setAddedBonusWords(prev => ({ ...prev, [suggestion.word]: 'added' }));
       return;
     }
@@ -538,8 +549,13 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     }
   }, [store, triviaCandidates]);
 
+  // Only an accepted word counts as known here: a paused one still needs the Add
+  // button, which enrols it rather than inserting a duplicate.
   const isKnownWord = useCallback(
-    (word: string) => Boolean(store.getConceptByWord(word)),
+    (word: string) => {
+      const concept = store.getConceptByWord(word);
+      return Boolean(concept && !concept.paused);
+    },
     [store],
   );
 

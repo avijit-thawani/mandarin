@@ -15,6 +15,30 @@ import type { TriviaFact } from './triviaService';
 /** Row id for a logged card, used to attach the later outcomes. Null when logging failed. */
 export type TriviaLogId = string | null;
 
+/** Postgres "relation does not exist" — i.e. the migration was never applied here. */
+const UNDEFINED_TABLE = '42P01';
+
+// The swallow is deliberate (analytics must not disturb a quiz) but it hid the most
+// likely reason for the table being empty: an unapplied migration reads as "the
+// feature does nothing", indistinguishable from a feature that never ran. Warned once
+// per page load, named, rather than a generic error per card.
+let missingTableReported = false;
+
+function report(context: string, err: unknown): void {
+  const code = (err as { code?: string } | null)?.code;
+  if (code === UNDEFINED_TABLE) {
+    if (missingTableReported) return;
+    missingTableReported = true;
+    console.error(
+      '[triviaLog] the trivia_log table does not exist in this Supabase project, so no ' +
+      'trivia analytics are being recorded. Apply supabase/migrations/' +
+      '20260918094500_create_trivia_log.sql. Trivia cards themselves are unaffected.',
+    );
+    return;
+  }
+  console.error(`[triviaLog] ${context}:`, err);
+}
+
 /**
  * Record a generated card. Never throws: analytics failing must not disturb a quiz,
  * so errors are logged to the console and the caller carries on with a null id.
@@ -51,7 +75,7 @@ export async function logTriviaCard(
     if (error) throw error;
     return data.id as string;
   } catch (err) {
-    console.error('[triviaLog] failed to log card:', err);
+    report('failed to log card', err);
     return null;
   }
 }
@@ -60,12 +84,12 @@ export async function logTriviaCard(
 export async function markTriviaShown(id: TriviaLogId): Promise<void> {
   if (!id) return;
   const { error } = await supabase.from('trivia_log').update({ shown: true }).eq('id', id);
-  if (error) console.error('[triviaLog] failed to mark shown:', error);
+  if (error) report('failed to mark shown', error);
 }
 
 /** Mark that the user accepted the card's suggestion and added the word. */
 export async function markTriviaWordAdded(id: TriviaLogId): Promise<void> {
   if (!id) return;
   const { error } = await supabase.from('trivia_log').update({ word_added: true }).eq('id', id);
-  if (error) console.error('[triviaLog] failed to mark word added:', error);
+  if (error) report('failed to mark word added', error);
 }

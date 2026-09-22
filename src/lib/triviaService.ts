@@ -117,10 +117,23 @@ export async function fetchTrivia(
   knownWords: Concept[],
   alreadyCoveredWords: string[] = [],
   signal?: AbortSignal,
+  allConcepts?: Concept[],
 ): Promise<TriviaFact> {
   // The known-word list sent for flavour is capped, but the shape checks must see the
   // whole vocabulary: a suggestion validated against a 120-word sample can still be a
   // word the learner already has, or a compound built from characters they don't.
+  //
+  // `knownWords` is the quiz's own pool, so it is narrowed by both `paused` and the
+  // "for today" filter, and it is only ever prompt flavour. The checks are scoped
+  // independently:
+  //   - atoms and owned characters come from every *accepted* word, filter or not.
+  //     Derived from a chapter-filtered pool they misfire, offering as "missing" a
+  //     character the learner owns in a chapter this session excluded.
+  //   - the duplicate check sees every row in the vocabulary, accepted or not. A word
+  //     they have unchecked is still a word they have, and offering it renders a card
+  //     whose only state is a non-actionable "In vocab".
+  const vocabulary = allConcepts ?? knownWords;
+  const accepted = vocabulary.filter(c => !c.paused);
   const response = await fetch(TRIVIA_ENDPOINT, {
     method: 'POST',
     headers: await authHeaders(),
@@ -128,9 +141,9 @@ export async function fetchTrivia(
       focusWord: toPayloadWord(focus),
       knownWords: selectContextWords(focus, knownWords).map(toPayloadWord),
       recentWords: alreadyCoveredWords,
-      missingAtoms: findMissingAtoms(knownWords),
-      ownedCharacters: ownedCharacters(knownWords),
-      allKnownWords: knownWords.map(w => w.word),
+      missingAtoms: findMissingAtoms(accepted),
+      ownedCharacters: ownedCharacters(accepted),
+      allKnownWords: vocabulary.map(w => w.word),
     }),
     signal,
   });

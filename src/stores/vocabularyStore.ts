@@ -234,7 +234,14 @@ export function useVocabularyStore(): VocabularyStore {
     [concepts]
   );
 
-  // Add a custom word via Chat (inserts into Supabase vocabulary + user_progress)
+  // Add a custom word via Chat or a trivia suggestion (Supabase vocabulary + user_progress).
+  //
+  // The user_progress row is written here rather than left to the debounced sync. A
+  // vocabulary row on its own is invisible: loadFromCloud selects *from* user_progress
+  // and replaces the local cache wholesale, so if the sync hadn't fired before the next
+  // app open, the word vanished from Quiz, Study and Vocab while still sitting in the
+  // shared catalog with no surface able to reach it. That is how the 97 orphans of
+  // Sep 18 2026 accumulated, and an accepted trivia recommendation took the same path.
   const addCustomWord = useCallback(async (
     word: string,
     pinyin: string,
@@ -242,20 +249,34 @@ export function useVocabularyStore(): VocabularyStore {
     partOfSpeech: string,
     category: string = 'other'
   ) => {
-    // Insert into Supabase vocabulary table (source: 'chat')
-    const { data: vocabRow, error: vocabError } = await supabase
+    // Reuse an existing catalog row rather than inserting a duplicate word. Matched on
+    // word + pinyin, never word alone: 地 is both de and dì, and they are distinct words.
+    const { data: existingVocab } = await supabase
       .from('vocabulary')
-      .insert({ word, pinyin, meaning, part_of_speech: partOfSpeech, chapter: 0, source: 'chat', category })
       .select('id')
-      .single();
+      .eq('word', word)
+      .eq('pinyin', pinyin)
+      .limit(1)
+      .maybeSingle();
 
-    if (vocabError) {
-      console.error('[VocabStore] Failed to insert custom word:', vocabError.message);
-      throw new Error(vocabError.message);
+    let vocabularyId = existingVocab?.id as string | undefined;
+
+    if (!vocabularyId) {
+      const { data: vocabRow, error: vocabError } = await supabase
+        .from('vocabulary')
+        .insert({ word, pinyin, meaning, part_of_speech: partOfSpeech, chapter: 0, source: 'chat', category })
+        .select('id')
+        .single();
+
+      if (vocabError) {
+        console.error('[VocabStore] Failed to insert custom word:', vocabError.message);
+        throw new Error(vocabError.message);
+      }
+      vocabularyId = vocabRow.id as string;
     }
 
     const newConcept: Concept = {
-      id: vocabRow.id,
+      id: vocabularyId,
       word,
       pinyin,
       part_of_speech: partOfSpeech as Concept['part_of_speech'],
@@ -267,6 +288,30 @@ export function useVocabularyStore(): VocabularyStore {
       knowledge: 50,
       paused: false,
     };
+
+    // Enrol the word for this user straight away. Upsert, so re-adding a word that
+    // already has progress leaves the earned knowledge alone instead of resetting it.
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error: progressError } = await supabase
+        .from('user_progress')
+        .upsert(
+          {
+            user_id: user.id,
+            vocabulary_id: vocabularyId,
+            knowledge: newConcept.knowledge,
+            modality: newConcept.modality,
+            paused: false,
+          },
+          { onConflict: 'user_id,vocabulary_id', ignoreDuplicates: true },
+        );
+
+      // Not fatal: the word is live locally and the next sync upserts the same row.
+      // Worth surfacing, because this is the step whose absence created the orphans.
+      if (progressError) {
+        console.error('[VocabStore] Failed to enrol custom word:', progressError.message);
+      }
+    }
 
     setConcepts(prev => [...prev, newConcept]);
     markPendingSync();
