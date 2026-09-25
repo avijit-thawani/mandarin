@@ -16,7 +16,7 @@ import { haptic } from '../services/hapticService';
 import { QuizMascot } from '../components/mascot/QuizMascot';
 import { mascotAppearsForSession } from '../components/mascot/mascotVisibility';
 import { useAuth } from '../hooks/useAuth';
-import { OPTION_SELECTION_META, SYNTAX_FREQUENCY_META } from '../types/settings';
+import { OPTION_SELECTION_META, SYNTAX_FREQUENCY_META, isQuestionSelection } from '../types/settings';
 import type { OptionSelection, FocusLevel } from '../types/settings';
 import { SyntaxExerciseCard } from '../components/SyntaxExerciseCard';
 import { TriviaCard, type TriviaState } from '../components/TriviaCard';
@@ -200,10 +200,13 @@ export function QuizPage({ store, settingsStore, todayFilter, onShowHelp, onStre
     selectionStrategy?: string; // Legacy
   } | undefined;
   const optionSelection = (rawQuiz?.optionSelection ?? rawQuiz?.difficulty ?? 'hard') as OptionSelection;
+  // An explicit choice wins; difficulty only supplies the default for users who have
+  // never picked one (see selectionForDifficulty).
+  const storedSelection = rawQuiz?.questionSelection ?? rawQuiz?.selectionStrategy;
   const quizSettings = {
-    // Question selection is now driven by difficulty (see selectionForDifficulty),
-    // so harder difficulty automatically targets weak/stale words instead of random.
-    questionSelection: selectionForDifficulty(optionSelection),
+    questionSelection: isQuestionSelection(storedSelection)
+      ? storedSelection
+      : selectionForDifficulty(optionSelection),
     optionSelection,
   };
   

@@ -24,6 +24,10 @@ export type OptionSelection = 'easy' | 'hard' | 'expert';
 // Question selection - controls which concepts get quizzed
 export type QuestionSelection = 'random' | 'weak' | 'leastTested' | 'dueReview';
 
+export function isQuestionSelection(value: unknown): value is QuestionSelection {
+  return typeof value === 'string' && value in QUESTION_SELECTION_META;
+}
+
 export interface QuizSettings {
   questionSelection: QuestionSelection;  // Which concepts to quiz
   optionSelection: OptionSelection;      // How tricky the wrong options are

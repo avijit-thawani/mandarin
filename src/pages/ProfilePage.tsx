@@ -38,7 +38,8 @@ import type {
   PinyinDisplay,
   OptionSelection,
 } from '../types/settings';
-import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, SYNTAX_DIRECTION_OPTIONS, SYNTAX_FREQUENCY_META, OPTION_SELECTION_META, THEME_PICKER_ENABLED } from '../types/settings';
+import { FOCUS_LABELS, FOCUS_DESCRIPTIONS, THEME_META, SPEECH_RATE_PRESETS, SYNTAX_DIRECTION_OPTIONS, SYNTAX_FREQUENCY_META, OPTION_SELECTION_META, QUESTION_SELECTION_META, THEME_PICKER_ENABLED, isQuestionSelection } from '../types/settings';
+import { selectionForDifficulty } from '../utils/quiz';
 import type { SyntaxDirectionRatio } from '../types/settings';
 import { MODALITY_INFO, type Modality } from '../types/vocabulary';
 import { 
@@ -348,6 +349,10 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
   const focusLevels: FocusLevel[] = [0, 1, 2, 3];
   const focusFields: (keyof LearningFocus)[] = ['character', 'pinyin', 'meaning', 'audio'];
   const modalities: Modality[] = ['character', 'pinyin', 'meaning', 'audio'];
+  // Mirrors QuizPage: an explicit stored choice wins, difficulty supplies the default.
+  const questionSelection = isQuestionSelection(settings.quiz?.questionSelection)
+    ? settings.quiz.questionSelection
+    : selectionForDifficulty((settings.quiz?.optionSelection ?? 'hard') as OptionSelection);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -663,6 +668,35 @@ export function ProfilePage({ settingsStore, vocabStore, onSave, onLogout, userE
             </div>
             <p className="text-xs text-base-content/50 mt-2">
               {OPTION_SELECTION_META[(settings.quiz?.optionSelection ?? 'hard') as OptionSelection].description}
+            </p>
+          </div>
+
+          <div className="bg-base-200 rounded-xl p-4">
+            <div className="mb-3">
+              <h3 className="font-medium">Which words</h3>
+              <p className="text-xs text-base-content/60">
+                Picks which of your known words a session draws from. Difficulty sets the
+                default; choosing here overrides it.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {(['weak', 'leastTested', 'dueReview', 'random'] as const).map((opt) => {
+                const meta = QUESTION_SELECTION_META[opt];
+                const isActive = questionSelection === opt;
+                return (
+                  <button
+                    key={opt}
+                    className={`btn btn-sm flex-1 gap-1 ${isActive ? 'btn-primary' : 'btn-ghost border border-base-300'}`}
+                    onClick={() => settingsStore.setQuizSettings({ questionSelection: opt })}
+                  >
+                    <span>{meta.emoji}</span>
+                    <span>{meta.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-base-content/50 mt-2">
+              {QUESTION_SELECTION_META[questionSelection].description}
             </p>
           </div>
         </section>
