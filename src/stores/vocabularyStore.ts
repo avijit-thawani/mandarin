@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Concept, Modality, ProgressSnapshot } from '../types/vocabulary';
-import { createInitialModality, computeConceptKnowledge, updateModalityScore, computeModalityAverages, countByKnowledge } from '../utils/knowledge';
+import { createInitialModality, getInitialKnowledge, computeConceptKnowledge, updateModalityScore, computeModalityAverages, countByKnowledge } from '../utils/knowledge';
 import { fetchFromCloud, saveToCloud, isValidModality, type SyncResult } from '../lib/syncService';
 import { supabase } from '../lib/supabase';
 import type { LearningFocus } from '../types/settings';
@@ -286,7 +286,7 @@ export function useVocabularyStore(): VocabularyStore {
       source: 'chat',
       category: category as Concept['category'],
       modality: createInitialModality(0),
-      knowledge: 50,
+      knowledge: getInitialKnowledge(0),
       paused: false,
     };
 

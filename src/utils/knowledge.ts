@@ -8,15 +8,24 @@ import { createDefaultModalityScore } from '../types/vocabulary';
 // INITIAL KNOWLEDGE (Chapter-based Prior)
 // ═══════════════════════════════════════════════════════════
 
+// Words you added yourself (chapter 0) carry no frequency signal, and you asked for
+// them precisely because you did not know them — so they get the lowest prior.
+// Without this they were clamped up into chapter 1's prior of 70, i.e. the app's
+// most-confident score, which buried them at the bottom of weak-word selection.
+export const USER_ADDED_KNOWLEDGE = 30;
+
 /**
  * Calculate initial knowledge based on chapter (word frequency proxy)
  * Earlier chapters = more common words = easier = higher prior
  * 
+ * Chapter 0: 30 (user-added via Chat/trivia — no frequency prior)
  * Chapter 1: 70 (你, 好, 您 - very common)
  * Chapter 8: 50 (medium frequency)
  * Chapter 15: 30 (less common)
  */
 export function getInitialKnowledge(chapter: number): number {
+  if (chapter <= 0) return USER_ADDED_KNOWLEDGE;
+
   // Linear interpolation: chapter 1 → 70, chapter 15 → 30
   const minKnowledge = 30;
   const maxKnowledge = 70;

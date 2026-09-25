@@ -514,6 +514,11 @@ function selectWeakConcepts(
   learningFocus: LearningFocus
 ): Concept[] {
   const now = Date.now();
+  // A word you have never been asked about has no evidence behind its score — only a
+  // chapter prior, which can be as high as 70. Decay can't rescue it either, since
+  // effectiveKnowledge needs a lastAttempt. Without this boost a newly added word sits
+  // below every word you have actually practised and is never picked at all.
+  const UNSEEN_BOOST = 40;
   // Score each concept by weakness (lower effective knowledge = higher score).
   // Uses decay-aware effectiveKnowledge so stale "mastered" words resurface.
   const scored = concepts.map(c => {
@@ -522,11 +527,13 @@ function selectWeakConcepts(
     let totalWeight = 0;
     
     const modalities = ['character', 'pinyin', 'meaning', 'audio'] as const;
+    let attempts = 0;
     for (const mod of modalities) {
       const weight = learningFocus[mod];
       if (weight > 0) {
         weightedKnowledge += effectiveKnowledge(c.modality[mod], now) * weight;
         totalWeight += weight;
+        attempts += c.modality[mod].attempts;
       }
     }
     
@@ -534,7 +541,11 @@ function selectWeakConcepts(
     
     // Invert: lower knowledge = higher score for selection
     // Add small random factor for variety
-    const score = (100 - avgKnowledge) + Math.random() * 10;
+    let score = (100 - avgKnowledge) + Math.random() * 10;
+
+    if (attempts === 0) {
+      score += UNSEEN_BOOST;
+    }
     
     return { concept: c, score };
   });
